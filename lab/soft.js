@@ -572,15 +572,8 @@ export async function build({ THREE, renderer, scene, camera, L }) {
   }
 }
 
-// рукописный шрифт для экрана: Caveat с Google Fonts (кириллица), без сети — системный рукописный
+// рукописный шрифт для экрана: Caveat (свои файлы, @fontsource), без него — системный рукописный
 async function handFont() {
-  try {
-    const css = await (await fetch('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap')).text();
-    const faces = [...css.matchAll(/@font-face\s*{([^}]*)}/g)].map(([, b]) => {
-      const ur = /unicode-range:\s*([^;]+);/.exec(b);
-      return new FontFace('LabHand', `url(${/url\(([^)]+)\)/.exec(b)[1]})`, { weight: '600', ...(ur ? { unicodeRange: ur[1] } : {}) });
-    });
-    await Promise.all(faces.map((f) => f.load().then(() => document.fonts.add(f))));
-    return 'LabHand, "Segoe Print", cursive';
-  } catch { return '"Segoe Print", cursive'; }
+  try { await document.fonts.load('600 64px Caveat', 'вместе'); return 'Caveat, "Segoe Print", cursive'; }
+  catch { return '"Segoe Print", cursive'; }
 }

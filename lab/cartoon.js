@@ -15,13 +15,6 @@ const P = {
 };
 
 async function loadFonts() {
-  if (!document.querySelector('link[data-cartoon-fonts]')) {
-    const l = document.createElement('link');
-    l.rel = 'stylesheet'; l.dataset.cartoonFonts = '1';
-    l.href = 'https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@800&display=block';
-    document.head.appendChild(l);
-    await new Promise((r) => { l.onload = l.onerror = r; });
-  }
   await Promise.race([
     Promise.all([document.fonts.load('700 64px Caveat', 'вместе 740 дней мы'), document.fonts.load('800 64px Nunito', '0123456789:')]),
     new Promise((r) => setTimeout(r, 3000)),

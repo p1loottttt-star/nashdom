@@ -1,5 +1,5 @@
 // Облачный режим: Supabase напрямую из браузера. Защита — RLS (supabase/schema.sql): пара видит только свой дом.
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { createClient } from '@supabase/supabase-js';
 import { signIn, onboard, offerMigration } from './auth.js';
 
 let sb, H, uid, cid, chan, offset = 0, mine = {};

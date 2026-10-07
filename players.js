@@ -198,7 +198,7 @@ export async function file(box, src, on) {
   box.append(v);
   let hls = null;
   if (src.hls && !v.canPlayType('application/vnd.apple.mpegurl')) {
-    const { default: Hls } = await import('https://cdn.jsdelivr.net/npm/hls.js@1/+esm');
+    const { default: Hls } = await import('hls.js');
     hls = new Hls();
     hls.on(Hls.Events.ERROR, (_, d) => { if (d.fatal) on('error', 'Поток не открылся — ссылка устарела или закрыта'); });
     hls.loadSource(url); hls.attachMedia(v);

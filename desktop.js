@@ -1,13 +1,8 @@
 import { DATA } from './data.js';
 import { pop } from './sound.js';
 import * as store from './store.js';
-import { renderGallery } from './gallery.js';
-import { renderPlans } from './plans.js';
-import { renderTube } from './tube.js';
-import { renderShop } from './shop.js';
 import { renderQuiz, badge as quizBadge } from './quiz.js';
 import { renderGames, badge as gamesBadge } from './games.js';
-import { renderProfile } from './profile.js';
 
 // настройки этого устройства (кто я, звук, качество); общие данные — в store.js
 export const load = (k, seed) => { try { return JSON.parse(localStorage.getItem('lr:' + k)) ?? seed; } catch { return seed; } };
@@ -55,14 +50,15 @@ export function toast(text, ms = 2600) {
 store.onEarned((n, reason) => toast(`+${n} ♥ ${REASON[reason] || ''}`));
 store.onFail(() => toast('не сохранилось — проверь интернет'));
 
+// тяжёлые окна (CoupleTube, магазин, профиль, галерея, планы) грузятся при первом открытии
 const APPS = {
-  tube: { title: 'CoupleTube', wide: true, xl: true, render: renderTube },
-  shop: { title: 'Магазин', wide: true, render: renderShop },
+  tube: { title: 'CoupleTube', wide: true, xl: true, render: (el) => import('./tube.js').then((m) => m.renderTube(el)) },
+  shop: { title: 'Магазин', wide: true, render: (el) => import('./shop.js').then((m) => m.renderShop(el)) },
   quiz: { title: 'Тесты', wide: true, render: renderQuiz },
   games: { title: 'Игры', wide: true, render: renderGames },
-  profile: { title: 'Профиль', wide: true, render: renderProfile },
-  gallery: { title: 'Галерея', wide: true, render: renderGallery },
-  plans: { title: 'Наши планы', wide: true, render: renderPlans },
+  profile: { title: 'Профиль', wide: true, render: (el) => import('./profile.js').then((m) => m.renderProfile(el)) },
+  gallery: { title: 'Галерея', wide: true, render: (el) => import('./gallery.js').then((m) => m.renderGallery(el)) },
+  plans: { title: 'Наши планы', wide: true, render: (el) => import('./plans.js').then((m) => m.renderPlans(el)) },
 
   thoughts: {
     title: 'Мысли',
@@ -148,7 +144,7 @@ export function openDesktop(app, done) {
   requestAnimationFrame(() => desk.classList.add('on'));
   if (!nekoLoaded) {
     nekoLoaded = true;
-    const base = 'https://cdn.jsdelivr.net/gh/adryd325/oneko.js@main/';
+    const base = 'https://cdn.jsdelivr.net/gh/adryd325/oneko.js@5281d057c4ea9bd4f6f997ee96ba30491aed16c0/'; // ponytail: закреплён на коммите; лучше положить к себе (MIT)
     const s = h('script', { src: base + 'oneko.js' });
     s.dataset.cat = base + 'oneko.gif';
     document.body.append(s);

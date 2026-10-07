@@ -96,7 +96,8 @@ export function renderProfile(el) {
       h('h4', { textContent: `Копилка: 💗 ${store.balance()}` }),
       rows.length ? h('ul', { className: 'shist' }, ...rows.map((r) => h('li', {}, h('b', { className: r.amount > 0 ? 'plus' : '', textContent: (r.amount > 0 ? '+' : '') + r.amount }), ` ${histLabel(r)}`))) : h('p', { textContent: 'Баллы появятся за записки, фото, планы и кино вместе.' }));
 
-    el.replaceChildren(h('div', { className: 'profile' }, h('div', { className: 'pfcards' }, mine, other), house, wallet));
+    el.replaceChildren(h('div', { className: 'profile' }, h('div', { className: 'pfcards' }, mine, other), house, wallet,
+      h('p', { className: 'pver', textContent: 'версия ' + __VERSION__ })));
   };
   draw();
   const offs = [store.onPeople(() => redraw()), store.onLedger(() => redraw())];

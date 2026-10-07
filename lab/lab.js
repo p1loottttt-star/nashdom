@@ -1,3 +1,6 @@
+import '@fontsource/caveat/600.css';
+import '@fontsource/caveat/700.css';
+import '@fontsource/nunito/800.css';
 // Лаборатория стилей: одна композиция (layout.js), три разных конвейера рендера (cartoon.js / real.js / soft.js).
 // Вариант = модуль с export async function build(ctx) → { render(dt, t), resize(w, h, pr), dispose? }.
 // ctx: { THREE, renderer, scene, camera, L (layout.js) }. Вариант сам решает про свет, материалы, тени и пост-обработку.

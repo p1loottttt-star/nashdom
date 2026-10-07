@@ -7,7 +7,7 @@ import { mergeGeometries, mergeVertices } from 'three/addons/utils/BufferGeometr
 import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
 import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
 
-const A = new URL('./assets/real/', import.meta.url).href;
+const A = '/lab/assets/real/'; // public/lab/assets — сборка не трогает
 
 export async function build({ THREE, renderer, scene, camera, L }) {
   const { ROOM, WINDOW: WIN, WAINSCOT, DESK, ITEMS: I, SUN } = L;

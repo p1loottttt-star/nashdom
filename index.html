@@ -5,14 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Наш дом</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♥</text></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
-<script type="importmap">
-{ "imports": {
-  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
-  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
-} }
-</script>
 <style>
   :root {
     --ink: #3b2a35; --paper: #fffaf2; --rose: #f08aa0; --peach: #ffc9a8;
@@ -371,6 +363,7 @@
   .phouse { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 12px 16px; border-radius: 14px; background: rgba(255,255,255,.7); }
   .phouse button { border: 1px solid var(--line); background: #fff; border-radius: 9px; padding: 7px 12px; font-weight: 700; cursor: pointer; }
   .pwallet h4 { margin: 0; }
+  .pver { margin: 4px 0 0; font-size: 11px; opacity: .45; text-align: right; }
   /* ---- CoupleTube ---- */
   .tube { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 300px; }
   .tv { display: flex; flex-direction: column; gap: 8px; padding: 12px; min-width: 0; min-height: 0; }
@@ -695,6 +688,6 @@
   </div>
 </div>
 
-<script type="module" src="room.js"></script>
+<script type="module" src="/room.js"></script>
 </body>
 </html>

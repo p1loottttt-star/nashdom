@@ -1,3 +1,8 @@
+import '@fontsource/caveat/500.css';
+import '@fontsource/caveat/700.css';
+import '@fontsource/nunito/400.css';
+import '@fontsource/nunito/600.css';
+import '@fontsource/nunito/800.css';
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
@@ -13,6 +18,7 @@ import { listAlbums, createAlbum, openAlbum } from './albums.js';
 import { createPad, drawPaper, PAPER } from './pad.js';
 import * as sfx from './sound.js';
 import { onRadio } from './lofi.js';
+import { inject as analytics } from '@vercel/analytics';
 import * as store from './store.js';
 import { createTuner, TIERS, prRange } from './gfx.js';
 import { P, toon, toonify, outlineOf, Batch, G as Geo, halos, blobs, createPost, canvasTex as ccTex, blob, heartPath, TOON, OUTLINE } from './toon.js';
@@ -1444,6 +1450,9 @@ placer = createPlacer({
   },
 });
 // кнопка «расставить» и сколько вещей ждут в коробке
+// посещения — Vercel Web Analytics (без cookies); локально не шлём
+if (!/^(localhost|127\.)/.test(location.hostname)) analytics();
+if (new URLSearchParams(location.search).has('debug')) console.info('Наш дом, версия', __VERSION__);
 onRadio((name) => toast(name ? `📻 lofi · «${name}»` : '📻 радио выключено'));
 const arrangeBtn = document.getElementById('arrange');
 function drawArrange() { if (arrangeBtn) { const n = placer.boxCount(); arrangeBtn.textContent = n ? `🪄 расставить · 📦 ${n}` : '🪄 расставить'; } }
