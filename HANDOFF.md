@@ -5,7 +5,7 @@
 ## Что это сейчас
 3D-дом для пары. Опубликован: https://nash-dom-seven.vercel.app
 (проект Vercel `nash-dom`, папка `love-room` привязана, выкат: `vercel deploy --prod --yes` из `love-room`).
-Статика без сборки, three.js 0.170 через importmap. Локально: preview `love-room-b` (порт 8121; `love-room` на 8120 может держать другая сессия).
+**С 07.10 — git + Vite** (см. раздел «07.10 — git, Vite, CI» ниже). Локально: `npm run dev` (порт 8125, preview `love-room-d`), собранная версия — `npm run build && npm run preview` (порт 8124, preview `love-room-dist`). Старые python-превью (8120–8123) больше не годятся: importmap удалён.
 `?hour=13` показывает время суток, `?weather=rain` — погоду, `?debug` открывает `window.__room`, `?as=b` делает тебя второй половиной (только локальный режим), `?local` принудительно включает локальный режим.
 
 Спека: `docs/specs/2026-10-06-couples-platform-design.md`. План: `docs/plans/2026-10-06-couples-platform.md`.
@@ -93,3 +93,16 @@ CoupleTube: HLS и YouTube синхронны в пределах 0,1 с, общ
 Подробно — `NEXT.md` (фундамент: git + Supabase; графика — почему «пиксельно»; интерфейс; архитектура для многих пар; фичи).
 Открытые хвосты: Rutube и живой файл с Яндекс Диска не проверены (rutube.ru не открывается из сети этой машины); Twitch в Edge даёт #2000 из-за «Предотвращения отслеживания» — под плеером подсказка; эфиру нужен TURN; в скрытом превью кадры не рисуются (FPS не замерить, matrixWorld устаревает).
 Баллы для проверок в локальном режиме: строка в консоли браузера добавляет запись в `localStorage['lr:ledger']` (см. ответ Ване 07.10).
+
+## 07.10 — git, Vite, CI (окно «архитектура»)
+Спека: `docs/specs/2026-10-07-scale-architecture-design.md` (решения Вани: широковещание из базы, закрытые фото, своя таблица ошибок + Vercel Analytics, два проекта Supabase). План Э0–Э1: `docs/plans/2026-10-07-scale-e0-e1.md` — выполнен.
+- **Git:** репозиторий https://github.com/p1loottttt-star/nashdom (приватный), ветка `main`; `.gitattributes` держит LF. Автор коммитов — «Ваня <p1.loottttt@gmail.com>» (local config). Python-правки писать с `newline=''`, иначе CRLF.
+- **Выкат:** пока Vercel не подключён к GitHub — `vercel deploy --prod --yes` из `love-room` (собирает Vite на Vercel). После подключения — пуш в `main` = прод, ветка = превью (превью закрыты входом Vercel).
+- **Сборка:** `vite.config.js` (две страницы: `/` и `/lab/`), `vercel.json` (dist, функции во fra1, вечный кеш `/assets`). three 0.170.0, supabase-js, hls.js — из npm; шрифты Caveat/Nunito — @fontsource (Google Fonts убраны и из lab). Ассеты лаборатории — `public/lab/assets`. Котик oneko пока с jsdelivr, закреплён на коммите 5281d05 (MIT) — положить к себе.
+- **По требованию:** CoupleTube, магазин, профиль, галерея, планы (`import()` в desktop.js). Тесты и игры — сразу (их счётчики нужны при входе).
+- **Версия:** `__VERSION__` = хеш коммита + дата; внизу профиля и в консоли при `?debug`.
+- **Аналитика:** `@vercel/analytics` (не на localhost) — Ваня включает Web Analytics в панели проекта.
+- **Тесты:** `npm test` (tests/run.mjs гоняет все `*.test.mjs`); CI `.github/workflows/ci.yml` — тесты + сборка на каждый пуш.
+- **Исправлено:** `store.award` (комментарий съедал `.then/.catch` — не было тоста «+N ♥»); id тестов с `:` не прошли бы проверку схемы — теперь `rules.js` = правила `items` (kind/id/≤1 МБ), store.put/del проверяют их в обоих режимах, `tests/rules.test.mjs` сверяет с schema.sql.
+- **Радио:** `lofi.js` — 5 своих lofi-мелодий на WebAudio (без файлов и лицензий), клик по радио (вещь `radio`) — играть/стоп, каждое включение — следующая; расставленные вещи с `userData.act` теперь кликабельны (room.js `pick`), вещи в коробке лучу не мешают.
+- Дальше: Э2 (Supabase на рост) по спеке.
