@@ -2,6 +2,9 @@
 
 07.10.2026. Порядок — по важности. Каждый блок начинать со скилла brainstorming → writing-plans, решения согласовывать с Ваней.
 
+## 07.10 — статус фундамента (подробно — HANDOFF, спека docs/specs/2026-10-07-scale-architecture-design.md)
+Э0 git ✅ · Э1 Vite + CI ✅ · Э2 Supabase на рост ✅ (код и тесты; облако ждёт ключей Вани) · Э3 ошибки ✅ (Analytics включает Ваня) · Э4 закон и безопасность — дальше · затем лендинг проекта (RU/EN/RO, сначала концепт).
+
 ## 0. Фундамент (без него нет продукта для пар)
 1. **Git.** Папка `love-room` не в git. Завести репозиторий, GitHub, выкат из Vercel по пушу, превью-деплои на каждую ветку, тесты (`tests/*.mjs`) в CI.
 2. **Supabase.** Ваня создаёт проект, запускает свежий `supabase/schema.sql`, кладёт ключи (`vercel env add SUPABASE_URL production`, `vercel env add SUPABASE_ANON_KEY production`). Потом проверка облака: `api/config` → 200, анонимный `/rest/v1/items` → `[]`. Вход проверяют Ваня и Соня сами.

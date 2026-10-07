@@ -105,4 +105,25 @@ CoupleTube: HLS и YouTube синхронны в пределах 0,1 с, общ
 - **Тесты:** `npm test` (tests/run.mjs гоняет все `*.test.mjs`); CI `.github/workflows/ci.yml` — тесты + сборка на каждый пуш.
 - **Исправлено:** `store.award` (комментарий съедал `.then/.catch` — не было тоста «+N ♥»); id тестов с `:` не прошли бы проверку схемы — теперь `rules.js` = правила `items` (kind/id/≤1 МБ), store.put/del проверяют их в обоих режимах, `tests/rules.test.mjs` сверяет с schema.sql.
 - **Радио:** `lofi.js` — 5 своих lofi-мелодий на WebAudio (без файлов и лицензий), клик по радио (вещь `radio`) — играть/стоп, каждое включение — следующая; расставленные вещи с `userData.act` теперь кликабельны (room.js `pick`), вещи в коробке лучу не мешают.
-- Дальше: Э2 (Supabase на рост) по спеке.
+
+## 07.10 — Э2: Supabase на рост (сделано, ждёт ключей Вани)
+- **Схема = миграции Supabase CLI:** `supabase/config.toml`, `supabase/migrations/20261007120000_init.sql` (старый `schema.sql` удалён; облачных данных ещё не было). Тесты читают SQL через `tests/sql.mjs`.
+- **Realtime без postgres_changes:** триггеры `broadcast_row`/`broadcast_people` → `realtime.send(..., 'couple:<id>', private)`; клиент слушает один закрытый канал пары, событие `db` = `{ t, op, row }` (`backend-sb.js` → `onDb`). Записи `items` больше 100 КБ текста приходят без data (`big: true`) — клиент дочитывает.
+- **Квоты:** 20 000 записей `items` на пару, 30 сообщений в минуту на человека, 3 000 фото на пару (`house_files()` — политика не может считать ту же таблицу). Тексты ошибок — в `ERR` backend-sb.
+- **Фото закрыты:** корзина `house` private; в данных `sb:<путь>`; `store.media(ref)` → подписанная ссылка (7 дней, обновление раз в сутки). Галерея, стена, альбомы, аватар — через `store.media`.
+- **Данные человека:** профиль → «выгрузить мои данные» (JSON) и «удалить аккаунт» (`delete_me()`; ушёл партнёр — дом и баланс остаются; последний — файлы пары удаляет клиент, дом удаляет база). `ledger.user_id` — set null.
+- **Ошибки:** `errors.js` → таблица `client_errors` (только облако; путь без параметров; ≤20 за сессию; 300/мин на всё, чистка старше 30 дней в триггере). Смотреть: Supabase → Table Editor → client_errors.
+- **Проверки:** `tests/db.test.mjs` — вся схема в PGlite с заглушками Supabase (изоляция пар, приглашение, баллы, покупки/подарки, квоты, канал пары, фото, удаление; ~13 с; мутация «items открыты всем» ловится). `tests/e2e/cloud.mjs` — в CI на локальном Supabase (`supabase start` в Docker): две пары через supabase-js, события приходят партнёру и не приходят чужим, тест с `:` в id, игра, подарок, чат, большая запись, фото по подписанной ссылке, удаление. **CI зелёный** (run #4).
+- Пароль от 8 символов (auth.js, config.toml).
+- **Ловушки:** dev-сервер Vite, перезапущенный на лету, может потерять `define` (`__VERSION__ is not defined`) — перезапустить превью. Браузер держит модули старого python-сервера на том же порту — поэтому dev на 8125. `vercel deploy` иногда падает «fetch failed» — просто повторить.
+- **Репозиторий публичный** (GitHub показывает его без входа) — секретов нет, но есть имена и HANDOFF; Ване предложено сделать private.
+
+### Что сделать Ване для облака (команды — в ответе 07.10 и ниже)
+1. Два проекта на supabase.com, регион Central EU (Frankfurt): `nash-dom` (прод) и `nash-dom-staging`.
+2. `npx supabase login` → `npx supabase link --project-ref <ref>` → `npx supabase db push` для каждого (из `love-room`).
+3. Auth → URL Configuration: прод Site URL `https://nash-dom-seven.vercel.app`, Redirect `https://nash-dom-seven.vercel.app/**`; тестовый — `https://*-ivan-s-projects99.vercel.app/**`. Confirm email — вкл. (в тестовом можно выкл.).
+4. `vercel env add SUPABASE_URL production` / `SUPABASE_ANON_KEY production` (прод), то же для `preview` (тестовый) → передеплой.
+5. Почта: встроенная почта Supabase доходит только до участников команды проекта → Соня не получит письмо. Нужен свой SMTP (Resend + домен) или временно выключить Confirm email в проде.
+После ключей проверить: `curl https://nash-dom-seven.vercel.app/api/config` → 200; анонимный `GET <url>/rest/v1/items` с anon-ключом → `[]`; вход двоих, записка/тест/игра/подарок/фото между ними.
+
+- Дальше: Э4 (политика RU/EN/RO, согласие при регистрации, заголовки безопасности, котик к себе) — нужны данные оператора от Вани; потом лендинг проекта.
