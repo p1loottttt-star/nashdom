@@ -10,3 +10,17 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+
+  # облако целиком: локальный Supabase в Docker на машине GitHub, миграции, две пары через supabase-js
+  cloud:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm }
+      - run: npm ci
+      - uses: supabase/setup-cli@v1
+        with: { version: latest }
+      - run: supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,postgres-meta,mailpit
+      - run: supabase status -o env > .env.e2e
+      - run: node --env-file=.env.e2e tests/e2e/cloud.mjs
