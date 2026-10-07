@@ -4,7 +4,7 @@ import { signIn, onboard, offerMigration } from './auth.js';
 
 let sb, H, uid, cid, chan, offset = 0, mine = {};
 let people = { me: null, partner: null, couple: null };
-const ERR = { 'not enough points': 'Не хватает баллов', 'already owned': 'Это у тебя уже есть', 'gift needs partner': 'Подарок можно отправить, когда партнёр присоединится', 'no item': 'Такой вещи нет' };
+const ERR = { 'not enough points': 'Не хватает баллов', 'already owned': 'Это у тебя уже есть', 'gift needs partner': 'Подарок можно отправить, когда партнёр присоединится', 'no item': 'Такой вещи нет', 'quota: items': 'В доме слишком много всего — удалите старое', 'quota: messages': 'Слишком много сообщений подряд — подожди минуту' };
 const check = ({ data, error }) => {
   if (error) { const k = Object.keys(ERR).find((x) => error.message?.includes(x)); throw new Error(k ? ERR[k] : error.message); }
   return data;
@@ -18,6 +18,7 @@ async function loadPeople() {
   ]);
   const ids = m.map((x) => x.user_id);
   const ps = check(await sb.from('profiles').select(PROFILE).in('id', ids));
+  await sign(ps);
   people = { couple: c, me: ps.find((p) => p.id === uid), partner: ps.find((p) => p.id !== uid) || null };
   return people;
 }
@@ -59,6 +60,8 @@ export async function init(hooks, cfg) {
   await subscribe();
   let data = await loadItems();
   if (!Object.keys(data).length && await offerMigration(sb, { put: (k, i, v) => put(k, i, v), upload: uploadBlob })) data = await loadItems();
+  await sign(data);
+  setInterval(() => resign().catch(console.warn), 864e5); // ссылки живут 7 дней — обновляем раз в сутки
   let ledger = await loadAll('ledger', '*', ['id']);
 
   // часы сервера: смещение с поправкой на половину пути запроса
@@ -77,42 +80,57 @@ export async function init(hooks, cfg) {
   return { data, people, ledger };
 }
 
-const onItem = hold(async ({ new: r, errors }) => {
-  if (!r?.kind) return;
+const onItem = hold(async (r) => {
   if (r.updated_by === uid && Date.parse(r.updated_at) <= Date.parse(last[r.kind + '/' + r.id] || 0)) return; // эхо моей же записи
-  if (errors?.length) { // слишком большая запись пришла без данных — дочитываем сами
+  if (r.big) { // большая запись пришла без данных — дочитываем сами
     const { data } = await sb.from('items').select('data').eq('couple_id', cid).eq('kind', r.kind).eq('id', r.id).maybeSingle();
     r.data = data?.data ?? null;
   }
+  await sign(r.data);
   H.item(r.kind, r.id, r.data);
 });
+const onLedger = hold((r) => H.ledger(r));
+const reloadPeople = () => loadPeople().then(H.people).catch(console.warn);
 
-function joined(name) {
-  return (s, e) => { if (s !== 'SUBSCRIBED') console.warn(`realtime ${name}:`, s, e || ''); };
+// изменения в базе: триггеры шлют их в канал пары событием 'db' = { t: таблица, op, row } (миграция, broadcast_row)
+function onDb({ t, row }) {
+  if (t === 'items') onItem(row);
+  else if (t === 'messages') H.message(row);
+  else if (t === 'ledger') onLedger(row);
+  else reloadPeople(); // members, people
 }
 
+// закрытый канал пары: события базы, присутствие, «печатает», плеер. Слушать и писать могут только двое (RLS на realtime.messages)
 async function subscribe() {
-  await sb.realtime.setAuth(); // каналам нужен токен пользователя, а не anon — иначе RLS молча отсечёт все события
-  const f = `couple_id=eq.${cid}`;
-  const reloadPeople = () => loadPeople().then(H.people).catch(console.warn);
+  await sb.realtime.setAuth(); // каналу нужен токен пользователя, а не anon — иначе RLS молча отсечёт все события
   await new Promise((done) => {
     const t = setTimeout(done, 6000); // Realtime не ответил — дом всё равно открываем
-    sb.channel('db:' + cid)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'items', filter: f }, onItem)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: f }, ({ new: m }) => H.message(m))
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'ledger', filter: f }, hold(({ new: r }) => r?.id && H.ledger(r)))
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'members', filter: f }, reloadPeople)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, reloadPeople)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'couples' }, reloadPeople)
-      .subscribe((s, e) => { joined('db')(s, e); if (s === 'SUBSCRIBED') { clearTimeout(t); done(); } });
+    chan = sb.channel('couple:' + cid, { config: { private: true, broadcast: { self: false }, presence: { key: uid } } })
+      .on('broadcast', { event: '*' }, ({ event, payload }) => (event === 'db' ? onDb(payload) : H.live(event, payload)))
+      .on('presence', { event: 'sync' }, () => H.presence())
+      .subscribe((st, e) => {
+        if (st !== 'SUBSCRIBED') return console.warn('realtime:', st, e || '');
+        chan.track(mine); clearTimeout(t); done();
+      });
   });
-
-  // закрытый канал пары: слушать и писать могут только двое (RLS на realtime.messages)
-  chan = sb.channel('couple:' + cid, { config: { private: true, broadcast: { self: false }, presence: { key: uid } } })
-    .on('broadcast', { event: '*' }, ({ event, payload }) => H.live(event, payload))
-    .on('presence', { event: 'sync' }, () => H.presence())
-    .subscribe((s, e) => { joined('couple')(s, e); if (s === 'SUBSCRIBED') chan.track(mine); });
 }
+
+// ---------- фото: закрытая корзина; в данных — 'sb:<путь>', показываем по подписанной ссылке ----------
+const TTL = 7 * 86400, signed = new Map(); // путь → адрес
+const refs = (v, out = new Set()) => {
+  if (typeof v === 'string') { if (v.startsWith('sb:')) out.add(v.slice(3)); }
+  else if (v && typeof v === 'object') for (const x of Object.values(v)) refs(x, out);
+  return out;
+};
+async function signPaths(paths) {
+  for (let i = 0; i < paths.length; i += 100) {
+    const { data } = await sb.storage.from('house').createSignedUrls(paths.slice(i, i + 100), TTL);
+    for (const x of data || []) if (x.signedUrl) signed.set(x.path, x.signedUrl);
+  }
+}
+const sign = (v) => signPaths([...refs(v)].filter((x) => !signed.has(x))).catch(console.warn);
+const resign = () => signPaths([...signed.keys()]);
+export const mediaUrl = (ref) => (typeof ref === 'string' && ref.startsWith('sb:') ? signed.get(ref.slice(3)) || '' : ref);
 
 const row = (kind, id, data) => { const at = new Date().toISOString(); last[kind + '/' + id] = at; return { couple_id: cid, kind, id, data, updated_by: uid, updated_at: at }; };
 export async function put(kind, id, value) { check(await sb.from('items').upsert(row(kind, id, value))); }
@@ -121,7 +139,8 @@ export async function del(kind, id) { check(await sb.from('items').upsert(row(ki
 async function uploadBlob(blob, type = 'image/jpeg') {
   const path = `${cid}/${crypto.randomUUID()}.${type.split('/')[1].replace('jpeg', 'jpg')}`;
   check(await sb.storage.from('house').upload(path, blob, { contentType: type, cacheControl: '31536000' }));
-  return sb.storage.from('house').getPublicUrl(path).data.publicUrl;
+  await signPaths([path]);
+  return 'sb:' + path;
 }
 export async function upload(canvas) {
   const blob = await new Promise((r) => canvas.toBlob(r, 'image/jpeg', 0.86));
@@ -131,6 +150,21 @@ export async function upload(canvas) {
 export async function saveProfile(patch) { check(await sb.from('profiles').update(patch).eq('id', uid)); }
 export async function saveCouple(patch) { check(await sb.from('couples').update(patch).eq('id', cid)); }
 export async function signOut() { await sb.auth.signOut(); location.reload(); }
+
+// удалить аккаунт; последний в доме сначала удаляет файлы пары (сам дом база удаляет в delete_me)
+export async function deleteMe() {
+  if (!people.partner) {
+    for (;;) {
+      const list = check(await sb.storage.from('house').list(cid, { limit: 1000 }));
+      if (!list.length) break;
+      check(await sb.storage.from('house').remove(list.map((f) => `${cid}/${f.name}`)));
+    }
+  }
+  check(await sb.rpc('delete_me'));
+  await sb.auth.signOut();
+}
+// вся переписка пары — для выгрузки данных
+export const allMessages = () => loadAll('messages', '*', ['id']);
 
 export const live = {
   send(ev, payload) { chan?.send({ type: 'broadcast', event: ev, payload }); },

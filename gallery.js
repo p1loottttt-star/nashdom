@@ -27,7 +27,7 @@ export function renderGallery(el) {
       const inside = photos.filter((p) => p.folder === f.id).sort((a, b) => b.date.localeCompare(a.date));
       grid.append(h('button', { className: 'folder', style: `--fc:${f.color}`, onclick: () => { open = f.id; draw(); } },
         h('div', { className: 'ficon' }, h('div', { className: 'fback' }),
-          ...inside.slice(0, 3).map((p, i) => h('img', { src: p.url, alt: '', loading: 'lazy', style: `--i:${i}` })),
+          ...inside.slice(0, 3).map((p, i) => h('img', { src: store.media(p.url), alt: '', loading: 'lazy', style: `--i:${i}` })),
           h('div', { className: 'ffront' })),
         h('span', { textContent: f.name }), h('small', { textContent: `${inside.length} фото` })));
     }
@@ -66,7 +66,7 @@ export function renderGallery(el) {
         open = null; draw();
       } }));
     const grid = h('div', { className: 'pgrid' }, ...list.map((p, i) => h('button', { className: 'thumb', onclick: () => { viewer = i; showViewer(list); } },
-      h('img', { src: p.url, alt: p.caption || '', loading: 'lazy' }), p.caption ? h('span', { textContent: p.caption }) : '')));
+      h('img', { src: store.media(p.url), alt: p.caption || '', loading: 'lazy' }), p.caption ? h('span', { textContent: p.caption }) : '')));
     if (!list.length) grid.append(h('p', { className: 'empty', textContent: 'Папка пустая — нажми «＋ фото», можно сразу несколько.' }));
     return h('div', {}, bar, grid);
   }
@@ -78,7 +78,7 @@ export function renderGallery(el) {
     const go = (d) => { viewer = (viewer + d + list.length) % list.length; showViewer(list); };
     const cap = h('input', { value: p.caption || '', placeholder: 'подпись…', maxLength: 80, onchange: () => { p.caption = cap.value.trim(); store.put('photos', p.id, p).catch(console.warn); } });
     const v = h('div', { className: 'viewer', tabIndex: -1, onkeydown: (e) => { if (e.key === 'ArrowRight') go(1); if (e.key === 'ArrowLeft') go(-1); if (e.key === 'Escape') { e.stopPropagation(); close(); } } },
-      h('img', { src: p.url, alt: p.caption || '' }),
+      h('img', { src: store.media(p.url), alt: p.caption || '' }),
       h('button', { className: 'nav l', textContent: '‹', onclick: () => go(-1) }),
       h('button', { className: 'nav r', textContent: '›', onclick: () => go(1) }),
       h('div', { className: 'vbar' }, cap,

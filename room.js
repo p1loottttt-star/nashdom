@@ -433,7 +433,7 @@ function setWall(i) {
   w.photo.material.map?.dispose(); w.cap.material.map?.dispose();
   w.cap.material.map = captionTex(d?.caption); w.cap.material.needsUpdate = true;
   if (!d?.url) { w.photo.material.map = placeholderTex(i); w.photo.material.needsUpdate = true; return; }
-  new THREE.TextureLoader().setCrossOrigin('anonymous').load(d.url, (t) => {
+  new THREE.TextureLoader().setCrossOrigin('anonymous').load(store.media(d.url), (t) => {
     t.colorSpace = THREE.SRGBColorSpace;
     const a = t.image.width / t.image.height; // обрезка «по центру», как у настоящего полароида
     if (a > 1) { t.repeat.set(1 / a, 1); t.offset.set((1 - 1 / a) / 2, 0); } else { t.repeat.set(1, a); t.offset.set(0, (1 - a) / 2); }
@@ -1248,7 +1248,7 @@ async function openWallPhoto(i) {
   const img = wallModal.querySelector('img'), cap = wallModal.querySelector('[name=caption]'), file = wallModal.querySelector('[name=file]');
   const status = wallModal.querySelector('.status');
   let url = d.url || '';
-  const show = () => { img.hidden = !url; img.src = url; wallModal.querySelector('.empty').hidden = !!url; };
+  const show = () => { img.hidden = !url; img.src = store.media(url); wallModal.querySelector('.empty').hidden = !!url; };
   cap.value = d.caption || ''; status.textContent = ''; show();
   wallModal.hidden = false;
   const close = () => { wallModal.hidden = true; state = idle(); setBusy(false); };

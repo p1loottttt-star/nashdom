@@ -54,6 +54,8 @@ export async function upload(canvas) { return canvas.toDataURL('image/jpeg', 0.8
 
 export async function saveProfile(patch) { P[ME] = { ...P[ME], ...patch }; write(K.people, P); send({ t: 'people' }); }
 export async function saveCouple(patch) { P.couple = { ...P.couple, ...patch }; write(K.people, P); send({ t: 'people' }); }
+export const allMessages = async () => read(K.msgs, []);
+export async function deleteMe() { for (const k of Object.values(K)) localStorage.removeItem(k); } // локально — стереть всё в этом браузере
 export function signOut() { location.search = ME === 'a' ? '?as=b' : ''; } // локально «выйти» = стать второй половиной
 
 export const live = {

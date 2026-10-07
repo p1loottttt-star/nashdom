@@ -5,7 +5,7 @@ const field = (name, props) => h('input', { name, required: true, ...props });
 const RU = [
   [/Invalid login credentials/i, 'Неверная почта или пароль'],
   [/already registered/i, 'Такой аккаунт уже есть — войди'],
-  [/at least 6/i, 'Пароль — минимум 6 символов'],
+  [/at least \d+ char/i, 'Пароль — минимум 8 символов'],
   [/rate limit/i, 'Слишком много попыток, подожди минуту'],
   [/bad invite/i, 'Такого приглашения нет — проверь код'],
   [/couple is full/i, 'В этом доме уже двое'],
@@ -37,7 +37,7 @@ export function signIn(sb) {
   const note = h('p', { className: 'hint', textContent: 'Свой 3D-дом для двоих: записки, фото, планы и кино вместе.' });
   return screen('Наш дом ♥', null, [note,
     field('email', { type: 'email', placeholder: 'почта', autocomplete: 'email' }),
-    field('password', { type: 'password', placeholder: 'пароль (от 6 символов)', minLength: 6, autocomplete: 'current-password' }),
+    field('password', { type: 'password', placeholder: 'пароль (от 8 символов)', minLength: 8, autocomplete: 'current-password' }),
   ], async (f, by) => {
     const cred = { email: f.get('email').trim(), password: f.get('password') };
     if (by?.name === 'signup') {

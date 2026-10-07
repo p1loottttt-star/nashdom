@@ -45,8 +45,16 @@ function partnerWeather(p, el) {
 // кружок-аватар: фото или эмодзи на своём цвете
 export function avatar(p, size = 64) {
   const a = h('i', { className: 'pava', textContent: p?.avatar ? '' : p?.emoji || '💌' });
-  a.style.cssText = `width:${size}px;height:${size}px;font-size:${size * 0.5}px;background:${p?.color || '#ddd'}${p?.avatar ? `;background-image:url("${encodeURI(p.avatar)}")` : ''}`;
+  a.style.cssText = `width:${size}px;height:${size}px;font-size:${size * 0.5}px;background:${p?.color || '#ddd'}${p?.avatar ? `;background-image:url("${encodeURI(store.media(p.avatar))}")` : ''}`;
   return a;
+}
+
+// удалить аккаунт: дом остаётся партнёру; последний — дом и фото удаляются навсегда
+async function removeMe() {
+  const p = store.partner();
+  const what = p ? `Твой профиль и сообщения удалятся, дом останется у ${p.name || 'партнёра'}.` : 'Дом, записки и все фото удалятся навсегда.';
+  if (prompt(`${what}\nЧтобы удалить аккаунт, напиши: удалить`)?.trim().toLowerCase() !== 'удалить') return;
+  try { await store.deleteMe(); } catch (e) { console.warn(e); toast('не получилось удалить — попробуй ещё раз'); }
 }
 
 export function renderProfile(el) {
@@ -97,7 +105,11 @@ export function renderProfile(el) {
       rows.length ? h('ul', { className: 'shist' }, ...rows.map((r) => h('li', {}, h('b', { className: r.amount > 0 ? 'plus' : '', textContent: (r.amount > 0 ? '+' : '') + r.amount }), ` ${histLabel(r)}`))) : h('p', { textContent: 'Баллы появятся за записки, фото, планы и кино вместе.' }));
 
     el.replaceChildren(h('div', { className: 'profile' }, h('div', { className: 'pfcards' }, mine, other), house, wallet,
-      h('p', { className: 'pver', textContent: 'версия ' + __VERSION__ })));
+      h('div', { className: 'pdata' },
+        h('button', { textContent: 'выгрузить мои данные', onclick: () => store.exportData().catch((e) => { console.warn(e); toast('не получилось выгрузить'); }) }),
+        h('button', { className: 'danger', textContent: 'удалить аккаунт', onclick: removeMe }),
+        h('span', { className: 'grow' }),
+        h('small', { className: 'pver', textContent: 'версия ' + __VERSION__ }))));
   };
   draw();
   const offs = [store.onPeople(() => redraw()), store.onLedger(() => redraw())];

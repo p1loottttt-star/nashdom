@@ -2,6 +2,7 @@
 // Облако: Supabase (ключи отдаёт /api/config из env Vercel). Нет облака → localStorage, вкладки связаны BroadcastChannel.
 import * as local from './backend-local.js';
 import { checkItem } from './rules.js';
+import { setupErrors, report } from './errors.js';
 
 let B = local, data = {}, people = { me: null, partner: null, couple: null }, rows = [];
 const subs = {};
@@ -37,6 +38,7 @@ export async function initStore() {
   if (!new URLSearchParams(location.search).has('local')) {
     try { const r = await fetch('/api/config', { cache: 'no-store' }); if (r.ok) cfg = await r.json(); } catch {}
   }
+  if (cfg?.url) setupErrors(cfg);
   let s;
   for (;;) {
     try {
@@ -81,7 +83,7 @@ export async function del(kind, id) {
   await B.del(kind, id, data).catch(fail);
 }
 // ошибка записи: показать тост (onFail) и отдать ошибку дальше
-const fail = (e) => { emit('fail', e); throw e; };
+const fail = (e) => { report('write: ' + (e?.message || e), e?.stack); emit('fail', e); throw e; };
 export const onFail = (cb) => sub('fail', cb);
 export const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
@@ -93,6 +95,16 @@ export async function uploadPhoto(file, max = 1800) {
   c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
   return B.upload(c);
 }
+// адрес фото для показа: в облаке фото закрыты ('sb:<путь>' → подписанная ссылка), локально — как есть
+export const media = (ref) => (B.mediaUrl ? B.mediaUrl(ref) : ref) || '';
+
+// ---------- мои данные (GDPR, закон 195/2024): выгрузить и удалить ----------
+export async function exportData() {
+  const dump = { exported: new Date().toISOString(), me: people.me, partner: people.partner, couple: people.couple, home: data, ledger: rows, messages: await B.allMessages() };
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' })), download: `nash-dom-${new Date().toISOString().slice(0, 10)}.json` });
+  a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+export async function deleteMe() { await B.deleteMe(); location.replace('/'); }
 
 // ---------- люди ----------
 export const me = () => people.me;

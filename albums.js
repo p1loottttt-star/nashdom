@@ -23,7 +23,7 @@ export async function createAlbum() {
   return a;
 }
 const putAlbum = (a) => store.put('albums', a.id, a);
-const photoURL = async (url) => url; // в альбоме храним сразу адрес фото
+const photoURL = async (url) => store.media(url); // в альбоме храним ссылку на фото (в облаке — 'sb:<путь>')
 const addPhoto = (file) => store.uploadPhoto(file);
 
 // ---------- окно альбома ----------
