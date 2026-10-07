@@ -37,12 +37,12 @@ create table if not exists public.members (
 create table if not exists public.items (
   couple_id uuid not null references public.couples on delete cascade,
   kind text not null check (kind ~ '^[a-z]{2,20}$'),
-  id text not null check (id ~ '^[A-Za-z0-9_-]{1,80}$'),
+  id text not null check (id ~ '^[A-Za-z0-9_:.-]{1,120}$'),
   data jsonb, -- null = удалено (так удаление приходит партнёру через Realtime с проверкой RLS)
   updated_by uuid default auth.uid(),
   updated_at timestamptz not null default now(),
   primary key (couple_id, kind, id),
-  check (pg_column_size(data) < 3500000)
+  check (pg_column_size(data) < 1000000)
 );
 
 create table if not exists public.messages (

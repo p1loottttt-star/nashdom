@@ -1,6 +1,7 @@
 // Общее хранилище «дома»: данные пары, профили, живой канал, чат, баллы.
 // Облако: Supabase (ключи отдаёт /api/config из env Vercel). Нет облака → localStorage, вкладки связаны BroadcastChannel.
 import * as local from './backend-local.js';
+import { checkItem } from './rules.js';
 
 let B = local, data = {}, people = { me: null, partner: null, couple: null }, rows = [];
 const subs = {};
@@ -70,10 +71,12 @@ export function watch(el, kinds, redraw) {
 
 export async function put(kind, id, value) {
   const { id: _, ...clean } = value;
+  try { checkItem(kind, id, clean); } catch (e) { return fail(e); } // те же правила, что в схеме облака
   (data[kind] ||= {})[id] = clean;
   await B.put(kind, id, clean, data).catch(fail);
 }
 export async function del(kind, id) {
+  try { checkItem(kind, id, null); } catch (e) { return fail(e); }
   if (data[kind]) delete data[kind][id];
   await B.del(kind, id, data).catch(fail);
 }
@@ -124,7 +127,10 @@ export const ledger = () => rows.slice().sort((a, b) => a.created_at.localeCompa
 export const balance = () => rows.reduce((s, r) => s + r.amount, 0);
 export const onLedger = (cb) => sub('ledger', cb);
 // начисление тихое: сервер решает сумму и пределы, повтор ничего не даёт
-export const award = (reason, ref) => B.award(reason, String(ref).slice(-120)) // сервер хранит до 120 символов; хвост с датой важнее.then((n) => { if (n > 0) emit('earned', n, reason); return n; }).catch((e) => { console.warn('award', e); return 0; });
+// сервер хранит до 120 символов; хвост с датой важнее
+export const award = (reason, ref) => B.award(reason, String(ref).slice(-120))
+  .then((n) => { if (n > 0) emit('earned', n, reason); return n; })
+  .catch((e) => { console.warn('award', e); return 0; });
 export const onEarned = (cb) => sub('earned', cb);
 export const buy = (item, toUser = null, note = '') => B.buy(item, toUser, note);
 export const openGift = (id) => B.openGift(id);
