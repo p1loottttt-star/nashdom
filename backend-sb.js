@@ -1,4 +1,4 @@
-// Облачный режим: Supabase напрямую из браузера. Защита — RLS (supabase/schema.sql): пара видит только свой дом.
+// Облачный режим: Supabase напрямую из браузера. Защита — RLS (supabase/migrations): пара видит только свой дом.
 import { createClient } from '@supabase/supabase-js';
 import { signIn, onboard, offerMigration } from './auth.js';
 

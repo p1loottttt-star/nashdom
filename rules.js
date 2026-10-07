@@ -1,4 +1,4 @@
-// Правила записи в дом — те же, что CHECK в supabase/schema.sql (сверяет tests/rules.test.mjs).
+// Правила записи в дом — те же, что CHECK в supabase/migrations (сверяет tests/rules.test.mjs).
 export const KIND = /^[a-z]{2,20}$/;
 export const ID = /^[A-Za-z0-9_:.-]{1,120}$/;
 export const MAX_DATA = 1000000; // байт JSON; в базе — pg_column_size

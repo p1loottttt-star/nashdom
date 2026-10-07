@@ -1,11 +1,11 @@
-// правила записи в rules.js и в schema.sql должны совпадать — иначе локально работает, а в облаке нет
+// правила записи в rules.js и в миграциях должны совпадать — иначе локально работает, а в облаке нет
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { KIND, ID, MAX_DATA, checkItem } from '../rules.js';
-const sql = fs.readFileSync(new URL('../supabase/schema.sql', import.meta.url), 'utf8');
-assert.ok(sql.includes(`kind ~ '${KIND.source}'`), 'KIND как в schema.sql');
-assert.ok(sql.includes(`id ~ '${ID.source}'`), 'ID как в schema.sql');
-assert.ok(sql.includes(`pg_column_size(data) < ${MAX_DATA}`), 'MAX_DATA как в schema.sql');
+import { SQL as sql } from './sql.mjs';
+assert.ok(sql.includes(`kind ~ '${KIND.source}'`), 'KIND как в миграциях');
+assert.ok(sql.includes(`id ~ '${ID.source}'`), 'ID как в миграциях');
+assert.ok(sql.includes(`pg_column_size(data) < ${MAX_DATA}`), 'MAX_DATA как в миграциях');
 assert.doesNotThrow(() => checkItem('quiz', 'who-love:a', { x: 1 }));
 assert.doesNotThrow(() => checkItem('room', crypto.randomUUID(), {}));
 assert.throws(() => checkItem('Quiz', 'x', {}));

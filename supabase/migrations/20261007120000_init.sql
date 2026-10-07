@@ -1,11 +1,11 @@
--- «Наш дом» — схема Supabase. Вставить целиком в SQL Editor и нажать Run.
--- Повторный запуск безопасен: всё через if not exists / or replace / drop policy if exists.
+-- «Наш дом» — схема Supabase (первая миграция). Применяется `npx supabase db push`.
 -- Изоляция пар: каждая таблица видна только участникам своего дома (RLS через my_couple()).
+-- Живые обновления — realtime.send из триггеров в закрытый канал пары couple:<id>.
 
 create extension if not exists pgcrypto;
 
 -- ---------- таблицы ----------
-create table if not exists public.profiles (
+create table public.profiles (
   id uuid primary key references auth.users on delete cascade,
   name text not null default '' check (length(name) <= 40),
   emoji text not null default '🙂' check (length(emoji) <= 8),
@@ -13,12 +13,11 @@ create table if not exists public.profiles (
   avatar text check (length(avatar) <= 500),
   birthday date,
   about text not null default '' check (length(about) <= 300),
+  city jsonb check (pg_column_size(city) < 2000), -- город для погоды за окном: { name, region, lat, lon }
   created_at timestamptz not null default now()
 );
--- город для погоды за окном: { name, region, lat, lon }
-alter table public.profiles add column if not exists city jsonb check (pg_column_size(city) < 2000);
 
-create table if not exists public.couples (
+create table public.couples (
   id uuid primary key default gen_random_uuid(),
   title text not null default 'Наш дом' check (length(title) <= 60),
   started date,
@@ -26,26 +25,26 @@ create table if not exists public.couples (
   created_at timestamptz not null default now()
 );
 
-create table if not exists public.members (
+create table public.members (
   couple_id uuid not null references public.couples on delete cascade,
   user_id uuid not null unique references auth.users on delete cascade, -- один дом на человека
   joined_at timestamptz not null default now(),
   primary key (couple_id, user_id)
 );
 
--- всё содержимое дома: записки, фото, альбомы, планы… (вид/id/json — как в store.js)
-create table if not exists public.items (
+-- всё содержимое дома: записки, фото, альбомы, планы, тесты, игры… (вид/id/json — как в store.js; правила — rules.js)
+create table public.items (
   couple_id uuid not null references public.couples on delete cascade,
   kind text not null check (kind ~ '^[a-z]{2,20}$'),
   id text not null check (id ~ '^[A-Za-z0-9_:.-]{1,120}$'),
-  data jsonb, -- null = удалено (так удаление приходит партнёру через Realtime с проверкой RLS)
+  data jsonb, -- null = удалено (так удаление приходит партнёру)
   updated_by uuid default auth.uid(),
   updated_at timestamptz not null default now(),
   primary key (couple_id, kind, id),
   check (pg_column_size(data) < 1000000)
 );
 
-create table if not exists public.messages (
+create table public.messages (
   id bigint generated always as identity primary key,
   couple_id uuid not null references public.couples on delete cascade,
   user_id uuid not null default auth.uid() references auth.users on delete cascade,
@@ -53,13 +52,15 @@ create table if not exists public.messages (
   text text not null check (length(text) between 1 and 1000),
   created_at timestamptz not null default now()
 );
-create index if not exists messages_couple_time on public.messages (couple_id, created_at desc);
+create index messages_couple_time on public.messages (couple_id, created_at desc);
+create index messages_user_time on public.messages (user_id, created_at desc);
 
--- копилка пары: начисления (+) и покупки/подарки (−) одной лентой; баланс = сумма amount
-create table if not exists public.ledger (
+-- копилка пары: начисления (+) и покупки/подарки (−) одной лентой; баланс = сумма amount.
+-- Автор удалил аккаунт — строка остаётся без автора, баланс пары не меняется.
+create table public.ledger (
   id bigint generated always as identity primary key,
   couple_id uuid not null references public.couples on delete cascade,
-  user_id uuid not null references auth.users on delete cascade,
+  user_id uuid references auth.users on delete set null,
   reason text not null,
   ref text not null,
   amount int not null,
@@ -70,16 +71,15 @@ create table if not exists public.ledger (
   created_at timestamptz not null default now(),
   unique (couple_id, reason, ref) -- одно и то же действие не начисляется дважды
 );
+create index ledger_daily on public.ledger (couple_id, reason, created_at);
 
 -- каталог магазина: здесь только цены (их проверяет buy); вид и названия — в catalog.js
-create table if not exists public.shop (
+-- вид: style — стены/пол/стол (раз и навсегда), decor — вещь в комнату (сколько угодно), gift — подарок партнёру
+create table public.shop (
   id text primary key,
-  kind text not null,
+  kind text not null check (kind in ('decor', 'gift', 'style')),
   price int not null check (price >= 0)
 );
--- вид: style — стены/пол/стол (раз и навсегда), decor — вещь в комнату (сколько угодно), gift — подарок партнёру
-alter table public.shop drop constraint if exists shop_kind_check;
-alter table public.shop add constraint shop_kind_check check (kind in ('decor', 'gift', 'style'));
 insert into public.shop (id, kind, price) values
   ('w_rose', 'style', 0), ('w_cream', 'style', 0), ('w_sage', 'style', 0), ('w_sky', 'style', 0), ('w_lavender', 'style', 30), ('w_peach', 'style', 30),
   ('w_night', 'style', 45), ('wp_stripes', 'style', 60), ('wp_dots', 'style', 60), ('wp_hearts', 'style', 70), ('wp_checks', 'style', 70), ('wp_flowers', 'style', 90),
@@ -92,6 +92,19 @@ insert into public.shop (id, kind, price) values
   ('radio', 'decor', 75), ('lamp', 'decor', 140), ('pouf', 'decor', 160), ('side_table', 'decor', 90), ('monstera', 'decor', 150), ('tree', 'decor', 220),
   ('balloon', 'gift', 20), ('choco', 'gift', 30), ('flowers', 'gift', 45), ('teddy', 'gift', 70), ('ring', 'gift', 150)
 on conflict (id) do update set kind = excluded.kind, price = excluded.price;
+
+-- ошибки из браузера (смотреть в панели Supabase); писать могут все, читать — никто через API
+create table public.client_errors (
+  id bigint generated always as identity primary key,
+  at timestamptz not null default now(),
+  version text check (length(version) <= 40),
+  user_id uuid default auth.uid(),
+  msg text not null check (length(msg) <= 500),
+  stack text check (length(stack) <= 4000),
+  url text check (length(url) <= 300),
+  ua text check (length(ua) <= 300)
+);
+create index client_errors_at on public.client_errors (at);
 
 -- ---------- помощники ----------
 create or replace function public.my_couple() returns uuid
@@ -109,8 +122,36 @@ begin
   on conflict do nothing;
   return new;
 end $$;
-drop trigger if exists on_signup on auth.users;
 create trigger on_signup after insert on auth.users for each row execute function public.on_signup();
+
+-- ---------- квоты ----------
+-- ponytail: count(*) по индексу пары на каждую вставку; при сотнях тысяч строк на пару — счётчик в couples
+create or replace function public.items_quota() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if (select count(*) from items where couple_id = new.couple_id) >= 20000 then raise exception 'quota: items'; end if;
+  return new;
+end $$;
+create trigger items_quota before insert on public.items for each row execute function public.items_quota();
+
+create or replace function public.messages_quota() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if (select count(*) from messages where user_id = new.user_id and created_at > now() - interval '1 minute') >= 30
+    then raise exception 'quota: messages'; end if;
+  return new;
+end $$;
+create trigger messages_quota before insert on public.messages for each row execute function public.messages_quota();
+
+-- ошибки: не больше 300 в минуту на всё; старше 30 дней изредка вычищаются здесь же (без pg_cron)
+create or replace function public.errors_guard() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if (select count(*) from client_errors where at > now() - interval '1 minute') >= 300 then return null; end if;
+  if random() < 0.01 then delete from client_errors where at < now() - interval '30 days'; end if;
+  return new;
+end $$;
+create trigger errors_guard before insert on public.client_errors for each row execute function public.errors_guard();
 
 -- ---------- RLS ----------
 alter table public.profiles enable row level security;
@@ -120,42 +161,36 @@ alter table public.items enable row level security;
 alter table public.messages enable row level security;
 alter table public.ledger enable row level security;
 alter table public.shop enable row level security;
+alter table public.client_errors enable row level security;
 
-drop policy if exists "profiles read" on public.profiles;
+-- (select my_couple()) — считается один раз на запрос, а не на каждую строку
 create policy "profiles read" on public.profiles for select to authenticated
-  using (id = auth.uid() or id in (select user_id from members where couple_id = my_couple()));
-drop policy if exists "profiles insert" on public.profiles;
+  using (id = auth.uid() or id in (select user_id from members where couple_id = (select my_couple())));
 create policy "profiles insert" on public.profiles for insert to authenticated with check (id = auth.uid());
-drop policy if exists "profiles write" on public.profiles;
 create policy "profiles write" on public.profiles for update to authenticated
   using (id = auth.uid()) with check (id = auth.uid());
 
-drop policy if exists "couples read" on public.couples;
-create policy "couples read" on public.couples for select to authenticated using (id = my_couple());
-drop policy if exists "couples write" on public.couples;
+create policy "couples read" on public.couples for select to authenticated using (id = (select my_couple()));
 create policy "couples write" on public.couples for update to authenticated
-  using (id = my_couple()) with check (id = my_couple());
+  using (id = (select my_couple())) with check (id = (select my_couple()));
 
-drop policy if exists "members read" on public.members;
-create policy "members read" on public.members for select to authenticated using (couple_id = my_couple());
+create policy "members read" on public.members for select to authenticated using (couple_id = (select my_couple()));
 
-drop policy if exists "items all" on public.items;
 create policy "items all" on public.items for all to authenticated
-  using (couple_id = my_couple()) with check (couple_id = my_couple());
+  using (couple_id = (select my_couple())) with check (couple_id = (select my_couple()));
 
-drop policy if exists "messages read" on public.messages;
-create policy "messages read" on public.messages for select to authenticated using (couple_id = my_couple());
-drop policy if exists "messages write" on public.messages;
+create policy "messages read" on public.messages for select to authenticated using (couple_id = (select my_couple()));
 create policy "messages write" on public.messages for insert to authenticated
-  with check (couple_id = my_couple() and user_id = auth.uid());
+  with check (couple_id = (select my_couple()) and user_id = auth.uid());
 
-drop policy if exists "ledger read" on public.ledger;
-create policy "ledger read" on public.ledger for select to authenticated using (couple_id = my_couple());
+create policy "ledger read" on public.ledger for select to authenticated using (couple_id = (select my_couple()));
 
-drop policy if exists "shop read" on public.shop;
 create policy "shop read" on public.shop for select to authenticated using (true);
 
--- ---------- действия (только через них: создать/войти в дом, баллы, покупки) ----------
+create policy "errors write" on public.client_errors for insert to anon, authenticated
+  with check (user_id is null or user_id = auth.uid());
+
+-- ---------- действия (только через них: создать/войти в дом, баллы, покупки, удалить себя) ----------
 create or replace function public.create_couple(p_title text, p_started date) returns uuid
 language plpgsql security definer set search_path = public as $$
 declare c uuid;
@@ -226,37 +261,78 @@ create or replace function public.open_gift(p_id bigint) returns void
 language sql security definer set search_path = public as
 $$ update ledger set opened = true where id = p_id and to_user = auth.uid() $$;
 
-revoke execute on function public.create_couple, public.join_couple, public.award, public.buy, public.open_gift from anon, public;
-grant execute on function public.create_couple, public.join_couple, public.award, public.buy, public.open_gift, public.server_now, public.my_couple to authenticated;
-
--- ---------- Realtime ----------
-do $$
-declare t text;
+-- удалить свой аккаунт: профиль, членство и сообщения — каскадом; баллы остаются паре без автора.
+-- Последний в доме — дом удаляется целиком (файлы папки пары клиент удаляет до вызова, через Storage API).
+create or replace function public.delete_me() returns void
+language plpgsql security definer set search_path = public, auth as $$
+declare c uuid := my_couple();
 begin
-  foreach t in array array['items', 'messages', 'ledger', 'profiles', 'couples', 'members'] loop
-    if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t) then
-      execute format('alter publication supabase_realtime add table public.%I', t);
-    end if;
-  end loop;
+  if auth.uid() is null then raise exception 'auth'; end if;
+  if c is not null and (select count(*) from members where couple_id = c) <= 1 then delete from couples where id = c; end if;
+  delete from auth.users where id = auth.uid();
 end $$;
 
--- закрытый канал пары (присутствие, «печатает», плеер, реакции): слушать и писать могут только участники
-drop policy if exists "couple channel read" on realtime.messages;
+revoke execute on function public.create_couple, public.join_couple, public.award, public.buy, public.open_gift, public.delete_me from anon, public;
+grant execute on function public.create_couple, public.join_couple, public.award, public.buy, public.open_gift, public.delete_me, public.server_now, public.my_couple to authenticated;
+
+-- ---------- Realtime: изменения — в закрытый канал пары ----------
+-- событие 'db': { t: таблица, op, row }. Большая запись items уходит без data (big: true) — клиент дочитывает сам.
+create or replace function public.to_couple(c uuid, body jsonb) returns void
+language sql security definer set search_path = public, realtime as
+$$ select realtime.send(body, 'db', 'couple:' || c::text, true) where c is not null $$;
+revoke execute on function public.to_couple from anon, authenticated, public;
+
+create or replace function public.broadcast_row() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare r record := coalesce(new, old); body jsonb;
+begin
+  if tg_table_name = 'items' then
+    body := jsonb_build_object('kind', r.kind, 'id', r.id, 'updated_by', r.updated_by, 'updated_at', r.updated_at);
+    body := body || case when octet_length(r.data::text) > 100000 then jsonb_build_object('big', true) else jsonb_build_object('data', r.data) end;
+  else
+    body := to_jsonb(r);
+  end if;
+  perform to_couple(r.couple_id, jsonb_build_object('t', tg_table_name, 'op', tg_op, 'row', body));
+  return null;
+end $$;
+create trigger items_live after insert or update on public.items for each row execute function public.broadcast_row();
+create trigger messages_live after insert on public.messages for each row execute function public.broadcast_row();
+create trigger ledger_live after insert or update on public.ledger for each row execute function public.broadcast_row();
+create trigger members_live after insert or delete on public.members for each row execute function public.broadcast_row();
+
+-- профиль и дом: партнёру достаточно знать, что люди поменялись (он перечитает)
+create or replace function public.broadcast_people() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  perform to_couple(case when tg_table_name = 'couples' then new.id else (select couple_id from members where user_id = new.id) end,
+    jsonb_build_object('t', 'people', 'op', tg_op));
+  return null;
+end $$;
+create trigger profiles_live after update on public.profiles for each row execute function public.broadcast_people();
+create trigger couples_live after update on public.couples for each row execute function public.broadcast_people();
+
+-- закрытый канал пары (присутствие, «печатает», плеер, события базы): слушать и писать могут только участники
 create policy "couple channel read" on realtime.messages for select to authenticated
-  using (realtime.topic() = 'couple:' || my_couple()::text);
-drop policy if exists "couple channel write" on realtime.messages;
+  using (realtime.topic() = 'couple:' || (select my_couple())::text);
 create policy "couple channel write" on realtime.messages for insert to authenticated
-  with check (realtime.topic() = 'couple:' || my_couple()::text);
+  with check (realtime.topic() = 'couple:' || (select my_couple())::text);
 
--- ---------- Storage: фото ----------
--- ponytail: корзина публичная, адреса неугадываемые (uuid) — как было на Vercel Blob; нужна полная закрытость → private + signed URLs
+-- ---------- Storage: фото, закрытая корзина ----------
+-- путь <couple_id>/<uuid>.jpg; читают по подписанным ссылкам только участники пары
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values ('house', 'house', true, 5242880, array['image/jpeg', 'image/png', 'image/webp'])
-on conflict (id) do update set public = true, file_size_limit = excluded.file_size_limit, allowed_mime_types = excluded.allowed_mime_types;
+values ('house', 'house', false, 5242880, array['image/jpeg', 'image/png', 'image/webp'])
+on conflict (id) do update set public = false, file_size_limit = excluded.file_size_limit, allowed_mime_types = excluded.allowed_mime_types;
 
-drop policy if exists "house upload" on storage.objects;
+create policy "house read" on storage.objects for select to authenticated
+  using (bucket_id = 'house' and (storage.foldername(name))[1] = (select my_couple())::text);
+-- сколько файлов у моей пары (своя функция: политика не может читать ту же таблицу — рекурсия)
+create or replace function public.house_files() returns int
+language sql stable security definer set search_path = public, storage as
+$$ select count(*)::int from storage.objects where bucket_id = 'house' and name like my_couple()::text || '/%' $$;
+revoke execute on function public.house_files from anon, public;
+grant execute on function public.house_files to authenticated;
+
 create policy "house upload" on storage.objects for insert to authenticated
-  with check (bucket_id = 'house' and (storage.foldername(name))[1] = my_couple()::text);
-drop policy if exists "house delete" on storage.objects;
+  with check (bucket_id = 'house' and (storage.foldername(name))[1] = (select my_couple())::text and (select house_files()) < 3000);
 create policy "house delete" on storage.objects for delete to authenticated
-  using (bucket_id = 'house' and (storage.foldername(name))[1] = my_couple()::text);
+  using (bucket_id = 'house' and (storage.foldername(name))[1] = (select my_couple())::text);

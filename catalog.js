@@ -1,4 +1,4 @@
-// Магазин и правила баллов. Цены и суммы дублируют supabase/schema.sql (shop и award) — их сверяет tests/catalog.test.mjs.
+// Магазин и правила баллов. Цены и суммы дублируют supabase/migrations (shop и award) — их сверяет tests/catalog.test.mjs.
 // kind: 'style' — стены/пол/стол, покупается один раз и дальше переключается бесплатно (price 0 — есть у всех сразу);
 //       'decor' — вещь в комнату, можно сколько угодно, ставится перетаскиванием; 'gift' — подарок партнёру (после открытия тоже вещь).
 // slot (у style): wall | floor | desk. cat (у decor): wall | table | floor — раздел в магазине.

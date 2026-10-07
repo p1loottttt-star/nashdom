@@ -1,9 +1,9 @@
-// цены в каталоге сайта и в базе (schema.sql) должны совпадать — иначе сервер спишет не то, что показано
+// цены в каталоге сайта и в базе (supabase/migrations) должны совпадать — иначе сервер спишет не то, что показано
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { SHOP, EARN, inventory, ownedStyles } from '../catalog.js';
 
-const sql = fs.readFileSync(new URL('../supabase/schema.sql', import.meta.url), 'utf8');
+import { SQL as sql } from './sql.mjs';
 const rows = new Map([...sql.matchAll(/\('([a-z_]+)', '(decor|gift|style)', (\d+)\)/g)].map((m) => [m[1], [m[2], +m[3]]]));
 for (const s of SHOP) assert.deepEqual(rows.get(s.id), [s.kind, s.price], `цена/вид ${s.id}`);
 assert.equal(rows.size, SHOP.length, 'в базе лишние или пропущенные товары');
