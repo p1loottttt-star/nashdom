@@ -1,0 +1,11 @@
+.pass.txt
+node_modules
+.env*
+docs
+supabase
+tests
+HANDOFF.md
+.pass.txt
+.claude
+.devmedia
+shots

@@ -1,0 +1,18 @@
+Ассеты реалистичного варианта (lab/real.js). Все — CC0 (общественное достояние), атрибуция не обязательна.
+
+Poly Haven (https://polyhaven.com, лицензия CC0):
+  pachira_aquatica_01/        — модель «денежное дерево» (используется вариант d), glTF 1k
+  potted_plant_04/            — модель суккулента в горшке (на столе), glTF 1k
+  lythwood_room_1k.hdr        — HDRI интерьера, исходное окружение для запекания зонда комнаты
+  view.jpg                    — кроп тонмапленного JPG HDRI «autumn_park» (вид за окном)
+  photo1..4.jpg               — кропы превью HDRI kiara_8_sunset, golden_bay, belfast_sunset, blouberg_sunrise_2 (фото-полароиды)
+
+ambientCG (https://ambientcg.com, лицензия CC0), 1K-JPG (пол 2K), пережаты в JPEG q85–88:
+  tex/floor_*   — WoodFloor051 (паркет)
+  tex/oak_*     — Wood049 (столешница и ножки)
+  tex/desk_*    — Wood066 (орех: полка, лоток)
+  tex/plaster_* — Plaster001 (фактура стен/потолка/панели, кашпо)
+  tex/fabric_*  — Fabric061 (лён: шторы, абажур, нормали обложек книг)
+  tex/carpet_*  — Carpet016 (ковёр)
+
+Остальное (стол, ноутбук и экран, лампа, кружка, лоток, записки, книги, полка, окно, шторы, гирлянда, кашпо) — своя геометрия в real.js.
