@@ -22,42 +22,51 @@ function cone(px, py, pz, a, b, ra, rb) {
   const dx = qx - bx * t, dy = qy - by * t, dz = qz - bz * t;
   return Math.sqrt(dx * dx + dy * dy + dz * dz) - (ra + (rb - ra) * t);
 }
-const ball = (px, py, pz, c, r, sy = 1) => Math.hypot(px - c[0], (py - c[1]) / sy, pz - c[2]) - r;
+const ball = (px, py, pz, c, r, sy = 1) => { const dx = px - c[0], dy = (py - c[1]) / sy, dz = pz - c[2]; return Math.sqrt(dx * dx + dy * dy + dz * dz) - r; };
+
+// точки формы считаются один раз: field зовётся ~400 тыс. раз при сборке кота, и массивы на каждом вызове
+// (add3, FRONT(s), [-1, 1]) стоили секунды сборки мусора. Форма та же — те же числа в том же порядке
+const HEAD_UP = add3(HEAD, [0.008, 0.019, 0]), MUZZLE = add3(HEAD, [0.037, -0.013, 0]), CHIN = add3(HEAD, [0.03, -0.028, 0]);
+const SIDES = [-1, 1].map((s) => ({
+  hip: [-0.068, -0.006, s * 0.02], cheek: add3(HEAD, [0.012, -0.013, s * 0.02]), pad: add3(HEAD, [0.04, -0.016, s * 0.009]),
+  front: [FRONT(s), add3(FRONT(s), [0, -0.062, 0]), add3(FRONT(s), [0.002, -0.117, 0]), add3(FRONT(s), [0.0, -0.121, 0]), add3(FRONT(s), [0.014, -0.122, 0])],
+  back: [BACK(s), add3(BACK(s), [0, -0.062, 0]), add3(BACK(s), [0.002, -0.117, 0]), add3(BACK(s), [0.0, -0.121, 0]), add3(BACK(s), [0.014, -0.122, 0])],
+}));
+const BODY0 = [-0.072, 0.0, 0], BODY1 = [0.068, 0.002, 0], BELLY = [0.0, -0.014, 0], CHEST = [0.074, -0.008, 0], NECK0 = [0.06, 0.018, 0], NECK1 = [0.11, 0.05, 0];
+const TIP = [TAIL0[0] - TSEG * TN, TAIL0[1], 0];
 
 function field(x, y, z0) {
   const z = z0 * 1.12; // кошки узкие
   // туловище: грудь, мягкий живот, круглые бёдра
-  let t = cone(x, y, z, [-0.072, 0.0, 0], [0.068, 0.002, 0], 0.046, 0.047);
-  t = smin(t, ball(x, y, z, [0.0, -0.014, 0], 0.044), 0.03);
-  t = smin(t, ball(x, y, z, [0.074, -0.008, 0], 0.047), 0.03);
-  for (const s of [-1, 1]) t = smin(t, ball(x, y, z, [-0.068, -0.006, s * 0.02], 0.041), 0.03);
+  let t = cone(x, y, z, BODY0, BODY1, 0.046, 0.047);
+  t = smin(t, ball(x, y, z, BELLY, 0.044), 0.03);
+  t = smin(t, ball(x, y, z, CHEST, 0.047), 0.03);
+  for (const S of SIDES) t = smin(t, ball(x, y, z, S.hip, 0.041), 0.03);
   // шея и голова
-  t = smin(t, cone(x, y, z, [0.06, 0.018, 0], [0.11, 0.05, 0], 0.035, 0.029), 0.025);
+  t = smin(t, cone(x, y, z, NECK0, NECK1, 0.035, 0.029), 0.025);
   let h = ball(x, y, z, HEAD, 0.043, 0.95);
-  h = smin(h, ball(x, y, z, add3(HEAD, [0.008, 0.019, 0]), 0.034), 0.02);
-  for (const s of [-1, 1]) {
-    h = smin(h, ball(x, y, z, add3(HEAD, [0.012, -0.013, s * 0.02]), 0.029), 0.02); // щёки
-    h = smin(h, ball(x, y, z, add3(HEAD, [0.04, -0.016, s * 0.009]), 0.0125), 0.012); // подушечки с усами
+  h = smin(h, ball(x, y, z, HEAD_UP, 0.034), 0.02);
+  for (const S of SIDES) {
+    h = smin(h, ball(x, y, z, S.cheek, 0.029), 0.02); // щёки
+    h = smin(h, ball(x, y, z, S.pad, 0.0125), 0.012); // подушечки с усами
   }
-  h = smin(h, ball(x, y, z, add3(HEAD, [0.037, -0.013, 0]), 0.018), 0.014); // мордочка
-  h = smin(h, ball(x, y, z, add3(HEAD, [0.03, -0.028, 0]), 0.011), 0.012);  // подбородок
+  h = smin(h, ball(x, y, z, MUZZLE, 0.018), 0.014); // мордочка
+  h = smin(h, ball(x, y, z, CHIN, 0.011), 0.012);  // подбородок
   t = smin(t, h, 0.022);
   // лапы
   let legs = 1;
-  for (const s of [-1, 1]) {
-    const f = FRONT(s), b = BACK(s);
-    let l = cone(x, y, z, f, add3(f, [0, -0.062, 0]), 0.022, 0.015);
-    l = smin(l, cone(x, y, z, add3(f, [0, -0.062, 0]), add3(f, [0.002, -0.117, 0]), 0.015, 0.012), 0.01);
-    l = smin(l, cone(x, y, z, add3(f, [0.0, -0.121, 0]), add3(f, [0.014, -0.122, 0]), 0.0135, 0.012), 0.012);
-    let r = cone(x, y, z, b, add3(b, [0, -0.062, 0]), 0.03, 0.016);
-    r = smin(r, cone(x, y, z, add3(b, [0, -0.062, 0]), add3(b, [0.002, -0.117, 0]), 0.015, 0.012), 0.01);
-    r = smin(r, cone(x, y, z, add3(b, [0.0, -0.121, 0]), add3(b, [0.014, -0.122, 0]), 0.0135, 0.012), 0.012);
+  for (const { front: f, back: b } of SIDES) {
+    let l = cone(x, y, z, f[0], f[1], 0.022, 0.015);
+    l = smin(l, cone(x, y, z, f[1], f[2], 0.015, 0.012), 0.01);
+    l = smin(l, cone(x, y, z, f[3], f[4], 0.0135, 0.012), 0.012);
+    let r = cone(x, y, z, b[0], b[1], 0.03, 0.016);
+    r = smin(r, cone(x, y, z, b[1], b[2], 0.015, 0.012), 0.01);
+    r = smin(r, cone(x, y, z, b[3], b[4], 0.0135, 0.012), 0.012);
     legs = Math.min(legs, l, r);
   }
   t = smin(t, legs, 0.018);
   // хвост: прямо назад, сужается
-  const tip = [TAIL0[0] - TSEG * TN, TAIL0[1], 0];
-  t = smin(t, cone(x, y, z, TAIL0, tip, 0.0145, 0.0075), 0.012);
+  t = smin(t, cone(x, y, z, TAIL0, TIP, 0.0145, 0.0075), 0.012);
   return t;
 }
 
@@ -179,6 +188,35 @@ function sharedGeometry() {
   g.setIndex(idx);
   shared = g;
   return g;
+}
+
+// Готовая геометрия кота лежит в Cache Storage: сборка поверхности стоит ~1,5 с, а нужна одна и та же.
+// Ключ — отпечаток кода формы: поменяли field/polygonize/веса — кеш сам устарел. Звать до первого buildRig.
+const ATTRS = [['position', Float32Array, 3], ['normal', Float32Array, 3], ['uv', Float32Array, 2], ['skinIndex', Uint16Array, 4], ['skinWeight', Float32Array, 4]];
+function packGeometry(g) {
+  const parts = [...ATTRS.map(([k]) => g.attributes[k].array), Uint32Array.from(g.index.array)];
+  const head = new Uint32Array(parts.map((a) => a.length));
+  const out = new Uint8Array(head.byteLength + parts.reduce((s, a) => s + a.byteLength, 0));
+  let at = 0;
+  for (const a of [head, ...parts]) { out.set(new Uint8Array(a.buffer, a.byteOffset, a.byteLength), at); at += a.byteLength; }
+  return out.buffer;
+}
+function unpackGeometry(buf) {
+  const n = new Uint32Array(buf, 0, ATTRS.length + 1), g = new THREE.BufferGeometry();
+  let at = n.byteLength;
+  ATTRS.forEach(([k, T, size], i) => { const a = new T(buf.slice(at, at + n[i] * T.BYTES_PER_ELEMENT)); at += a.byteLength; g.setAttribute(k, new THREE.BufferAttribute(a, size)); });
+  g.setIndex(new THREE.BufferAttribute(new Uint32Array(buf.slice(at, at + n[ATTRS.length] * 4)), 1));
+  return g;
+}
+const fnv = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return (h >>> 0).toString(36); };
+export async function prepareCatGeometry() {
+  if (shared) return;
+  const key = '/__geo/cat-' + fnv([field, polygonize, sharedGeometry, boneSegments, makeBones].join('|')) + '.bin';
+  const cache = await globalThis.caches?.open('geo-v1').catch(() => null);
+  const hit = await cache?.match(key);
+  if (hit) { shared = unpackGeometry(await hit.arrayBuffer()); return; }
+  sharedGeometry();
+  cache?.put(key, new Response(packGeometry(shared))).catch(() => {});
 }
 
 function furTexture(base, dark, light) {

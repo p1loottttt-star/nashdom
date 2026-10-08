@@ -86,9 +86,10 @@ function smoothed(g) {
 }
 const noRay = () => {};
 // неподвижный слитый меш: луч мыши идёт по дереву (BVH), а не по всем треугольникам (было 6 мс на 33 тыс.)
-export function fastRay(mesh) {
-  mesh.geometry.boundsTree = new MeshBVH(mesh.geometry);
-  mesh.raycast = acceleratedRaycast;
+export function fastRay(mesh, lazy = false) {
+  if (!lazy) mesh.geometry.boundsTree = new MeshBVH(mesh.geometry);
+  // лениво: дерево строится при первом луче (вещь из магазина, превью — дереву незачем строиться заранее)
+  mesh.raycast = lazy ? function (r, out) { this.geometry.boundsTree ||= new MeshBVH(this.geometry); return acceleratedRaycast.call(this, r, out); } : acceleratedRaycast;
   return mesh;
 }
 export function outlineOf(mesh, w = 1, color) {
@@ -242,7 +243,7 @@ export function bake(root, minSize = 0.012) {
     root.remove(m);
   }
   for (const m of parts) { m.geometry.dispose(); m.material.dispose(); } // общие между деталями — освобождаем после
-  const solid = fastRay(new THREE.Mesh(mergeGeometries(solids), toon({ vertexColors: true })));
+  const solid = fastRay(new THREE.Mesh(mergeGeometries(solids), toon({ vertexColors: true })), true);
   solid.castShadow = solid.receiveShadow = true; solid.userData.noOutline = true;
   if (hulls.length) solid.add(hullMesh(hulls));
   root.add(solid);

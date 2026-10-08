@@ -14,10 +14,12 @@ import { badge as quizBadge } from './quiz.js';
 import { badge as gamesBadge } from './games.js';
 import { ITEM } from './catalog.js';
 import { createCats } from './cats.js';
+import { prepareCatGeometry } from './catmesh.js';
 import { listAlbums, createAlbum, openAlbum } from './albums.js';
-import { createPad, drawPaper, PAPER } from './pad.js';
+import { createPad, paperImage, PAPER } from './pad.js';
 import * as sfx from './sound.js';
 import { onRadio } from './lofi.js';
+import { startEmoji } from './emoji.js';
 import { inject as analytics } from '@vercel/analytics';
 import * as store from './store.js';
 import { createTuner, TIERS, prRange } from './gfx.js';
@@ -31,7 +33,12 @@ import { fetchWeather, fakeWeather, effects, cityHour, roomHour, label as wxLabe
 
 // рукописный шрифт нужен до того, как рисуем записки, корешки и экран
 await Promise.all([document.fonts.load('700 48px Caveat', 'привет'), document.fonts.load('500 48px Caveat', 'привет')]).catch(() => {});
+performance.mark('lr:start');
 await store.initStore(); // облако Supabase (вход, свой дом пары) или, если его нет, этот браузер
+// заставка на время сборки и прогрева: комната появляется сразу плавной, без кадров-рывков компиляции
+performance.mark('lr:store');
+startEmoji(); // эмодзи интерфейса рисуются картинками в фоне (окна ноутбука открывались на 60–150 мс дольше)
+const veil = document.body.appendChild(Object.assign(document.createElement('div'), { id: 'veil' }));
 setTimeout(() => { quizBadge(); gamesBadge(); }, 2500); // кто-то позвал пройти тест — сказать при входе (после экрана загрузки)
 
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
@@ -649,6 +656,8 @@ syncDecor();
 store.onLedger(syncDecor);
 store.onPeople(syncDecor);
 let placer = null; // режим «расставить», создаётся ниже
+toonify(scene); renderer.compileAsync(scene, camera).catch(() => {}); performance.mark('lr:kick', { detail: renderer.info.programs.length }); // комната готова — драйвер компилирует её шейдеры параллельно со сборкой остального
+await prepareCatGeometry(); // готовое тело кота — из кеша браузера (собирать заново ~1,5 с)
 const catsys = createCats({ scene, camera, TOP, floatAt,
   deskObstacles: () => [...papers.filter((p) => p.slot && !p.read).map((p) => ({ x: p.slot.x, z: p.slot.z, r: 0.045 })), ...(placer?.obstacles('desk', TOP) || [])],
   floorObstacles: () => placer?.obstacles('floor', TOP) || [] });
@@ -883,14 +892,20 @@ function paperGeometry(seed) {
       centre(b).add(unit().multiplyScalar(0.012 * r()));
       const axis = unit(), normal = unit().cross(axis).normalize();
       const q = new THREE.Quaternion().setFromAxisAngle(axis, (r() < 0.5 ? -1 : 1) * (2.1 + r() * 0.7));
-      for (let i = 0; i < n; i++) {
-        v.fromArray(b, i * 3).sub(c);
-        if (v.dot(normal) > 0) v.applyQuaternion(q).add(c).toArray(b, i * 3);
+      // то же, что v.sub(c) → dot → applyQuaternion → add(c), только без вызовов на каждую из 4332 вершин (×30 на записку)
+      const { x: qx, y: qy, z: qz, w: qw } = q, { x: nx, y: ny, z: nz } = normal, { x: cx, y: cy, z: cz } = c;
+      for (let j = 0; j < n * 3; j += 3) {
+        const vx = b[j] - cx, vy = b[j + 1] - cy, vz = b[j + 2] - cz;
+        if (vx * nx + vy * ny + vz * nz <= 0) continue;
+        const tx = 2 * (qy * vz - qz * vy), ty = 2 * (qz * vx - qx * vz), tz = 2 * (qx * vy - qy * vx);
+        b[j] = vx + qw * tx + qy * tz - qz * ty + cx;
+        b[j + 1] = vy + qw * ty + qz * tx - qx * tz + cy;
+        b[j + 2] = vz + qw * tz + qx * ty - qy * tx + cz;
       }
     }
     centre(b);
     const lens = new Float32Array(n);
-    for (let i = 0; i < n; i++) lens[i] = v.fromArray(b, i * 3).sub(c).length();
+    for (let i = 0, j = 0; i < n; i++, j += 3) { const dx = b[j] - c.x, dy = b[j + 1] - c.y, dz = b[j + 2] - c.z; lens[i] = Math.sqrt(dx * dx + dy * dy + dz * dz); }
     const sorted = Float32Array.from(lens).sort();
     return { b, c: c.clone(), p50: sorted[Math.floor(n * 0.5)], p90: sorted[Math.floor(n * 0.9)], max: sorted[n - 1] };
   }
@@ -927,7 +942,7 @@ function noteTex(note) {
   let ctx;
   const tex = canvasTex(PAPER.w, PAPER.h, (x, w, h) => {
     ctx = x;
-    drawPaper(x, w, h);
+    x.drawImage(paperImage(), 0, 0, w, h); // бумага с крапом — одна на все записки (6000 точек на каждую стоили ~50 мс)
     x.fillStyle = '#2b3a67'; x.font = '700 58px Caveat';
     if (note.text) wrap(x, note.text, w - 170).slice(0, 12).forEach((l, i) => x.fillText(l, PAPER.textX, 162 + i * PAPER.step));
     x.font = '500 44px Caveat'; x.textAlign = 'right'; x.fillStyle = '#7a4a63';
@@ -1420,7 +1435,8 @@ function resize() {
   HOME.pos.set(0, 1.5, camera.aspect < 1 ? 1.25 : 1.1);
   camera.updateProjectionMatrix();
 }
-const checkSize = () => { const k = `${innerWidth}x${innerHeight}@${devicePixelRatio}`; if (k !== sized) { sized = k; resize(); } }; // смена монитора/масштаба не всегда шлёт resize
+let warmUntil = Infinity; // до прогрева автоподстройка молчит (см. warmUp)
+const checkSize = () => { const k = `${innerWidth}x${innerHeight}@${devicePixelRatio}`; if (k !== sized) { sized = k; resize(); warmUntil = performance.now() + 1000; } }; // смена монитора/масштаба не всегда шлёт resize
 applyTier();
 checkSize();
 
@@ -1486,7 +1502,7 @@ if (!hasRoom()) askRoomSetup(); // первый раз: выбрать стен�
 
 const loop = (now) => {
   const raw = (now - last) / 1000, dt = Math.min(0.033, raw); last = now;
-  if (!paused && raw < 0.25 && document.visibilityState === 'visible') {
+  if (!paused && raw < 0.25 && document.visibilityState === 'visible' && now > warmUntil) {
     slow.push(raw);
     if (slow.length >= 30) { const med = slow.sort((a, b) => a - b)[15]; slow = []; tuneGfx(med, now); }
   }
@@ -1558,7 +1574,29 @@ const loop = (now) => {
   renderer.shadowMap.needsUpdate = frameN % TIERS[tier].shEvery === 0;
   post.render(scene, camera);
 };
+// ---------- прогрев: до первого кадра текстуры уходят в видеокарту, шейдеры компилируются параллельно ----------
+// (three не пропускает неготовый шейдер, а ждёт его прямо в кадре — отсюда были рывки по 200 мс в первые секунды)
+async function warmUp(root) {
+  const seen = new Set(), tex = (v) => { if (v?.isTexture && !seen.has(v)) { seen.add(v); renderer.initTexture(v); } };
+  root.traverse((o) => {
+    for (const m of [].concat(o.material || [])) {
+      for (const v of Object.values(m)) tex(v);
+      for (const u of Object.values(m.uniforms || {})) tex(u?.value);
+    }
+  });
+  performance.mark('lr:textures', { detail: seen.size });
+  await renderer.compileAsync(root, camera, scene).catch(console.warn);
+}
+performance.mark('lr:built');
+sfx.prepareAudio(); // звук создаётся здесь же, за заставкой (на первом клике было +100 мс)
+performance.mark('lr:audio');
+performance.mark('lr:prewarm', { detail: renderer.info.programs.length });
+await warmUp(scene);
+performance.mark('lr:compiled', { detail: renderer.info.programs.length });
+renderer.shadowMap.needsUpdate = true; post.render(scene, camera); // тени и вывод тоже собираются здесь, за заставкой
+warmUntil = performance.now() + 3000; // автоподстройка не слушает первые секунды: там кадры медленные не из-за видеокарты
 renderer.setAnimationLoop(loop);
+requestAnimationFrame(() => requestAnimationFrame(() => { performance.mark('lr:shown'); veil.classList.add('off'); setTimeout(() => veil.remove(), 600); }));
 
 // ?debug — ручки для проверки (камера, коты, время)
 if (new URLSearchParams(location.search).has('debug')) window.__room = { cam, camera, laptop, clickables, HOME, catsys, decor, papers, zonesys, step: (ms = 500, dt = 16) => { for (let t = performance.now(), e = t + ms; t < e; t += dt) loop(t); }, // скрытая панель: rAF стоит — шагаем вручную

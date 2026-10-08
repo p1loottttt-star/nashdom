@@ -17,7 +17,8 @@ const ctx = await chromium.launchPersistentContext(new URL('./.profile', import.
 const browser = ctx;
 const page = ctx.pages()[0] || await ctx.newPage();
 await page.addInitScript(() => {
-  const P = (window.__perf = { frames: [], marks: [], loaf: [] });
+  try { localStorage.removeItem('lr:gfx3'); } catch {} // каждый прогон — с одной и той же ступени качества
+  const P = (window.__perf = { frames: [], marks: [], loaf: [], progs: [] });
   let last = 0;
   const f = (t) => { if (last) P.frames.push([t, t - last]); last = t; requestAnimationFrame(f); };
   requestAnimationFrame(f);
@@ -28,7 +29,7 @@ await page.addInitScript(() => {
       scripts: e.scripts.map((s) => ({ fn: s.sourceFunctionName || '(anon)', url: (s.sourceURL || '').split('/').pop().split('?')[0], pos: s.sourceCharPosition, dur: Math.round(s.duration), inv: s.invoker, layout: Math.round(s.forcedStyleAndLayoutDuration || 0) })),
     }); }).observe({ type: 'long-animation-frame', buffered: true });
   } catch {}
-  window.__mark = (n) => P.marks.push([performance.now(), n]);
+  window.__mark = (n) => { P.marks.push([performance.now(), n]); P.progs.push(window.__room?.renderer.info.programs.length ?? 0); };
 });
 
 const cdp = await ctx.newCDPSession(page);
@@ -106,11 +107,12 @@ for (let i = 0; i < marks.length - 1; i++) {
   const lf = perf.loaf.filter((e) => e.t >= t && e.t < end);
   rows.push({
     step: name, frames: fr.length, p50: Math.round(pct(fr, 0.5)), p95: Math.round(pct(fr, 0.95)), max: Math.round(Math.max(0, ...fr)),
-    over50: fr.filter((d) => d > 50).length, over100: fr.filter((d) => d > 100).length,
+    over50: fr.filter((d) => d > 50).length, over100: fr.filter((d) => d > 100).length, newProgs: (perf.progs[i + 1] ?? perf.progs[i]) - perf.progs[i],
     loaf: lf.sort((a, b) => b.dur - a.dur).slice(0, 3).map((e) => ({ dur: e.dur, block: e.block, render: e.render, scripts: e.scripts.sort((a, b) => b.dur - a.dur).slice(0, 3) })),
     hot: hot(profiles.find(([n]) => n === name)?.[1] || { nodes: [], samples: [], timeDeltas: [] }),
   });
 }
-console.table(rows.map(({ step, frames, p50, p95, max, over50, over100 }) => ({ step, frames, p50, p95, max, over50, over100 })));
+console.table(rows.map(({ step, frames, p50, p95, max, over50, over100, newProgs }) => ({ step, frames, p50, p95, max, over50, over100, newProgs })));
+const end = await Promise.resolve(info);
 fs.writeFileSync(new URL('./last.json', import.meta.url), JSON.stringify({ info, rows }, null, 1));
 console.log('подробно: tests/perf/last.json');

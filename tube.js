@@ -101,21 +101,24 @@ export function renderTube(el) {
   // ---------- чат: сообщения, «печатает», кто в сети ----------
   const shown = new Set();
   const stick = () => msgs.scrollHeight - msgs.scrollTop - msgs.clientHeight < 60;
-  function addMsg(m) {
+  // bulk — история при открытии: без чтения прокрутки на каждое сообщение (это пересчёт раскладки окна) и без звука
+  function addMsg(m, bulk = false) {
     if (m.room !== 'tube' || shown.has(m.id)) return;
     shown.add(m.id);
-    const mine = m.user_id === me.id, end = stick();
+    const mine = m.user_id === me.id, end = !bulk && stick();
     msgs.append(h('div', { className: 'tmsg' + (mine ? ' me' : '') }, h('p', { textContent: m.text }), h('small', { textContent: hhmm(m.created_at) })));
+    if (bulk) return;
     if (end || mine) msgs.scrollTop = msgs.scrollHeight;
     if (!mine) { typing.textContent = ''; pop(); }
   }
-  function system(text) {
+  function system(text, bulk = false) {
     msgs.append(h('div', { className: 'tsys', textContent: text }));
-    if (stick()) msgs.scrollTop = msgs.scrollHeight;
+    if (!bulk && stick()) msgs.scrollTop = msgs.scrollHeight;
   }
   store.messages('tube').then((list) => {
-    if (!list.length) system('Здесь ваш общий чат. Пишите прямо во время фильма.');
-    list.forEach(addMsg); msgs.scrollTop = msgs.scrollHeight;
+    if (!list.length) system('Здесь ваш общий чат. Пишите прямо во время фильма.', true);
+    list.forEach((m) => addMsg(m, true));
+    requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; }); // вниз — один раз, когда браузер и так считает раскладку
   }).catch(console.warn);
   offs.push(store.onMessage(addMsg));
   let typingT = 0;

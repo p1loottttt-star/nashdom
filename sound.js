@@ -1,11 +1,13 @@
-// Все звуки синтезируются WebAudio — без файлов. Контекст создаётся на первом касании (так требуют браузеры).
+// Все звуки синтезируются WebAudio — без файлов. Контекст создаётся заранее (prepareAudio), запускается на первом касании (так требуют браузеры).
 let ctx = null, master = null, noiseBuf = null;
 let muted = false;
 try { muted = localStorage.getItem('lr:muted') === '1'; } catch {}
 
 const rnd = Math.random;
 
-function ac() {
+// создать контекст — дорого (~70–110 мс: открытие звукового устройства), запустить — бесплатно.
+// Создаём заранее, за заставкой (prepareAudio), а на первом касании только запускаем — клик не подвисает
+function make() {
   if (!ctx) {
     ctx = new AudioContext();
     master = ctx.createGain();
@@ -16,9 +18,14 @@ function ac() {
     const d = noiseBuf.getChannelData(0);
     for (let i = 0; i < d.length; i++) d[i] = rnd() * 2 - 1;
   }
+  return ctx;
+}
+function ac() {
+  make();
   if (ctx.state === 'suspended') ctx.resume();
   return ctx;
 }
+export const prepareAudio = () => { try { make(); } catch (e) { console.warn(e); } };
 addEventListener('pointerdown', ac, { once: true });
 // общий контекст и выход для других звуков (радио, lofi.js)
 export const audio = () => (ac(), { ctx, master, noiseBuf });

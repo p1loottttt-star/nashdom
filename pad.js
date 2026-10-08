@@ -9,6 +9,13 @@ export function drawPaper(x, w = PAPER.w, h = PAPER.h) {
   x.strokeStyle = 'rgba(230,120,140,.4)'; x.beginPath(); x.moveTo(PAPER.margin, 0); x.lineTo(PAPER.margin, h); x.stroke();
 }
 
+// чистый лист с крапом рисуется один раз, записки копируют его
+let paper = null;
+export function paperImage() {
+  if (!paper) { paper = Object.assign(document.createElement('canvas'), { width: PAPER.w, height: PAPER.h }); drawPaper(paper.getContext('2d')); }
+  return paper;
+}
+
 export function createPad(form) {
   const wrap = form.querySelector('.pad');
   const [bg, cv] = wrap.querySelectorAll('canvas');
@@ -52,7 +59,7 @@ export function createPad(form) {
   form.querySelector('[data-clear]').onclick = () => { strokes = []; redraw(); };
 
   return {
-    open() { fit(); setMode('text'); },
+    open() { setMode('text'); }, // размер подхватит ResizeObserver до покраски — читать его здесь значит считать раскладку посреди клика
     image: () => (strokes.length ? cv.toDataURL('image/png') : null),
     reset() { strokes = []; redraw(); },
   };

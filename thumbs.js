@@ -24,9 +24,8 @@ function dispose(g) {
   });
 }
 
-// id: вещь из ITEMS или стол 'd_<вид>'; null — превью нет
-export function thumb(id) {
-  if (cache.has(id)) return cache.get(id);
+// id: вещь из ITEMS или стол 'd_<вид>'; картинка (blob) или null — превью нет
+function render(id) {
   const desk = id.startsWith('d_'), def = ITEMS[id];
   if (!desk && !def) return null;
   R || setup();
@@ -41,24 +40,33 @@ export function thumb(id) {
   OUTLINE.uW.value = 0.011; OUTLINE.uAspect.value = 1; // в маленькой картинке обводка толще, чем в комнате
   R.render(scene, cam);
   OUTLINE.uW.value = w; OUTLINE.uAspect.value = a;
-  const url = R.domElement.toDataURL('image/png');
   scene.remove(g); dispose(g);
-  cache.set(id, url);
-  return url;
+  return new Promise((ok) => R.domElement.toBlob(ok, 'image/png')); // кодирование не в главном потоке (toDataURL стоил ~40 мс)
 }
 
-// list: [{ id, el }] — заменяет заглушку el (эмодзи) на картинку, по одной за тик
-export function fill(list) {
-  const q = list.slice();
-  const step = () => {
-    const x = q.shift();
-    if (!x) return;
-    const cached = cache.has(x.id);
-    if (x.el.isConnected) {
-      const u = thumb(x.id);
-      if (u) x.el.replaceWith(Object.assign(document.createElement('img'), { className: 'sthumb', src: u, alt: '' }));
-    }
-    cached ? step() : setTimeout(step, 16);
-  };
-  step();
+// Превью рисуются один раз на браузер и лежат в Cache Storage: отдельный WebGL-контекст компилирует свои шейдеры
+// (~200 мс), а сама вещь собирается 20–60 мс. Ключ — отпечаток кода вещей и стиля (__ART__, считается при сборке):
+// поменялась вещь — превью перерисуются сами, старые кеши удаляются.
+const CACHE = 'thumbs-' + __ART__;
+const store = globalThis.caches?.open(CACHE).catch(() => null) ?? Promise.resolve(null);
+globalThis.caches?.keys().then((ks) => ks.filter((k) => k.startsWith('thumbs-') && k !== CACHE).forEach((k) => caches.delete(k))).catch(() => {});
+async function thumb(id) {
+  if (cache.has(id)) return cache.get(id);
+  const c = await store, key = '/__thumb/' + id + '.png';
+  let blob = await c?.match(key).then((r) => r?.blob()).catch(() => null);
+  const fresh = !blob;
+  if (fresh) { blob = await render(id); if (blob) c?.put(key, new Response(blob, { headers: { 'content-type': 'image/png' } })).catch(() => {}); }
+  const url = blob ? URL.createObjectURL(blob) : null;
+  cache.set(id, url);
+  return { url, fresh };
+}
+
+// list: [{ id, el }] — заменяет заглушку el (эмодзи) на картинку; новые рисуются по одной за тик
+export async function fill(list) {
+  for (const x of list) {
+    if (!x.el.isConnected) continue;
+    const t = await thumb(x.id), url = typeof t === 'string' ? t : t?.url;
+    if (url && x.el.isConnected) x.el.replaceWith(Object.assign(document.createElement('img'), { className: 'sthumb', src: url, alt: '' }));
+    if (t?.fresh) await new Promise((r) => setTimeout(r, 16));
+  }
 }
