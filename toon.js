@@ -4,6 +4,7 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { mergeGeometries, mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
+import { MeshBVH, acceleratedRaycast } from 'three-mesh-bvh';
 
 export const P = {
   wall: '#fbe9d6', jamb: '#f1d2c2', cream: '#fff4e2', white: '#fffaf1',
@@ -84,6 +85,12 @@ function smoothed(g) {
   return h;
 }
 const noRay = () => {};
+// неподвижный слитый меш: луч мыши идёт по дереву (BVH), а не по всем треугольникам (было 6 мс на 33 тыс.)
+export function fastRay(mesh) {
+  mesh.geometry.boundsTree = new MeshBVH(mesh.geometry);
+  mesh.raycast = acceleratedRaycast;
+  return mesh;
+}
 export function outlineOf(mesh, w = 1, color) {
   const base = color ? col(color) : (mesh.material?.color ? mesh.material.color.clone() : col('#888'));
   const c = base.multiplyScalar(0.3).lerp(INK, 0.6);
@@ -128,6 +135,9 @@ export function toonify(root, { outline = true, width = 1, minSize = 0.012 } = {
   root.traverse((m) => { if (m.isMesh && !m.userData.isOutline) list.push(m); });
   for (const m of list) {
     m.material = Array.isArray(m.material) ? m.material.map(toToon) : toToon(m.material);
+    // прозрачное двустороннее three рисует в два прохода и перед каждым ставит needsUpdate — подбор шейдера дважды за кадр.
+    // У нас такое не пишет глубину (лучи, конфетти, стекло) — порядок граней не виден, хватает одного прохода
+    for (const mt of [].concat(m.material)) if (mt?.transparent && mt.side === THREE.DoubleSide) mt.forceSinglePass = true;
     if (!outline || m.userData.noOutline || m.userData.outline || m.isInstancedMesh || (FLAT.has(m.geometry.type) && !m.userData.liveGeo) || !opaque(m.material)) continue;
     if (!m.geometry.boundingSphere) m.geometry.computeBoundingSphere();
     sphere.copy(m.geometry.boundingSphere); m.getWorldScale(sc);
@@ -232,7 +242,7 @@ export function bake(root, minSize = 0.012) {
     root.remove(m);
   }
   for (const m of parts) { m.geometry.dispose(); m.material.dispose(); } // общие между деталями — освобождаем после
-  const solid = new THREE.Mesh(mergeGeometries(solids), toon({ vertexColors: true }));
+  const solid = fastRay(new THREE.Mesh(mergeGeometries(solids), toon({ vertexColors: true })));
   solid.castShadow = solid.receiveShadow = true; solid.userData.noOutline = true;
   if (hulls.length) solid.add(hullMesh(hulls));
   root.add(solid);
@@ -272,7 +282,7 @@ export class Batch {
     return m;
   }
   finish() {
-    const solid = new THREE.Mesh(mergeGeometries(this.solids), toon({ vertexColors: true }));
+    const solid = fastRay(new THREE.Mesh(mergeGeometries(this.solids), toon({ vertexColors: true })));
     solid.castShadow = solid.receiveShadow = true; solid.userData.noOutline = true; this.scene.add(solid);
     const outline = hullMesh(this.hulls); this.scene.add(outline);
     this.solids = []; this.hulls = [];

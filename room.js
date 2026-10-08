@@ -941,6 +941,18 @@ function noteTex(note) {
   return tex;
 }
 
+// записка отвечает лучу габаритом: комок и лист в коробку вписываются, а 8400 треугольников каждой записки стоили 1–3 мс на луч
+const _inv = new THREE.Matrix4(), _ray = new THREE.Ray(), _hit = new THREE.Vector3();
+function boxRaycast(raycaster, out) {
+  const g = this.geometry;
+  if (!g.boundingBox) g.computeBoundingBox();
+  _inv.copy(this.matrixWorld).invert(); _ray.copy(raycaster.ray).applyMatrix4(_inv);
+  if (!_ray.intersectBox(g.boundingBox, _hit)) return;
+  _hit.applyMatrix4(this.matrixWorld);
+  const distance = raycaster.ray.origin.distanceTo(_hit);
+  if (distance >= raycaster.near && distance <= raycaster.far) out.push({ distance, point: _hit.clone(), object: this });
+}
+
 class Paper {
   constructor(note, seed, key) {
     Object.assign(this, paperGeometry(seed));
@@ -949,6 +961,7 @@ class Paper {
     this.mesh.userData.liveGeo = true; // лист комкается каждый кадр — обводка идёт по той же геометрии
     this.mesh.castShadow = true;
     this.mesh.userData.act = () => openNote(this);
+    this.mesh.raycast = boxRaycast;
     this.setT(0);
     scene.add(this.mesh);
   }
@@ -961,6 +974,7 @@ class Paper {
     if (m && m.flatShading !== faceted) { m.flatShading = faceted; m.needsUpdate = true; }
     if (!faceted) this.g.computeVertexNormals();
     this.g.computeBoundingSphere();
+    this.g.boundingBox = null; // габарит для луча пересчитается при следующей проверке
   }
 }
 
@@ -1307,13 +1321,21 @@ async function unzoom() {
 }
 
 const ray = new THREE.Raycaster(), ptr = new THREE.Vector2(), mouse = { x: 0, y: 0 };
+// что может поймать луч мыши: меши сцены без декора (стекло, блики, лучи, дождь), обводок и неба.
+// Собирается раз в 32 кадра (вместе с toonify) — луч не считает пересечения с тем, что всё равно пропустит
+let pickList = [];
+function refreshPick() {
+  pickList = [];
+  scene.traverse((o) => { if (o.isMesh && !o.userData.isOutline && !o.userData.noAO && o !== sky && o !== orb) pickList.push(o); });
+}
 function pick(e) {
   ptr.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
   ray.setFromCamera(ptr, camera);
+  if (!pickList.length) refreshPick();
   // первое настоящее препятствие на луче: стол закрывает то, что под ним
-  for (const hit of ray.intersectObjects(scene.children, true)) {
+  for (const hit of ray.intersectObjects(pickList, false)) {
     const o0 = hit.object;
-    if (o0.isPoints || o0.isLine || o0.userData.noAO || !o0.visible || o0 === sky || o0 === orb) continue;
+    if (!o0.visible) continue;
     let hidden = false;
     for (let o = o0; o; o = o.parent) hidden ||= !o.visible;
     if (hidden) continue; // вещь в коробке (группа скрыта) лучу не мешает
@@ -1532,12 +1554,12 @@ const loop = (now) => {
 
   zonesys.frame();
   uT.value = s;
-  if ((++frameN & 31) === 0) toonify(scene); // новые вещи (стол, расстановка, подарки, записки, книги) — в тун с обводкой
+  if ((++frameN & 31) === 0) { toonify(scene); refreshPick(); } // новые вещи (стол, расстановка, подарки, записки, книги) — в тун с обводкой и в список для луча
   renderer.shadowMap.needsUpdate = frameN % TIERS[tier].shEvery === 0;
   post.render(scene, camera);
 };
 renderer.setAnimationLoop(loop);
 
 // ?debug — ручки для проверки (камера, коты, время)
-if (new URLSearchParams(location.search).has('debug')) window.__room = { cam, camera, HOME, catsys, decor, papers, zonesys, step: (ms = 500, dt = 16) => { for (let t = performance.now(), e = t + ms; t < e; t += dt) loop(t); }, // скрытая панель: rAF стоит — шагаем вручную
+if (new URLSearchParams(location.search).has('debug')) window.__room = { cam, camera, laptop, clickables, HOME, catsys, decor, papers, zonesys, step: (ms = 500, dt = 16) => { for (let t = performance.now(), e = t + ms; t < e; t += dt) loop(t); }, // скрытая панель: rAF стоит — шагаем вручную
   zoomTo: (id) => zoomTo(zonesys.byId(id)), unzoom, get state() { return state; }, applyTime, tick: (s = 5) => weatherFrame(0.016, s), scene, THREE, renderer, sun, post, get tier() { return tier; }, get pr() { return pr; }, get FX() { return FX; }, bolt: () => { flash = 1; sfx.thunder(0.8); }, set flash(v) { flash = v; } };

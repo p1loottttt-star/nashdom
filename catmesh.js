@@ -204,6 +204,47 @@ function onSkin(from, dir, sink = 0) {
   return { p: V(from[0] + d.x * t - HEAD_BONE[0], from[1] + d.y * t - HEAD_BONE[1], from[2] + d.z * t - HEAD_BONE[2]), d };
 }
 
+// Луч по коту: не по 21 тыс. вершин с пересчётом скина (28 мс на проверку), а по сферам вокруг костей.
+// Сферы берутся из самой модели в позе привязки: вершины, где кость главная, → центр и радиус в пространстве кости.
+const boneSpheres = new WeakMap(); // геометрия → [{ i, c, r }]
+function spheresOf(mesh) {
+  if (boneSpheres.has(mesh.geometry)) return boneSpheres.get(mesh.geometry);
+  const g = mesh.geometry, pos = g.attributes.position, si = g.attributes.skinIndex, sw = g.attributes.skinWeight;
+  const inv = mesh.skeleton.boneInverses, groups = new Map(), v = new THREE.Vector3();
+  for (let k = 0; k < pos.count; k++) {
+    let best = 0;
+    for (let j = 1; j < 4; j++) if (sw.getComponent(k, j) > sw.getComponent(k, best)) best = j;
+    const b = si.getComponent(k, best);
+    v.fromBufferAttribute(pos, k).applyMatrix4(mesh.bindMatrix).applyMatrix4(inv[b]);
+    if (!groups.has(b)) groups.set(b, []);
+    groups.get(b).push(v.clone());
+  }
+  const out = [];
+  for (const [i, pts] of groups) {
+    const c = pts.reduce((a, p) => a.add(p), new THREE.Vector3()).divideScalar(pts.length);
+    const d = pts.map((p) => p.distanceTo(c)).sort((a, b) => a - b);
+    out.push({ i, c, r: d[Math.floor(d.length * 0.9)] }); // 90-й процентиль: шерсть по краям не раздувает сферу
+  }
+  boneSpheres.set(mesh.geometry, out);
+  return out;
+}
+function boneRaycast(mesh) {
+  const sph = new THREE.Sphere(), hit = new THREE.Vector3();
+  return (raycaster, out) => {
+    let best = null;
+    for (const { i, c, r } of spheresOf(mesh)) {
+      const bone = mesh.skeleton.bones[i];
+      sph.center.copy(c).applyMatrix4(bone.matrixWorld);
+      sph.radius = r * bone.matrixWorld.getMaxScaleOnAxis();
+      if (!raycaster.ray.intersectSphere(sph, hit)) continue;
+      const distance = raycaster.ray.origin.distanceTo(hit);
+      if (distance < raycaster.near || distance > raycaster.far || (best && best.distance <= distance)) continue;
+      best = { distance, point: hit.clone(), object: mesh };
+    }
+    if (best) out.push(best);
+  };
+}
+
 export function buildRig(o) {
   const fur = furTexture(o.fur, o.furDark, o.furLight);
   const furM = new THREE.MeshPhysicalMaterial({ color: '#ffffff', map: fur, bumpMap: fur, bumpScale: 0.5, roughness: 0.9, sheen: 1, sheenRoughness: 0.5, sheenColor: o.sheen });
@@ -218,6 +259,7 @@ export function buildRig(o) {
   root.add(mesh);
   root.updateMatrixWorld(true);
   mesh.bind(new THREE.Skeleton(bones));
+  mesh.raycast = boneRaycast(mesh);
 
   const m = (geo, mat, parent, x = 0, y = 0, z = 0) => { const me = new THREE.Mesh(geo, mat); me.position.set(x, y, z); me.castShadow = me.receiveShadow = true; parent.add(me); return me; };
   const head = sk.head; // центр головы

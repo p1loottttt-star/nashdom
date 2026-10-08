@@ -5,3 +5,5 @@ dist
 .devmedia
 shots
 .pass.txt
+tests/perf/.profile
+tests/perf/last*.json
