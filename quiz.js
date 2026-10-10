@@ -5,9 +5,17 @@ import * as store from './store.js';
 import { QUIZZES, TOPICS } from './quizdb.js';
 import { whoRows, typeResult, knowScore, length } from './quizlogic.js';
 import { toast } from './desktop.js';
-import { pop, chime } from './sound.js';
+import { pop, chime, tap } from './sound.js';
+import { sticker, doodle } from './doodles.js';
 
 const h = (tag, props = {}, ...kids) => { const e = Object.assign(document.createElement(tag), props); e.append(...kids.flat().filter((k) => k != null && k !== false)); return e; };
+// рисунок и краска каждого теста (вместо эмодзи)
+const ART = { 'who-chaos': ['chaos', '#a58bd1'], 'who-love': ['love', '#e0614f'], 'who-home': ['house', '#7fae6a'], 'who-food': ['pizza', '#e0614f'], 'who-trip': ['suitcase', '#3fa39a'],
+  'type-dessert': ['cake', '#ef7f9b'], 'type-cat': ['cats', '#f08b46'], 'type-movie': ['film', '#e0614f'], 'type-weather': ['cloud', '#6fa8d6'], 'type-date': ['candle', '#a58bd1'],
+  'know-taste': ['bowl', '#3fa39a'], 'know-habits': ['bed', '#4b6fb5'], 'know-dreams': ['star', '#e9a92f'], 'know-child': ['bear', '#f08b46'], 'know-us': ['hearts', '#ef7f9b'] };
+const tone = (q) => ART[q.id]?.[1] || '#e9a92f';
+export const qart = (q) => (ART[q.id] ? sticker(ART[q.id][0], ART[q.id][1]) : '');
+let stamped = null; // тест, который только что пройден: штамп ставится с анимацией
 const KIND = { who: 'кто из нас', type: 'какой ты', know: 'знаешь ли' };
 const meId = () => store.me()?.id;
 const pName = () => store.partner()?.name || 'партнёр';
@@ -32,7 +40,7 @@ export function renderQuiz(el) {
     const chips = h('div', { className: 'qz-chips' }, ...[[null, 'все'], ...Object.entries(TOPICS)].map(([k, t]) =>
       h('button', { className: topic === k ? 'on' : '', textContent: t, onclick: () => { topic = k; draw(); } })));
     const asks = asksToMe().map((a) => QUIZZES.find((q) => q.id === a.test)).filter(Boolean);
-    const wait = tab === 'all' && asks.length ? h('div', { className: 'qz-wait' }, h('b', { textContent: `${pName()} зовёт пройти:` }), ...asks.map((q) => h('button', { textContent: `${q.emoji} ${q.title}`, onclick: () => start(q) }))) : null;
+    const wait = tab === 'all' && asks.length ? h('div', { className: 'qz-wait' }, h('b', { textContent: `${pName()} зовёт пройти:` }), ...asks.map((q) => h('button', { onclick: () => start(q) }, h('i', { innerHTML: qart(q) }), q.title))) : null;
     const grid = h('div', { className: 'qz-grid' });
     const drawGrid = () => {
       const s = query.trim().toLowerCase();
@@ -47,8 +55,11 @@ export function renderQuiz(el) {
     const me = meId(), p = store.partner(), mine = doneOf(q.id, me), theirs = doneOf(q.id, p?.id);
     const asked = p && store.get('quizask', `${q.id}:${p.id}`);
     const canResult = mine && (q.kind === 'type' || theirs);
-    return h('div', { className: 'qz-card' },
-      h('i', { textContent: q.emoji }),
+    const fresh = stamped === q.id && mine; if (fresh) { stamped = null; setTimeout(tap, 240, .5); }
+    return h('div', { className: 'qz-card', style: `--c:${tone(q)}` },
+      QUIZZES.indexOf(q) % 4 === 0 ? h('i', { className: 'clip', innerHTML: doodle('clip', { style: 'sticker' }) }) : null,
+      h('span', { className: 'art', innerHTML: qart(q) }),
+      mine ? h('i', { className: 'qz-stamp' + (fresh ? ' fresh' : ''), textContent: 'пройдено' }) : null,
       h('b', { textContent: q.title }),
       h('small', { textContent: `${KIND[q.kind]} · ${TOPICS[q.topic]} · ${length(q)} ${q.kind === 'who' ? 'утв.' : 'вопр.'}` }),
       h('div', { className: 'qz-marks' }, h('span', { className: mine ? 'ok' : '', textContent: `ты ${mine ? '✓' : '—'}` }), p ? h('span', { className: theirs ? 'ok' : '', textContent: `${p.name} ${theirs ? '✓' : '⏳'}` }) : null),
@@ -70,7 +81,7 @@ export function renderQuiz(el) {
     const q = run.quiz, n = length(q), i = run.i;
     const head = h('div', { className: 'qz-runhead' },
       h('button', { className: 'qz-back', textContent: '← к тестам', onclick: () => { view = 'list'; draw(); } }),
-      h('b', { textContent: `${q.emoji} ${q.title}` }),
+      h('b', { textContent: q.title }),
       h('span', { textContent: `${i + 1} / ${n}` }));
     const bar = h('div', { className: 'qz-bar' }, h('i', { style: `width:${(i / n) * 100}%` }));
     const next = (ans) => { run.answers[i] = ans; pop(); if (i + 1 < n) { run.i++; draw(); } else finish(); };
@@ -97,13 +108,13 @@ export function renderQuiz(el) {
     await store.put('quiz', `${q.id}:${me}`, { test: q.id, user: me, answers: run.answers, at: Date.now() }).catch(console.warn);
     if (store.get('quizask', `${q.id}:${me}`)) store.del('quizask', `${q.id}:${me}`).catch(console.warn);
     if (p && doneOf(q.id, p.id)) store.award('quiz', q.id);
-    badge(); chime(); view = 'result'; draw();
+    badge(); chime(); stamped = q.id; view = 'result'; draw();
   }
 
   // ---------- итоги ----------
   function resultView(q) {
     const me = meId(), p = store.partner(), A = doneOf(q.id, me), B = doneOf(q.id, p?.id);
-    const head = h('div', { className: 'qz-runhead' }, h('button', { className: 'qz-back', textContent: '← к тестам', onclick: () => { view = 'list'; draw(); } }), h('b', { textContent: `${q.emoji} ${q.title}` }), h('span'));
+    const head = h('div', { className: 'qz-runhead' }, h('button', { className: 'qz-back', textContent: '← к тестам', onclick: () => { view = 'list'; draw(); } }), h('b', { textContent: q.title }), h('span'));
     const waitBox = () => h('div', { className: 'qz-waitbox' },
       h('p', { textContent: p ? `Итоги откроются, когда ${p.name} тоже пройдёт этот тест.` : 'Итоги откроются, когда в дом войдёт вторая половинка.' }),
       p && !store.get('quizask', `${q.id}:${p.id}`) ? h('button', { className: 'qz-go', textContent: 'позвать 💌', onclick: () => ask(q) }) : p ? h('small', { textContent: 'приглашение отправлено ✓' }) : null);

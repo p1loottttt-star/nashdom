@@ -6,7 +6,7 @@ import { pop } from './sound.js';
 const desk = document.getElementById('desktop');
 const dock = desk.querySelector('.dock');
 const wins = new Map(); // name → { el, x, y, w, h, prev, min, onclose }
-const TOP = 34, MIN_W = 320, MIN_H = 220, EASE = 'cubic-bezier(.2,.8,.2,1)';
+const TOP = 50, MIN_W = 320, MIN_H = 220, EASE = 'cubic-bezier(.2,.8,.2,1)';
 let z = 10;
 const still = matchMedia('(prefers-reduced-motion: reduce)');
 const anim = (el, frames, ms) => (still.matches ? Promise.resolve() : el.animate(frames, { duration: ms, easing: EASE }).finished.catch(() => {}));
@@ -159,7 +159,7 @@ function dragEdge(e, name, d) {
 }
 
 // open: уже открыто — поднять (или вернуть из дока); иначе новое окно с анимацией
-export function openWin(name, { title, cls = '', render, size }) {
+export function openWin(name, { title, cls = '', render, size, color, icon = '' }) {
   const had = wins.get(name);
   if (had) { if (had.min) restore(name); else focus(name); return had.el; }
   pop();
@@ -167,9 +167,10 @@ export function openWin(name, { title, cls = '', render, size }) {
     h('button', { className: 'lt r', ariaLabel: 'Закрыть', textContent: '×', onclick: () => closeWin(name) }),
     h('button', { className: 'lt y', ariaLabel: 'Свернуть', textContent: '−', onclick: () => minimize(name) }),
     h('button', { className: 'lt g', ariaLabel: 'Развернуть', textContent: '+', onclick: () => toggleMax(name) }));
-  const bar = h('div', { className: 'bar' }, lights, h('b', { textContent: title }));
+  const bar = h('div', { className: 'bar' }, lights, h('b', { className: 'ttl', textContent: title }), h('span', { className: 'wicon', innerHTML: icon }));
   const body = h('div', { className: 'body' });
   const el = h('section', { className: 'win ' + cls });
+  if (color) el.style.setProperty('--c', color);
   el.append(bar, body, ...['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'].map((d) => h('i', { className: 'rz rz-' + d, onpointerdown: (e) => dragEdge(e, name, d) })));
   const n = wins.size, a = area();
   const w = Math.min(size?.[0] || 560, a.w), hh = Math.min(size?.[1] || 520, a.h);

@@ -9,6 +9,7 @@ import draw from './draw.js';
 import ttt from './ttt.js';
 import battle from './battle.js';
 import cats from './catfight.js';
+import { sticker, TONE } from './doodles.js';
 
 export const GAMES = [wave, draw, ttt, cats];
 const ALL = [...GAMES, battle]; // морской бой — только для старых партий
@@ -18,6 +19,7 @@ export { h };
 const meId = () => store.me()?.id;
 const pName = () => store.partner()?.name || 'партнёр';
 const isMine = (m, me = meId()) => !m.done && (byKind(m.kind)?.myTurn ? byKind(m.kind).myTurn(m, me) : m.turn === me);
+const art = (g) => sticker(g.kind === 'battle' ? 'games' : g.kind, TONE[g.kind]);
 const matches = () => store.all('game').filter((m) => byKind(m.kind) && m.players?.includes(meId())).sort((a, b) => b.at - a.at);
 
 export function renderGames(el) {
@@ -41,12 +43,12 @@ export function renderGames(el) {
 
   function listView() {
     const all = matches(), mine = all.filter((m) => isMine(m)), wait = all.filter((m) => !m.done && !isMine(m)), done = all.filter((m) => m.done).slice(0, 8);
-    const row = (m, btn) => { const g = byKind(m.kind); return h('div', { className: 'gm-row' }, h('i', { textContent: g.emoji }), h('b', { textContent: g.title }), h('span', { textContent: g.status(m, meId()) }), h('button', { className: btn === 'играть' ? 'gm-go' : '', textContent: btn, onclick: () => { open = m.id; draw(); } })); };
+    const row = (m, btn) => { const g = byKind(m.kind); return h('div', { className: 'gm-row', style: `--c:${TONE[g.kind]}` }, h('i', { innerHTML: art(g) }), h('b', { textContent: g.title }), h('span', { textContent: g.status(m, meId()) }), h('button', { className: btn === 'играть' ? 'gm-go' : '', textContent: btn, onclick: () => { open = m.id; draw(); } })); };
     return [
-      h('div', { className: 'gm-new' }, ...GAMES.map((g) => h('button', { className: 'gm-card', onclick: () => newMatch(g) }, h('i', { textContent: g.emoji }), h('b', { textContent: g.title }), h('small', { textContent: g.rules }), h('span', { className: 'gm-go', textContent: 'новая партия' })))),
-      mine.length ? [h('h4', { className: 'gm-h', textContent: 'Твой ход' }), ...mine.map((m) => row(m, 'играть'))] : null,
-      wait.length ? [h('h4', { className: 'gm-h', textContent: `Ждём, пока походит ${pName()}` }), ...wait.map((m) => row(m, 'смотреть'))] : null,
-      done.length ? [h('h4', { className: 'gm-h', textContent: 'Сыграно' }), ...done.map((m) => row(m, 'итоги'))] : null,
+      h('div', { className: 'gm-new' }, ...GAMES.map((g) => h('button', { className: 'gm-card', style: `--c:${TONE[g.kind]}`, onclick: () => newMatch(g) }, h('span', { className: 'art', innerHTML: art(g) }), h('b', { textContent: g.title }), h('small', { textContent: g.rules }), h('span', { className: 'gm-go', textContent: 'новая партия' })))),
+      mine.length ? [h('h4', { className: 'gm-h', textContent: 'Твой ход' }), h('div', { className: 'gm-list' }, mine.map((m) => row(m, 'играть')))] : null,
+      wait.length ? [h('h4', { className: 'gm-h', textContent: `Ждём, пока походит ${pName()}` }), h('div', { className: 'gm-list' }, wait.map((m) => row(m, 'смотреть')))] : null,
+      done.length ? [h('h4', { className: 'gm-h', textContent: 'Сыграно' }), h('div', { className: 'gm-list' }, done.map((m) => row(m, 'итоги')))] : null,
     ];
   }
 
@@ -66,7 +68,7 @@ export function renderGames(el) {
       again: (first) => newMatch(g, first),
     };
     g.render(box, ctx);
-    return [h('div', { className: 'gm-head' }, h('button', { className: 'gm-back', textContent: '← к играм', onclick: () => { open = null; draw(); } }), h('b', { textContent: `${g.emoji} ${g.title}` }), h('span', { textContent: g.status(m, me) })), box];
+    return [h('div', { className: 'gm-head' }, h('button', { className: 'gm-back', textContent: '← к играм', onclick: () => { open = null; draw(); } }), h('b', {}, h('i', { innerHTML: art(g) }), g.title), h('span', { textContent: g.status(m, me) })), box];
   }
 
   draw();

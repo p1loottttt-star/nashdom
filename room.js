@@ -3,6 +3,7 @@ import '@fontsource/caveat/700.css';
 import '@fontsource/nunito/400.css';
 import '@fontsource/nunito/600.css';
 import '@fontsource/nunito/800.css';
+import '@fontsource/rubik-mono-one/400.css';
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';

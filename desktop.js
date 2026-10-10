@@ -3,6 +3,7 @@ import * as store from './store.js';
 import { renderQuiz, badge as quizBadge } from './quiz.js';
 import { renderGames, badge as gamesBadge } from './games.js';
 import { openWin, isOpen, bounce } from './winman.js';
+import { sticker, TONE } from './doodles.js';
 
 // настройки этого устройства (кто я, звук, качество); общие данные — в store.js
 export const load = (k, seed) => { try { return JSON.parse(localStorage.getItem('lr:' + k)) ?? seed; } catch { return seed; } };
@@ -100,11 +101,53 @@ const APPS = {
 };
 
 const desk = document.getElementById('desktop');
-let onClose = null, nekoLoaded = false;
+let onClose = null, nekoLoaded = false, drawn = false;
+
+// ---- вид стола: наклейки вместо эмодзи, зерно бумаги, обои ----
+// рисуется один раз при первом открытии ноутбука (rough.js ~ 5 мс на все значки)
+function dress() {
+  desk.querySelectorAll('.icon[data-app] i, .dock [data-app] i').forEach((i) => { const a = i.closest('[data-app]').dataset.app; i.innerHTML = sticker(a); i.parentNode.style.setProperty('--c', TONE[a]); });
+  document.querySelector('#power i').innerHTML = sticker('power');
+  document.querySelector('#wallBtn i').innerHTML = sticker('roller', TONE.plans);
+  document.querySelector('.menubar .brand i').innerHTML = sticker('heart', TONE.counter);
+  // зерно: тайл шума один раз, дальше — обычная фоновая картинка (без живых фильтров)
+  const c = Object.assign(document.createElement('canvas'), { width: 160, height: 160 }), x = c.getContext('2d'), img = x.createImageData(160, 160);
+  for (let i = 0; i < img.data.length; i += 4) { const v = Math.random() < .5 ? 40 : 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = Math.random() * 26; }
+  x.putImageData(img, 0, 0);
+  desk.style.setProperty('--grain', `url(${c.toDataURL()})`);
+  wall(load('wall', 'linen'));
+}
+
+// обои: готовые (data-wall в CSS) или своё фото. ponytail: фото хранится на этом устройстве (localStorage, ~0,5 МБ); в облако — когда попросят
+const WALLS = [['linen', 'лён'], ['slate', 'грифель'], ['sage', 'шалфей'], ['blush', 'пудра'], ['cork', 'пробка']];
+function wall(k) {
+  const photo = k === 'photo' && load('wallphoto', null);
+  desk.dataset.wall = photo ? 'photo' : k === 'photo' ? 'linen' : k;
+  desk.style.setProperty('--photo', photo ? `url(${photo})` : 'none');
+}
+async function setPhoto(file) {
+  const bmp = await createImageBitmap(file), k = Math.min(1, 1920 / Math.max(bmp.width, bmp.height));
+  const c = Object.assign(document.createElement('canvas'), { width: Math.round(bmp.width * k), height: Math.round(bmp.height * k) });
+  c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+  try { localStorage.setItem('lr:wallphoto', JSON.stringify(c.toDataURL('image/jpeg', .85))); } catch { return toast('фото слишком большое для обоев'); }
+  save('wall', 'photo'); wall('photo');
+}
+function wallPicker(btn) {
+  const old = desk.querySelector('.wallpick'); if (old) return old.remove();
+  const file = h('input', { type: 'file', accept: 'image/*', hidden: true, onchange: () => file.files[0] && setPhoto(file.files[0]).catch(() => toast('не получилось открыть фото')) });
+  const cur = load('wall', 'linen');
+  const box = h('div', { className: 'wallpick' }, h('b', { textContent: 'Обои' }),
+    h('div', { className: 'wp-row' }, ...WALLS.map(([k, t]) => h('button', { className: 'wp' + (cur === k ? ' on' : ''), title: t, onclick: () => { save('wall', k); wall(k); box.remove(); } }, h('i'), h('span', { textContent: t })))),
+    h('button', { className: 'wp-photo', textContent: load('wallphoto', null) ? 'другое фото…' : 'своё фото…', onclick: () => file.click() }), file);
+  box.querySelectorAll('.wp i').forEach((i, n) => (i.dataset.wall = WALLS[n][0]));
+  desk.append(box);
+  setTimeout(() => addEventListener('pointerdown', function off(e) { if (!box.contains(e.target) && e.target !== btn) { box.remove(); removeEventListener('pointerdown', off); } }));
+}
+document.getElementById('wallBtn').onclick = (e) => wallPicker(e.currentTarget);
 
 function openApp(name) {
   const A = APPS[name], first = !isOpen(name);
-  openWin(name, { title: A.title, cls: (A.wide ? 'wide' : '') + (A.xl ? ' xl' : ''), size: A.xl ? [1180, 720] : A.wide ? [940, 640] : A.size || [440, 520], render: A.render });
+  openWin(name, { title: A.title, color: TONE[name], icon: sticker(name), cls: `app-${name}` + (A.wide ? ' wide' : '') + (A.xl ? ' xl' : ''), size: A.xl ? [1180, 720] : A.wide ? [940, 640] : A.size || [440, 520], render: A.render });
   if (first) bounce(name);
 }
 
@@ -113,14 +156,18 @@ document.getElementById('power').onclick = () => closeDesktop();
 addEventListener('keydown', (e) => { if (e.key === 'Escape' && !desk.hidden) closeDesktop(); });
 
 function clock() {
-  document.getElementById('mDays').textContent = '♥ ' + daysLabel();
-  document.getElementById('hello').textContent = daysLabel();
+  const s = since();
+  document.getElementById('mDays').textContent = daysLabel();
+  document.getElementById('hello').textContent = s.days;
+  document.getElementById('helloTxt').textContent = plural(s.days, DAYS) + ' вместе';
+  document.getElementById('helloNext').textContent = s.toNext ? `до годовщины ${s.toNext} ${plural(s.toNext, DAYS)}` : 'сегодня годовщина ♥';
   document.getElementById('mClock').textContent = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 }
 
 export function openDesktop(app, done) {
   onClose = done;
   quizBadge(); gamesBadge();
+  if (!drawn) { drawn = true; dress(); }
   clock();
   desk.hidden = false;
   requestAnimationFrame(() => desk.classList.add('on'));

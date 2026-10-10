@@ -54,6 +54,23 @@ const ICONS = {
   flame: [['path', 'M24 43 C13 43 9 34 13 26 C15 30 19 31 19 31 C16 22 22 13 27 7 C28 16 37 20 38 30 C39 38 32 43 24 43 Z', '#f08b46'],
     ['path', 'M24 40 C20 40 18 36 20 32 C22 34 24 33 24 33 C24 29 26 27 28 25 C29 30 31 32 30 36 C29 39 27 40 24 40 Z', '#f6c64f', { line: false }]],
   heart: [['path', heart(24, 26, 38), 'a']],
+  house: [['rectangle', 31, 9, 6, 10, 'p'], ['rectangle', 10, 23, 28, 19, 'p'], ['polygon', [[5, 25], [24, 8], [43, 25]], 'a'], ['rectangle', 21, 31, 7, 11, 'b'],
+    ['rectangle', 13, 28, 5, 5, 'b'], ['path', heart(33, 30, 7), 'a', { line: false }]],
+  pizza: [['polygon', [[24, 43], [8, 10], [40, 10]], '#f6c64f'], ['path', 'M6 11 C15 3 33 3 42 11 L40 15 C31 9 17 9 8 15 Z', '#d9934a'],
+    ['circle', 20, 19, 6.5, 'a'], ['circle', 29, 22, 5.5, 'a'], ['circle', 23, 31, 5, 'a']],
+  suitcase: [['path', 'M18 16 V10 Q18 7 21 7 H27 Q30 7 30 10 V16', null], ['path', rr(6, 15, 36, 26, 4), 'a'],
+    ['line', 15, 16, 15, 40, { stroke: 'p', w: 3 }], ['line', 33, 16, 33, 40, { stroke: 'p', w: 3 }], ['circle', 24, 28, 8, '#f6c64f']],
+  film: [['rectangle', 7, 20, 34, 21, 'p'], ['g', -12, 7, 19, [['rectangle', 7, 11, 34, 7, 'a'], ['line', 15, 11, 12, 18, { stroke: 'p', w: 2.4 }], ['line', 24, 11, 21, 18, { stroke: 'p', w: 2.4 }], ['line', 33, 11, 30, 18, { stroke: 'p', w: 2.4 }]]],
+    ['polygon', [[20, 25], [31, 30.5], [20, 36]], 'a']],
+  candle: [['ellipse', 24, 42, 28, 6, 'a'], ['rectangle', 18, 19, 12, 22, 'p'], ['path', 'M30 24 C27 24 28 29 26 29', null, { w: 1.6 }], ['line', 24, 19, 24, 15, { w: 1.6 }],
+    ['path', 'M24 3 C29 9 30 13 24 16 C18 13 19 9 24 3 Z', '#f6c64f']],
+  bed: [['rectangle', 5, 13, 7, 29, 'a'], ['rectangle', 5, 29, 38, 9, 'p'], ['ellipse', 18, 26, 12, 7, 'p'], ['polygon', [[24, 23], [43, 23], [43, 32], [24, 32]], 'a'],
+    ['line', 8, 38, 8, 44], ['line', 40, 38, 40, 44]],
+  bear: [['circle', 13, 13, 11, 'a'], ['circle', 35, 13, 11, 'a'], ['circle', 24, 27, 30, 'a'], ['ellipse', 24, 32, 13, 10, 'p'],
+    ['circle', 18.5, 24, 3.4, 'i', { line: false }], ['circle', 29.5, 24, 3.4, 'i', { line: false }], ['ellipse', 24, 30, 5, 3.5, 'i', { line: false }]],
+  hearts: [['path', heart(30, 30, 20), 'b'], ['path', heart(19, 21, 24), 'a']],
+  roller: [['path', 'M38 13 H43 V24 H24 V30', null, { w: 2.4 }], ['path', rr(5, 7, 33, 12, 3), 'a'], ['rectangle', 21, 30, 6, 13, 'i'],
+    ['line', 10, 22, 9, 30, { stroke: 'a', w: 2.6 }], ['line', 16, 21, 16, 26, { stroke: 'a', w: 2.6 }]],
   clip: [['path', 'M19 4 L19 33 C19 41 31 41 31 33 L31 10 C31 5 24 5 24 10 L24 31', null, { stroke: '#8a8f99', w: 2.2 }]],
   pin: [['circle', 24, 20, 20, 'a'], ['circle', 20, 16, 6, 'p', { line: false }], ['line', 24, 30, 24, 44, { stroke: '#8a8f99', w: 2.4 }]],
   check: [['path', 'M8 25 L19 36 L41 10', null, { w: 4 }]],
@@ -104,3 +121,8 @@ export function doodle(name, { style = 'sticker', accent = '#ef7f9b', ink, cls =
   return svg;
 }
 export const DOODLES = Object.keys(ICONS);
+
+// краски приложений и игр (направление «скрапбук», 10.10)
+export const TONE = { tube: '#e0614f', gallery: '#6fa8d6', plans: '#7fae6a', thoughts: '#a58bd1', counter: '#ef7f9b', quiz: '#e9a92f', games: '#3fa39a', shop: '#f08b46', profile: '#4b6fb5', power: '#f2c260',
+  wave: '#6fa8d6', draw: '#e0614f', ttt: '#ef7f9b', cats: '#f08b46', battle: '#4b6fb5' };
+export const sticker = (name, accent = TONE[name]) => doodle(name, { style: 'sticker', accent });
