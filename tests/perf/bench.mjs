@@ -66,8 +66,17 @@ await step('mouse', async () => { for (let i = 0; i <= 120; i++) { const a = (i 
 await step('laptop-open', () => click('window.__room.laptop'), 2500);
 for (const app of ['tube', 'shop', 'quiz', 'games', 'gallery', 'plans', 'profile']) {
   await step('app:' + app, () => page.click(`[data-app=${app}]`), 1800);
-  await page.evaluate(() => document.querySelector('.win .dot.r')?.click());
+  await page.evaluate(() => document.querySelector('.win .lt.r')?.click());
 }
+// окна: перетаскивание за заголовок, размер за угол, свернуть в док и вернуть, плитка к краю
+await page.click('[data-app=games]'); await sleep(1200);
+const drag = async (sel, dx, dy) => { const b = await page.locator(sel).first().boundingBox(); const x = b.x + b.width / 2, y = b.y + b.height / 2; await page.mouse.move(x, y); await page.mouse.down(); for (let i = 1; i <= 60; i++) { await page.mouse.move(x + dx * i / 60, y + dy * i / 60); await sleep(16); } await page.mouse.up(); };
+await step('win-drag', () => drag('.win .bar b', -300, 120), 600);
+await step('win-resize', () => drag('.win .rz-se', -200, -120), 600);
+await step('win-min', () => page.click('.win .lt.y'), 800);
+await step('win-restore', () => page.click('.dock [data-app=games]'), 800);
+await step('win-tile', () => drag('.win .bar b', -2000, 0), 900);
+await page.evaluate(() => document.querySelector('.win .lt.r')?.click());
 await step('laptop-close', () => page.click('#power'), 2500);
 await step('zoom-desk', () => page.evaluate(() => window.__room.zoomTo('desk')), 1500);
 await step('unzoom', () => page.evaluate(() => window.__room.unzoom()), 1300);

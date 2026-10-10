@@ -1,8 +1,8 @@
 import { DATA } from './data.js';
-import { pop } from './sound.js';
 import * as store from './store.js';
 import { renderQuiz, badge as quizBadge } from './quiz.js';
 import { renderGames, badge as gamesBadge } from './games.js';
+import { openWin, isOpen, bounce } from './winman.js';
 
 // настройки этого устройства (кто я, звук, качество); общие данные — в store.js
 export const load = (k, seed) => { try { return JSON.parse(localStorage.getItem('lr:' + k)) ?? seed; } catch { return seed; } };
@@ -81,7 +81,7 @@ const APPS = {
   },
 
   counter: {
-    title: 'Мы вместе',
+    title: 'Мы вместе', size: [420, 440],
     render(el) {
       const s = since();
       const live = h('div', { className: 'live' });
@@ -100,30 +100,12 @@ const APPS = {
 };
 
 const desk = document.getElementById('desktop');
-const wins = {};
-let z = 10, onClose = null, nekoLoaded = false;
+let onClose = null, nekoLoaded = false;
 
 function openApp(name) {
-  if (wins[name]) { wins[name].style.zIndex = ++z; return; }
-  pop();
-  const n = Object.keys(wins).length;
-  const w = h('section', { className: 'win' + (APPS[name].wide ? ' wide' : '') + (APPS[name].xl ? ' xl' : '') });
-  w.style.cssText = APPS[name].wide ? `left:${Math.max(16, (innerWidth - Math.min(APPS[name].xl ? 1180 : 940, innerWidth - 32)) / 2 + n * 24)}px;top:${44 + n * 24}px;z-index:${++z}` : `left:${Math.min(60 + n * 40, innerWidth - 360)}px;top:${60 + n * 34}px;z-index:${++z}`;
-  const close = h('button', { className: 'dot r', ariaLabel: 'Закрыть', onclick: () => { w.remove(); delete wins[name]; body.onclose?.(); } });
-  const bar = h('div', { className: 'bar' }, close, h('span', { className: 'dot y' }), h('span', { className: 'dot g' }), h('b', { textContent: APPS[name].title }));
-  const body = h('div', { className: 'body' });
-  APPS[name].render(body);
-  w.append(bar, body);
-  w.onpointerdown = () => { w.style.zIndex = ++z; };
-  bar.onpointerdown = (e) => {
-    if (e.target === close) return;
-    const ox = e.clientX - w.offsetLeft, oy = e.clientY - w.offsetTop;
-    bar.setPointerCapture(e.pointerId);
-    bar.onpointermove = (m) => { w.style.left = m.clientX - ox + 'px'; w.style.top = Math.max(30, m.clientY - oy) + 'px'; };
-    bar.onpointerup = () => { bar.onpointermove = null; };
-  };
-  desk.append(w);
-  wins[name] = w;
+  const A = APPS[name], first = !isOpen(name);
+  openWin(name, { title: A.title, cls: (A.wide ? 'wide' : '') + (A.xl ? ' xl' : ''), size: A.xl ? [1180, 720] : A.wide ? [940, 640] : A.size || [440, 520], render: A.render });
+  if (first) bounce(name);
 }
 
 desk.addEventListener('click', (e) => { const b = e.target.closest('[data-app]'); if (b) openApp(b.dataset.app); });

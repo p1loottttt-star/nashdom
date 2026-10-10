@@ -24,7 +24,7 @@ const marks = [];
 const mark = async (n) => { marks.push(n); await page.evaluate((x) => console.timeStamp('step:' + x), n); };
 const at = (expr) => page.evaluate((e) => { const o = eval(e), R = window.__room, v = new R.THREE.Vector3(); new R.THREE.Box3().setFromObject(o).getCenter(v); v.project(R.camera); const r = R.renderer.domElement.getBoundingClientRect(); return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height }; }, expr);
 await mark('laptop-open'); const p = await at('window.__room.laptop'); await page.mouse.click(p.x, p.y); await page.waitForTimeout(2500);
-for (const app of ['quiz', 'profile', 'shop', 'tube']) { await mark('app:' + app); await page.click(`[data-app=${app}]`); await page.waitForTimeout(1600); await page.evaluate(() => document.querySelector('.win .dot.r')?.click()); await page.waitForTimeout(400); }
+for (const app of ['quiz', 'profile', 'shop', 'tube']) { await mark('app:' + app); await page.click(`[data-app=${app}]`); await page.waitForTimeout(1600); await page.evaluate(() => document.querySelector('.win .lt.r')?.click()); await page.waitForTimeout(400); }
 await mark('laptop-close'); await page.click('#power'); await page.waitForTimeout(2200);
 await mark('write'); await page.click('#write'); await page.waitForTimeout(800);
 await mark('end');

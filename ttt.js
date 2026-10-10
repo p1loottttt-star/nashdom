@@ -22,7 +22,7 @@ export default {
   render(el, ctx) {
     const { m, me, partner, pname } = ctx, b = m.state.board, win = tttLine(b), mark = markOf(m, me);
     const grid = h('div', { className: 'tt-grid' }, ...b.map((v, i) => h('button', {
-      className: 'tt-cell' + (win?.includes(i) ? ' win' : ''), textContent: v ? ICON[v] : '', disabled: !!v || !ctx.mine,
+      className: 'tt-cell' + (win?.includes(i) ? ' tt-win' : ''), textContent: v ? ICON[v] : '', disabled: !!v || !ctx.mine,
       onclick: () => {
         const board = b.slice(); board[i] = mark;
         const w = tttWinner(board);
