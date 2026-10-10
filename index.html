@@ -746,6 +746,8 @@
   .tmsg { position: relative; transition: opacity .2s, transform .2s; } .tmsg.gone { opacity: 0; transform: scale(.9); }
   .tdel { position: absolute; top: -7px; left: -7px; width: 20px; height: 20px; padding: 0; border: 1.5px solid var(--ink); border-radius: 50%; background: #fffaf0; font: 800 12px/1 Nunito, sans-serif; opacity: 0; transition: opacity .12s; cursor: pointer; }
   .tmsg:hover .tdel, .tdel:focus-visible { opacity: 1; }
+  .town { position: absolute; left: 12px; top: 12px; z-index: 3; padding: 6px 12px; border: 2px solid var(--ink); border-radius: 8px; background: #fffaf0; font: 800 12.5px Nunito, sans-serif; box-shadow: 0 3px 0 var(--ink); cursor: pointer; opacity: .85; }
+  .town:hover { opacity: 1; } .town:active { transform: translateY(3px); box-shadow: none; }
   .twipe { margin-left: auto; border: 1.5px solid var(--ink); background: #fffaf0; border-radius: 8px; padding: 4px 10px; font: 700 12px Nunito, sans-serif; cursor: pointer; opacity: .65; }
   .twipe:hover { opacity: 1; } .twipe.sure { opacity: 1; background: #e0614f; color: #fff; }
   .tsys { align-self: center; font-size: 12px; opacity: .6; text-align: center; }

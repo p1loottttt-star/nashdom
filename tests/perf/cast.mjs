@@ -41,7 +41,18 @@ const A = await open(''), B = await open('&as=b');
 await A.bringToFront();
 await A.locator('.tpick input[type=file]').setInputFiles(FILE);
 console.log('файл выбран, ждём эфир…');
+if (arg('seek')) { await A.waitForTimeout(3000); await A.evaluate((t) => { document.querySelector('.tube video').currentTime = t; }, +arg('seek')); }
 await B.waitForFunction(() => window.__cast?.viewer?.samples?.length > 3, null, { timeout: 60000 }).catch(() => console.log('эфир не пришёл'));
+if (process.argv.includes('--own')) { // у смотрящего тот же файл: свой экземпляр в такт с показывающим
+  await B.locator('.town input').setInputFiles(FILE);
+  for (let i = 0; i < 6; i++) {
+    await sleep(5000);
+    const [ta, tb] = await Promise.all([A.evaluate(() => document.querySelector('.tube video').currentTime), B.evaluate(() => { const v = document.querySelector('.tscreen video:not([hidden])'); return [v.currentTime, v.paused, v.playbackRate, window.__afix?.ms?.length || 0]; })]);
+    console.log(`свой файл: показывающий ${ta.toFixed(2)} | смотрящий ${tb[0].toFixed(2)} (разница ${((tb[0] - ta) * 1000).toFixed(0)} мс, пауза ${tb[1]}, скорость ${tb[2].toFixed(3)}, кусков звука ${tb[3]})`);
+  }
+  console.log('эфир у смотрящего:', await B.evaluate(() => document.querySelector('.tscreen video[hidden]')?.srcObject ? 'есть' : 'отключён'));
+  await ctx.close(); process.exit(0);
+}
 const t0 = Date.now();
 while (Date.now() - t0 < SECS * 1000) {
   await sleep(10000);
@@ -53,5 +64,6 @@ const out = { file: path.basename(FILE), host: await A.evaluate(() => window.__c
 console.log('перевод звука:', JSON.stringify(await A.evaluate(() => window.__afix || null)));
 console.log('звук у смотрящего:', JSON.stringify(await B.evaluate(async () => { const v = document.querySelector('.tube video'); const pc = window.__castpc; return { tracks: v?.srcObject?.getAudioTracks().length }; })));
 fs.writeFileSync(new URL('./last-cast.json', import.meta.url), JSON.stringify(out, null, 1));
+if (arg('snap')) { await B.locator('.tube video').screenshot({ path: arg('snap') }); await A.locator('.tube video').screenshot({ path: arg('snap').replace('.png', '-host.png') }); }
 console.log('\nотдаёт:', out.host?.sum, '\nсмотрит:', out.viewer?.sum);
 await ctx.close();
