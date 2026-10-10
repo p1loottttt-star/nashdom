@@ -3,6 +3,7 @@
 import * as store from './store.js';
 import { file as filePlayer } from './players.js';
 import { watchCast } from './caststats.js';
+import { badAudio, fixAudio } from './audiofix.js';
 
 const h = (tag, props = {}) => Object.assign(document.createElement(tag), props);
 const files = new Map(); // sid → File; живёт только в этой вкладке
@@ -45,8 +46,9 @@ export async function shareTab() {
 // раздача эфира партнёру: tracks() — откуда брать картинку и звук; один зритель — одно соединение
 function broadcast(src, tracks, video) {
   const me = store.me().id;
-  let pc = null;
+  let pc = null, last = null;
   async function connect(to) {
+    last = to;
     pc?.close();
     const cur = pc = new RTCPeerConnection({ iceServers: ICE });
     cur.onicecandidate = (e) => e.candidate && send({ sid: src.sid, to, type: 'ice', cand: e.candidate.toJSON() });
@@ -86,7 +88,9 @@ function broadcast(src, tracks, video) {
     } catch (e) { console.warn('cast', e); }
   });
   send({ sid: src.sid, to: '*', type: 'hello' });
-  return () => { off(); pc?.close(); };
+  const stop = () => { off(); pc?.close(); };
+  stop.renew = () => last && connect(last).catch(console.warn); // дорожки поменялись — новое предложение тому же зрителю
+  return stop;
 }
 
 // ---------- у того, кто показывает файл: обычный плеер файла + раздача эфира ----------
@@ -96,26 +100,30 @@ async function host(box, src, on) {
   const url = URL.createObjectURL(f);
   const p = await filePlayer(box, { url, hls: false }, on);
   const v = p.el;
+  // звук, который браузер не декодирует (AC3/DTS в скачанных .mkv), — переводим на лету (audiofix.js)
+  const note = (t) => on('note', t);
+  let fix = (await badAudio(f).catch(() => null)) ? fixAudio(v, f, note) : null;
   let cap = null;
   const stop = broadcast(src, async () => { // у captureStream дорожки появляются, когда видео загрузилось
     cap ||= (v.captureStream || v.mozCaptureStream).call(v);
     for (let i = 0; i < 40 && !cap.getVideoTracks().length; i++) await new Promise((r) => setTimeout(r, 100));
     await new Promise((r) => setTimeout(r, 150)); // звук приходит чуть позже картинки
+    if (fix) return { stream: cap, tracks: [...cap.getVideoTracks(), ...fix.stream.getAudioTracks()] };
     return { stream: cap, tracks: cap.getTracks() };
   }, v);
   // время и длительность для шкалы у партнёра
   const beat = setInterval(() => send({ sid: src.sid, to: '*', type: 'pos', t: v.currentTime, d: v.duration || 0, playing: !v.paused }), 1000);
-  // Chrome молча играет файл без звука, если звук в AC3/DTS, — предупредим
-  let warned = false;
+  // запасной путь: по заголовку не распознали, а звук так и не декодируется — тоже переводим, эфир переподключаем со звуком
+  let checked = !!fix;
   v.addEventListener('timeupdate', () => {
-    if (warned || v.currentTime < 3 || !('webkitAudioDecodedByteCount' in v)) return;
-    warned = true;
-    if (v.webkitAudioDecodedByteCount === 0) on('error', 'Звук в этом файле браузер не понимает (обычно AC3/DTS в .mkv) — фильм пойдёт без звука. Подойдёт mp4 со звуком AAC.');
+    if (checked || v.currentTime < 3 || !('webkitAudioDecodedByteCount' in v)) return;
+    checked = true;
+    if (v.webkitAudioDecodedByteCount === 0) { fix = fixAudio(v, f, note); stop.renew(); }
   });
   return {
     ...p,
     type: 'file', title: () => f.name,
-    destroy() { clearInterval(beat); stop(); p.destroy(); URL.revokeObjectURL(url); },
+    destroy() { clearInterval(beat); stop(); fix?.destroy(); p.destroy(); URL.revokeObjectURL(url); },
   };
 }
 

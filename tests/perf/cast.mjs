@@ -49,6 +49,9 @@ while (Date.now() - t0 < SECS * 1000) {
   console.log(`${Math.round((Date.now() - t0) / 1000)}с  отдаёт: ${h?.fps} к/с ${h?.res} ${h?.kbps} кбит/с enc ${h?.encMs} мс lim=${h?.lim}  |  смотрит: ${v?.fps} к/с фризов ${v?.frz} сброшено ${v?.drop} буфер ${v?.jbMs} мс`);
 }
 const out = { file: path.basename(FILE), host: await A.evaluate(() => window.__cast?.host), viewer: await B.evaluate(() => window.__cast?.viewer) };
+// звук: перевод (audiofix) у показывающего и уровень звука в эфире у смотрящего
+console.log('перевод звука:', JSON.stringify(await A.evaluate(() => window.__afix || null)));
+console.log('звук у смотрящего:', JSON.stringify(await B.evaluate(async () => { const v = document.querySelector('.tube video'); const pc = window.__castpc; return { tracks: v?.srcObject?.getAudioTracks().length }; })));
 fs.writeFileSync(new URL('./last-cast.json', import.meta.url), JSON.stringify(out, null, 1));
 console.log('\nотдаёт:', out.host?.sum, '\nсмотрит:', out.viewer?.sum);
 await ctx.close();

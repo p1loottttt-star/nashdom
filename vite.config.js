@@ -15,7 +15,8 @@ const fnv = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) h = 
 const ART = fnv(['furniture.js', 'toon.js', 'thumbs.js', 'roomstyle.js'].map((f) => fs.readFileSync(f, 'utf8')).join('|'));
 
 export default defineConfig({
-  css: { postcss: {} }, // не искать postcss-конфиг в родительской папке LeadGen
+  css: { postcss: {} },
+  optimizeDeps: { exclude: ['@ffmpeg/ffmpeg'] }, // у ffmpeg.wasm свой воркер (new URL) — пребандлинг его ломает // не искать postcss-конфиг в родительской папке LeadGen
   define: { __ART__: JSON.stringify(ART), __EMOJI__: JSON.stringify(EMOJI), __VERSION__: JSON.stringify(`${sha} · ${new Date().toISOString().slice(0, 10)}`) },
   build: { target: 'es2022', chunkSizeWarningLimit: 800, rollupOptions: { input: { main: 'index.html', lab: 'lab/index.html' } } },
 });

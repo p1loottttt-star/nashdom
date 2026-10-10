@@ -181,6 +181,7 @@ export function renderTube(el) {
   function onPlayer(kind, msg) {
     if (kind === 'error') { join.hidden = true; if (S?.src?.type === 'yt') showAlt(); return showErr(msg); }
     if (kind === 'blocked') { join.hidden = false; return; }
+    if (kind === 'note') return system(msg); // подсказки плеера (перевод звука) — в чат, только себе
     if (!P || !S || performance.now() < ignoreUntil) return;
     const t = P.time(), exp = expected(S, store.serverNow());
     if (kind === 'play' && S.playing) return; // у всех уже играет: я просто догоняю, подгонка сама перемотает
