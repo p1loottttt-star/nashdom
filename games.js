@@ -8,9 +8,11 @@ import wave from './wave.js';
 import draw from './draw.js';
 import ttt from './ttt.js';
 import battle from './battle.js';
+import cats from './catfight.js';
 
-export const GAMES = [wave, draw, ttt, battle];
-const byKind = (k) => GAMES.find((g) => g.kind === k);
+export const GAMES = [wave, draw, ttt, cats];
+const ALL = [...GAMES, battle]; // морской бой — только для старых партий
+const byKind = (k) => ALL.find((g) => g.kind === k);
 const h = (tag, props = {}, ...kids) => { const e = Object.assign(document.createElement(tag), props); e.append(...kids.flat(Infinity).filter((k) => k != null && k !== false)); return e; };
 export { h };
 const meId = () => store.me()?.id;

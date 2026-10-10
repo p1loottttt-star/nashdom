@@ -60,3 +60,28 @@ assert.equal(drawChoices([EASY, MID, HARD], ['наш диван'], () => 0.7)[1]
 const sq = squeeze([{ c: 'x', w: 1, p: [[0, 0, 0], [0, 0, 100]] }, { c: 'x', w: 1, p: [[0, 0, 5100], [0, 0, 5200]] }], 350);
 assert.deepEqual(sq[1].p.map((q) => q[2]), [450, 550]);
 console.log('draw: ok');
+
+// «Котобой»: формы, расстановка без касаний, выстрелы, карточки
+import { CN, CATS, shapeOf, placeCat, validCats, randomCats, catShoot, bell, laser, fish } from '../gamelogic.js';
+assert.deepEqual(shapeOf('kitten', 1), [[0, 0], [1, 0]]);
+assert.equal(new Set(shapeOf('fat', 3, true).map(String)).size, 5);
+assert.equal(placeCat('stretch', 0, 6), null); // не влезает
+assert.deepEqual(placeCat('stretch', 0, 5).cells, [5, 6, 7, 8, 9]);
+seed = 7;
+for (let i = 0; i < 200; i++) assert.ok(validCats(randomCats(rnd)), 'коты ' + i);
+const cs = randomCats(rnd);
+assert.ok(!validCats([cs[0], cs[0], ...cs.slice(2)]));
+const kit = cs.find((c) => c.k === 'kitten');
+assert.deepEqual(catShoot(cs, [], kit.cells[0]), { hit: true, caught: null, won: false });
+assert.equal(catShoot(cs, [kit.cells[0]], kit.cells[1]).caught, 0);
+const all = cs.flatMap((c) => c.cells);
+assert.ok(catShoot(cs, all.slice(1), all[0]).won);
+const empty = [...Array(CN * CN).keys()].find((i) => !all.includes(i));
+assert.equal(catShoot(cs, [], empty).hit, false);
+assert.equal(bell([{ k: 'ball', cells: [0, 1, 10, 11] }], 0), 4);
+assert.equal(bell([{ k: 'ball', cells: [0, 1, 10, 11] }], 33), 0);
+assert.deepEqual(laser(8, false), [8, 9]); assert.deepEqual(laser(85, true), [85, 95]);
+assert.ok(cs.flatMap((c) => c.cells).includes(fish(cs, [], rnd)));
+assert.equal(fish(cs, all), null);
+assert.equal(CATS.reduce((n, c) => n + c.cells.length, 0), 25);
+console.log('cats: ok');

@@ -95,3 +95,68 @@ export function squeeze(strokes, gap = 350) {
   for (const [t, i, k] of pts) { if (t - last > gap) shift += t - last - gap; out[i].p[k][2] = t - shift; last = t; }
   return out;
 }
+
+// ---------- «Котобой»: поле 10×10, шесть котов разной формы; клетка = r * CN + c ----------
+// форма — клетки [r, c], первая — голова, последняя — хвост; коты не касаются сторонами (углами можно)
+export const CN = 10;
+export const CATS = [
+  { k: 'kitten', name: 'Котёнок', cells: [[0, 0], [0, 1]] },
+  { k: 'ball', name: 'Клубок', cells: [[0, 0], [0, 1], [1, 1], [1, 0]] },
+  { k: 'tail', name: 'Хвост трубой', cells: [[1, 0], [1, 1], [1, 2], [0, 2]] },
+  { k: 'stretch', name: 'Потягушка', cells: [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4]] },
+  { k: 'curl', name: 'Свернулся', cells: [[0, 0], [1, 0], [1, 1], [1, 2], [0, 2]] },
+  { k: 'fat', name: 'Толстый кот', cells: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0]] },
+];
+// поворот на rot×90° и отражение; результат сдвинут к (0, 0), порядок клеток (голова…хвост) сохраняется
+export function shapeOf(k, rot = 0, flip = false) {
+  let p = CATS.find((c) => c.k === k).cells.map(([r, c]) => [r, flip ? -c : c]);
+  for (let i = 0; i < ((rot % 4) + 4) % 4; i++) p = p.map(([r, c]) => [c, -r]);
+  const r0 = Math.min(...p.map((q) => q[0])), c0 = Math.min(...p.map((q) => q[1]));
+  return p.map(([r, c]) => [r - r0, c - c0]);
+}
+export function placeCat(k, r, c, rot = 0, flip = false) {
+  const p = shapeOf(k, rot, flip).map(([dr, dc]) => [r + dr, c + dc]);
+  if (p.some(([a, b]) => a < 0 || b < 0 || a >= CN || b >= CN)) return null;
+  return { k, rot, flip, cells: p.map(([a, b]) => a * CN + b) };
+}
+const side = (a, b) => a.cells.some((i) => b.cells.some((j) => (Math.abs(i - j) === CN) || (Math.abs(i - j) === 1 && Math.floor(i / CN) === Math.floor(j / CN)) || i === j));
+export const catsClash = (cats, cat, skip = -1) => cats.some((o, i) => i !== skip && side(o, cat));
+export function validCats(cats) {
+  if (cats.length !== CATS.length || CATS.some((d) => cats.filter((c) => c.k === d.k).length !== 1)) return false;
+  for (const c of cats) { const want = placeCat(c.k, ...topLeft(c), c.rot, c.flip); if (!want || want.cells.join() !== c.cells.join()) return false; } // форма совпадает с заявленной
+  return cats.every((c, i) => !catsClash(cats, c, i));
+}
+function topLeft(c) { const rs = c.cells.map((i) => Math.floor(i / CN)), cs = c.cells.map((i) => i % CN); return [Math.min(...rs), Math.min(...cs)]; }
+export function randomCats(rnd = Math.random) {
+  for (;;) {
+    const cats = [];
+    for (const d of [...CATS].sort((a, b) => b.cells.length - a.cells.length)) {
+      for (let t = 0; t < 300; t++) {
+        const c = placeCat(d.k, Math.floor(rnd() * CN), Math.floor(rnd() * CN), Math.floor(rnd() * 4), rnd() < 0.5);
+        if (c && !catsClash(cats, c)) { cats.push(c); break; }
+      }
+    }
+    if (cats.length === CATS.length) return CATS.map((d) => cats.find((c) => c.k === d.k));
+  }
+}
+export function catShoot(cats, shots, cell) {
+  const all = new Set([...shots, cell]), k = cats.findIndex((c) => c.cells.includes(cell));
+  if (k < 0) return { hit: false, caught: null, won: false };
+  return { hit: true, caught: cats[k].cells.every((i) => all.has(i)) ? k : null, won: cats.every((c) => c.cells.every((i) => all.has(i))) };
+}
+// колокольчик: сколько клеток с котами в квадрате 3×3 вокруг cell
+export function bell(cats, cell) {
+  const r = Math.floor(cell / CN), c = cell % CN, set = new Set(cats.flatMap((x) => x.cells));
+  let n = 0;
+  for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) { const a = r + dr, b = c + dc; if (a >= 0 && b >= 0 && a < CN && b < CN && set.has(a * CN + b)) n++; }
+  return n;
+}
+// лазерная указка: 3 клетки от cell вправо или вниз (у края — сколько влезет)
+export const laser = (cell, down) => [0, 1, 2].map((k) => (down ? cell + k * CN : cell + k)).filter((i, k) => i < CN * CN && (down || Math.floor(i / CN) === Math.floor(cell / CN)));
+// рыбка: случайная ещё не задетая клетка случайного непойманного кота
+export function fish(cats, shots, rnd = Math.random) {
+  const s = new Set(shots), alive = cats.filter((c) => c.cells.some((i) => !s.has(i)));
+  if (!alive.length) return null;
+  const c = alive[Math.floor(rnd() * alive.length)], free = c.cells.filter((i) => !s.has(i));
+  return free[Math.floor(rnd() * free.length)];
+}

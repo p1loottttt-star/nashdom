@@ -330,6 +330,32 @@
   .dr-mask { font: 800 26px/1 Nunito, monospace; letter-spacing: 2px; margin: 0; }
   .dr-tries { font-size: 13px; opacity: .6; margin: 0; min-height: 1em; }
   @keyframes drno { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } } .dr-no { animation: drno .25s 2; border-color: #ef6f8c !important; }
+  /* «Котобой» (catfight.js) */
+  .gm-board.kb { max-width: 860px; gap: 8px; }
+  .kb .gm-big { font-size: 34px; }
+  .kb-boards { display: flex; flex-wrap: wrap; gap: 22px; justify-content: center; align-items: flex-start; }
+  .kb-foe { position: relative; }
+  .kb-board { position: relative; width: 340px; height: 340px; padding: 0; background: #f6efe2; border: 2px solid var(--ink); border-radius: 14px 6px 12px 5px / 5px 12px 6px 14px; box-shadow: 3px 4px 0 rgba(59,42,53,.12); overflow: hidden; }
+  .kb-grid { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(10, 34px); grid-template-rows: repeat(10, 34px); }
+  .gm .kb-cell { width: 34px; height: 34px; padding: 0; border: 0; border-right: 1px dashed rgba(59,42,53,.14); border-bottom: 1px dashed rgba(59,42,53,.14); border-radius: 0; background: transparent; }
+  .gm .kb-cell:disabled { opacity: 1; cursor: default; }
+  .kb-board.fog .kb-cell:not(.hit):not(.miss) { background: repeating-linear-gradient(-45deg, rgba(59,42,53,.07) 0 2px, transparent 2px 7px), #efe6d6; }
+  .kb-board.aim .kb-cell:not(:disabled):hover { background: #ffe0e8; box-shadow: inset 0 0 0 2px #ef6f8c; cursor: crosshair; }
+  .gm .kb-cell.pv { background: rgba(134,184,95,.35); } .gm .kb-cell.pv.bad { background: rgba(217,79,98,.35); }
+  .gm .kb-cell.miss { background: #fbf7ef; }
+  .kb-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .kb-blot text { font: 700 11px Caveat, cursive; fill: #fff; } .kb-paw { font-size: 15px; opacity: .55; }
+  .kb-fish, .kb-boxi { font-size: 18px; }
+  .kb-bell rect { fill: rgba(242,201,76,.18); stroke: #c08a1e; stroke-width: 2; stroke-dasharray: 5 4; } .kb-bell text { font: 700 26px Caveat, cursive; fill: #c08a1e; }
+  .kb-say { min-height: 1.2em; color: #7a5547; }
+  .kb-fx { position: absolute; inset: 30px 0 0; pointer-events: none; display: grid; place-items: center; }
+  .kb-fx b { font: 700 64px Caveat, cursive; color: #d94f62; text-shadow: 3px 3px 0 #fff; animation: kbboom 1.1s ease-out forwards; }
+  @keyframes kbboom { 0% { transform: scale(.4) rotate(-12deg); opacity: 0; } 25% { transform: scale(1.15) rotate(4deg); opacity: 1; } 100% { transform: scale(1) rotate(-3deg) translateY(-30px); opacity: 0; } }
+  .kb-cards { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; min-height: 10px; }
+  .gm .kb-card { display: grid; justify-items: center; gap: 2px; padding: 8px 12px; background: #fffdf6; transform: rotate(-2deg); }
+  .gm .kb-card:nth-child(even) { transform: rotate(2deg); } .gm .kb-card.on { background: #ffe0e8; box-shadow: 0 0 0 3px #ef6f8c; }
+  .kb-card i { font-style: normal; font-size: 26px; } .kb-card span { font: 700 18px Caveat, cursive; }
+  .kb-legend { display: flex; flex-wrap: wrap; gap: 6px 12px; justify-content: center; font: 700 17px Caveat, cursive; opacity: .7; }
   .tt-grid { display: grid; grid-template-columns: repeat(3, 84px); gap: 8px; }
   .gm .tt-cell { width: 84px; height: 84px; padding: 0; font-size: 44px; background: #fffaf2; border-width: 2px; }
   .gm .tt-cell:not(:disabled):hover { background: #fff0f4; } .gm .tt-cell:disabled { opacity: 1; cursor: default; } .gm .tt-cell.tt-win { background: #ffe0e8; }
