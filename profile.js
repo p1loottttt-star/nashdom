@@ -45,7 +45,7 @@ function partnerWeather(p, el) {
 // кружок-аватар: фото или эмодзи на своём цвете
 export function avatar(p, size = 64) {
   const a = h('i', { className: 'pava', textContent: p?.avatar ? '' : p?.emoji || '💌' });
-  a.style.cssText = `width:${size}px;height:${size}px;font-size:${size * 0.5}px;background:${p?.color || '#ddd'}${p?.avatar ? `;background-image:url("${encodeURI(store.media(p.avatar))}")` : ''}`;
+  a.style.cssText = `width:${size}px;height:${size}px;font-size:${size * 0.5}px;background-color:${p?.color || '#ddd'}${p?.avatar ? `;background-image:url("${encodeURI(store.media(p.avatar))}")` : ''}`;
   return a;
 }
 
