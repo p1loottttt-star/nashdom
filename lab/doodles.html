@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Иконки: три печати</title>
+<style>
+  body { margin: 0; padding: 20px; background: #f3ead8; font: 13px Nunito, system-ui, sans-serif; color: #3b2a35; }
+  h2 { margin: 18px 0 8px; font-size: 16px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .cell { width: 84px; text-align: center; }
+  .cell .dd { width: 64px; height: 64px; display: block; margin: 0 auto 2px; }
+  .sticker .dd { filter: drop-shadow(2px 3px 0 rgba(60,40,20,.28)); }
+</style>
+</head>
+<body>
+<div id="out"></div>
+<script type="module">
+  import { doodle, DOODLES } from '../doodles.js';
+  const COL = ['#e0614f', '#6fa8d6', '#7fae6a', '#a58bd1', '#ef7f9b', '#f0b941', '#3fa39a', '#f08b46', '#4b6fb5'];
+  const RISO = ['#ff665e', '#0078bf', '#00a95c', '#765ba7', '#ff48b0', '#ffe800', '#00838a', '#ff6c2f', '#3d5588'];
+  const out = document.getElementById('out');
+  for (const style of ['sticker', 'pencil', 'riso']) {
+    out.insertAdjacentHTML('beforeend', `<h2>${style}</h2><div class="row ${style}">${DOODLES.map((n, i) =>
+      `<div class="cell">${doodle(n, { style, accent: (style === 'riso' ? RISO : COL)[i % 9] })}${n}</div>`).join('')}</div>`);
+  }
+</script>
+</body>
+</html>

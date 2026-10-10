@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>В. Настолка</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&display=swap&subset=cyrillic" rel="stylesheet">
+<link rel="stylesheet" href="./ui/base.css">
+<style>
+  /* В. Настольная игра и картон: ризограф (плашки + контур другой краской со сдвигом, растр), толстый картон с торцом,
+     фишки-жетоны вместо значков, окна — крышки коробок, тесты — игральные карты, док — подставка для фишек */
+  :root { --ink: #24346b; --paper: #fff7e4; --board: #efe3c8; --edge: #c8ad7f; --pink: #ff48b0; --yel: #ffd400; --blue: #0078bf; --sh: rgba(36, 52, 107, .26); --disp: Unbounded, Nunito, sans-serif; }
+  #desktop { background:
+      var(--grain),
+      radial-gradient(circle, rgba(255, 72, 176, .55) 1.3px, transparent 1.9px) 0 0 / 7px 7px,
+      var(--board);
+    background-blend-mode: normal; }
+  /* крупные ризо-пятна под столом (статично, растр точками) */
+  #desktop::before, #desktop::after { content: ''; position: absolute; pointer-events: none; }
+  #desktop::before { z-index: -2; inset: 0; background: var(--board); -webkit-mask: radial-gradient(circle at 86% 18%, #0000 21%, #000 21.2%); mask: radial-gradient(circle at 86% 18%, #0000 21%, #000 21.2%); }
+  #desktop::after { z-index: -1; left: -140px; bottom: -180px; width: 560px; height: 520px; border-radius: 46% 54% 41% 59% / 52% 44% 56% 48%; background: radial-gradient(circle, rgba(255, 212, 0, .85) 1.6px, transparent 2.2px) 0 0 / 6px 6px; rotate: -12deg; }
+
+  .menubar { height: 40px; padding: 0 18px; background: var(--blue); color: var(--paper); font: 700 12px var(--disp); letter-spacing: .06em; text-transform: uppercase; box-shadow: 0 4px 0 var(--ink); }
+  .brand b { text-shadow: 1.5px 1px 0 var(--pink); }
+  .brand .ic { width: 24px; height: 24px; }
+  .m-clock { font-variant-numeric: tabular-nums; }
+
+  /* ярлыки — фишки-жетоны: кайма цвета приложения с насечками, как у фишки, и толщина картона */
+  .icons { left: 22px; top: 62px; display: grid; grid-template-columns: repeat(2, 94px); gap: 4px 8px; z-index: 2; }
+  .icon { padding: 6px 0; gap: 6px; }
+  .icon .ic { width: 68px; height: 68px; padding: 10px; border-radius: 50%;
+    background: radial-gradient(circle, var(--paper) 0 23px, transparent 23.5px), repeating-conic-gradient(var(--c) 0 22deg, var(--paper) 22deg 30deg), var(--c);
+    box-shadow: 0 0 0 2.5px var(--ink), 0 5px 0 0 var(--edge), 0 5px 0 2.5px var(--ink); transition: transform .14s cubic-bezier(.2, .8, .2, 1.3); }
+  .icon:hover .ic, .icon:focus-visible .ic { transform: translateY(-4px) rotate(-10deg); }
+  .icon:active .ic { transform: translateY(3px); box-shadow: 0 0 0 2.5px var(--ink), 0 2px 0 0 var(--edge), 0 2px 0 2.5px var(--ink); }
+  .icon:focus-visible { outline: none; }
+  .icon .lbl { font: 700 9.5px var(--disp); letter-spacing: .05em; text-transform: uppercase; color: var(--ink); background: var(--paper); padding: 2px 6px; border-radius: 3px; }
+  [data-n]::after { top: 0; right: 6px; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 50%; background: var(--pink); color: var(--paper); font: 900 12px/22px var(--disp); text-align: center; border: 2.5px solid var(--ink); box-shadow: 0 3px 0 var(--ink); }
+
+  .hello { left: 24px; bottom: 96px; justify-items: start; z-index: 1; }
+  .hello b { font: 900 104px/.9 var(--disp); color: var(--pink); text-shadow: 4px 3px 0 var(--blue); letter-spacing: -.04em; }
+  .hello span { font: 700 18px var(--disp); text-transform: uppercase; color: var(--ink); }
+  .hello small { font: 600 12px Nunito, sans-serif; color: var(--ink); opacity: .75; }
+
+  /* окна — крышки коробок: толстый картон с торцом, баннер цвета приложения с растром */
+  .win { background: var(--grain), var(--paper); border: 3px solid var(--ink); border-radius: 16px;
+    box-shadow: 0 9px 0 -3px var(--edge), 0 9px 0 0 var(--ink), 12px 20px 0 0 var(--sh); }
+  .win:not(.active) { box-shadow: 0 6px 0 -3px var(--edge), 0 6px 0 0 var(--ink), 6px 10px 0 0 var(--sh); }
+  .bar { margin: -3px -3px 0; padding: 12px 16px; border-radius: 16px 16px 0 0; border: 3px solid var(--ink); border-bottom-width: 3px;
+    background: radial-gradient(circle, rgba(255, 247, 228, .32) 1.2px, transparent 1.7px) 0 0 / 6px 6px, var(--c); }
+  .win:not(.active) .bar { filter: saturate(.55) brightness(1.05); }
+  .ttl { font: 900 22px/1 var(--disp); text-transform: uppercase; letter-spacing: .02em; color: var(--paper); text-shadow: 2px 2px 0 var(--ink); }
+  .wicon .ic { width: 42px; height: 42px; padding: 5px; border-radius: 50%; background: var(--paper); box-shadow: 0 0 0 2.5px var(--ink), 0 3px 0 2.5px var(--ink); }
+  .lt { width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid var(--ink); font: 900 11px/1 var(--disp); box-shadow: 0 2px 0 var(--ink); }
+  .lt.r { background: #ff665e; } .lt.y { background: var(--yel); } .lt.g { background: #00a95c; }
+  .body { padding: 18px 20px 24px; }
+  .win.games { left: 236px; top: 70px; width: 590px; height: calc(100% - 200px); }
+  .win.quiz { left: 790px; top: 100px; width: calc(100% - 826px); height: calc(100% - 214px); }
+
+  .btn { border: 2.5px solid var(--ink); background: var(--paper); border-radius: 10px; padding: 6px 12px; font: 700 11px var(--disp); text-transform: uppercase; letter-spacing: .03em; box-shadow: 0 4px 0 var(--ink); transition: transform .07s, box-shadow .07s; }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 5px 0 var(--ink); }
+  .btn:active { transform: translateY(4px); box-shadow: 0 0 0 var(--ink); }
+  .btn.go { background: var(--c, var(--pink)); color: var(--paper); text-shadow: 1px 1px 0 var(--ink); }
+
+  /* «Игры»: коробки игр стопкой */
+  .gm-new { gap: 18px 16px; }
+  .gm-card { display: grid; grid-template-rows: auto auto 1fr auto; padding: 0 0 14px; overflow: hidden; background: var(--paper); border: 2.5px solid var(--ink); border-radius: 12px;
+    box-shadow: 0 6px 0 -2.5px var(--edge), 0 6px 0 0 var(--ink); transition: transform .14s cubic-bezier(.2, .8, .2, 1.3); }
+  .gm-card:hover { transform: translateY(-4px) rotate(-.8deg); }
+  .gm-card .art { display: grid; place-items: center; height: 92px; border-bottom: 2.5px solid var(--ink);
+    background: radial-gradient(circle, rgba(255, 247, 228, .4) 1.3px, transparent 1.8px) 0 0 / 6px 6px, var(--c); }
+  .gm-card .art .ic { width: 74px; height: 74px; padding: 7px; border-radius: 50%; background: var(--paper); box-shadow: 0 0 0 2.5px var(--ink), 3px 4px 0 2.5px var(--ink); }
+  .gm-card b { margin: 10px 14px 2px; font: 900 15px/1.15 var(--disp); text-transform: uppercase; color: var(--ink); }
+  .gm-card p { margin: 0 14px 12px; font-size: 12.5px; line-height: 1.35; color: var(--ink); opacity: .85; }
+  .gm-card .btn { justify-self: start; margin-left: 14px; }
+  .gm-card.slap { animation: deal .5s cubic-bezier(.2, .8, .2, 1.2); }
+  @keyframes deal { 0% { transform: translateY(-18px) rotate(-6deg) scale(1.04); } 55% { transform: translateY(2px) rotate(1deg); } }
+  .gm-h { display: inline-block; margin: 26px 0 10px; padding: 7px 26px 6px 12px; font: 900 13px var(--disp); text-transform: uppercase; letter-spacing: .04em; color: var(--paper); background: var(--pink);
+    clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 50%, 100% 100%, 0 100%); text-shadow: 1px 1px 0 var(--ink); }
+  .gm-list { display: grid; gap: 8px; }
+  /* строки — клетки игрового поля */
+  .gm-row { gap: 12px; padding: 0 12px 0 0; background: var(--paper); border: 2.5px solid var(--ink); border-radius: 10px; overflow: hidden; }
+  .gm-row > .ic { width: 52px; height: 48px; padding: 6px 8px; background: var(--c); border-right: 2.5px solid var(--ink); }
+  .gm-row b { font: 700 13px var(--disp); text-transform: uppercase; color: var(--ink); } .gm-row span { font-size: 12.5px; font-weight: 800; color: var(--ink); opacity: .65; }
+  .gm-row .btn { padding: 4px 10px; box-shadow: 0 3px 0 var(--ink); }
+
+  /* «Тесты»: колода карт */
+  .qz-day { margin: 2px 0 22px; padding: 16px 18px; background: var(--grain), var(--paper); border: 2.5px solid var(--ink); border-radius: 14px; box-shadow: 0 6px 0 -2.5px var(--edge), 0 6px 0 0 var(--ink);
+    background-image: var(--grain), radial-gradient(circle, rgba(255, 212, 0, .7) 1.3px, transparent 1.8px); background-size: auto, 6px 6px; }
+  .day-head b { font: 900 13px var(--disp); text-transform: uppercase; letter-spacing: .05em; color: var(--ink); }
+  .streak { gap: 6px; font: 700 11px var(--disp); text-transform: uppercase; color: var(--ink); }
+  .streak .ic { display: none; }
+  .streak i { position: relative; width: 34px; height: 34px; display: grid; place-items: center; font: 900 15px var(--disp); color: var(--paper); background: var(--pink); border: 2.5px solid var(--ink); border-radius: 50%;
+    box-shadow: 0 3px 0 0 var(--ink), 0 6px 0 0 #ff9ed2, 0 6px 0 2.5px var(--ink), 0 9px 0 0 #ff9ed2, 0 9px 0 2.5px var(--ink); margin-bottom: 9px; }
+  .day-q { margin: 10px 0 14px; font: 700 22px/1.2 var(--disp); color: var(--ink); }
+  .day-opts, .day-reveal { gap: 12px; }
+  .opt { font-size: 11.5px; padding: 12px 8px; }
+  .ans { padding: 12px 8px; background: var(--paper); border: 2.5px solid var(--ink); border-radius: 10px; box-shadow: 0 4px 0 var(--ink); animation: cardflip .55s cubic-bezier(.2, .8, .2, 1.1) backwards; transform-origin: 50% 50%; }
+  .ans.she { animation-delay: .35s; background: radial-gradient(circle, rgba(255, 72, 176, .18) 1.2px, transparent 1.7px) 0 0 / 6px 6px, var(--paper); }
+  .ans small { font: 700 10px var(--disp); text-transform: uppercase; color: var(--ink); opacity: .6; } .ans b { font: 700 15px/1.25 var(--disp); color: var(--ink); text-align: center; }
+  @keyframes cardflip { 0% { transform: perspective(600px) rotateY(180deg); background: var(--blue); } 49% { background: var(--blue); color: transparent; } 50% { transform: perspective(600px) rotateY(90deg); } }
+  .qz-day.same .ans { border-color: #00a95c; box-shadow: 0 4px 0 #00a95c; }
+  .day-note { display: block; margin-top: 12px; font-weight: 800; font-size: 12.5px; color: var(--ink); opacity: .75; }
+  .qz-head { gap: 12px; }
+  .qz-tabs { gap: 6px; }
+  .tab { border: 2.5px solid var(--ink); background: var(--paper); border-radius: 999px; padding: 6px 14px; font: 700 11px var(--disp); text-transform: uppercase; box-shadow: 0 3px 0 var(--ink); }
+  .tab.on { background: var(--blue); color: var(--paper); }
+  .qz-search input { border: 2.5px solid var(--ink); border-radius: 999px; background: var(--paper); padding: 7px 14px; font-weight: 800; }
+  .qz-chips { gap: 6px; margin: 14px 0 4px; }
+  .chip { border: 2px solid var(--ink); background: none; border-radius: 6px; padding: 3px 9px; font: 700 10.5px var(--disp); text-transform: uppercase; color: var(--ink); }
+  .chip.on, .chip:hover { background: var(--yel); }
+  .qz-wait { gap: 10px; margin: 14px 0 6px; padding: 10px 14px; border: 2.5px dashed var(--ink); border-radius: 12px; }
+  .qz-wait b { font: 700 13px var(--disp); text-transform: uppercase; color: var(--ink); }
+  .qz-wait .btn { font-size: 10.5px; }
+  .qz-grid { gap: 18px 16px; margin-top: 18px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+  /* карта: угловой индекс, рубашка у края, жетон «пройдено» */
+  .qz-card { gap: 4px; padding: 30px 12px 14px; background: var(--paper); border: 2.5px solid var(--ink); border-radius: 14px; box-shadow: 0 0 0 5px var(--paper) inset, 0 0 0 7px var(--c) inset, 0 5px 0 0 var(--ink);
+    transition: transform .14s cubic-bezier(.2, .8, .2, 1.3); }
+  .qz-card:hover { transform: translateY(-5px) rotate(1.5deg); }
+  .qz-card::before { content: attr(data-kind); position: absolute; left: 14px; top: 12px; font: 900 9.5px var(--disp); text-transform: uppercase; color: var(--c); letter-spacing: .04em; }
+  .qz-card .art .ic { width: 66px; height: 66px; }
+  .qz-card b { font: 900 13.5px/1.2 var(--disp); text-transform: uppercase; color: var(--ink); }
+  .qz-card small { font-size: 11.5px; font-weight: 800; color: var(--ink); opacity: .6; }
+  .qz-marks { gap: 10px; font-size: 12px; font-weight: 900; color: var(--ink); opacity: .7; } .qz-marks .ok { color: #00a95c; opacity: 1; }
+  .qz-acts { gap: 6px; justify-content: center; margin-top: 8px; }
+  .stamp { top: -12px; right: -10px; width: 62px; height: 62px; display: grid; place-content: center; text-align: center; border-radius: 50%; background: var(--yel); border: 2.5px solid var(--ink); box-shadow: 0 4px 0 var(--ink);
+    font: 900 7.4px/1 var(--disp); letter-spacing: -.02em; text-transform: uppercase; color: var(--ink); rotate: 14deg; }
+  .qz-card.done .stamp { opacity: 1; }
+  .qz-card.stamped { animation: flip .6s cubic-bezier(.2, .8, .2, 1); }
+  .qz-card.stamped .stamp { animation: drop .45s .45s cubic-bezier(.3, 1.6, .5, 1) both; }
+  @keyframes flip { 50% { transform: perspective(700px) rotateY(90deg); } }
+  @keyframes drop { 0% { opacity: 0; transform: translateY(-40px) scale(1.4); } }
+
+  /* док — подставка для фишек: деревянная планка с наклоном */
+  .dock { gap: 8px; padding: 10px 16px 12px; background: var(--grain), #e0b878; border: 3px solid var(--ink); border-radius: 8px 8px 14px 14px; box-shadow: 0 7px 0 -3px #a8814a, 0 7px 0 0 var(--ink), 8px 12px 0 var(--sh); }
+  .dock button { width: 50px; height: 50px; }
+  .dock button .ic { width: 50px; height: 50px; padding: 6px; background: var(--paper); border: 2.5px solid var(--ink); border-radius: 8px; box-shadow: 0 4px 0 var(--ink); }
+  .dock button.run::before { content: ''; position: absolute; left: 50%; bottom: -10px; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: var(--ink); }
+  .dock .power { margin-left: 8px; }
+</style>
+</head>
+<body>
+<div id="desktop"></div>
+<script type="module">
+  import { build } from './ui/proto.js';
+  build({
+    style: 'riso',
+    colors: { tube: '#ff665e', gallery: '#0078bf', plans: '#00a95c', thoughts: '#765ba7', counter: '#ff48b0', quiz: '#ffb511', games: '#00838a', shop: '#ff6c2f', profile: '#3d5588', power: '#ffd400',
+      g_wave: '#0078bf', g_draw: '#ff665e', g_ttt: '#ff48b0', g_cats: '#ff6c2f', t_chaos: '#765ba7', t_cats: '#ff6c2f', t_bowl: '#00838a', t_cake: '#ff48b0', t_love: '#ff665e', t_cloud: '#0078bf', day: '#ff6c2f' },
+    decorate(root) {
+      root.querySelectorAll('.qz-card').forEach((c) => (c.dataset.kind = c.querySelector('small').textContent.split(' · ')[0]));
+    },
+  });
+</script>
+</body>
+</html>

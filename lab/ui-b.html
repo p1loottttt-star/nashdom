@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Б. Ежедневник</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=PT+Mono&display=swap&subset=cyrillic" rel="stylesheet">
+<link rel="stylesheet" href="./ui/base.css">
+<style>
+  /* Б. Ежедневник с вкладками: страница в точку с полями, цветные вкладки-разделители, листы на кольцах, стопка листов под окном,
+     карандашная штриховка, штамп-дата «пройдено», линейка вместо дока */
+  :root { --ink: #2f2a3a; --paper: #fffdf6; --page: #f6f1e5; --rule: rgba(84, 120, 176, .2); --sh: rgba(40, 30, 50, .2); --mono: 'PT Mono', ui-monospace, monospace; }
+  #desktop { background:
+      var(--grain),
+      linear-gradient(90deg, transparent 63px, rgba(214, 80, 96, .55) 63px 65px, transparent 65px),
+      radial-gradient(circle, rgba(60, 50, 80, .26) 1.1px, transparent 1.6px) 11px 11px / 22px 22px,
+      var(--page); }
+
+  /* шапка страницы: число дней от руки, дата и часы машинописью */
+  .menubar { position: absolute; right: 196px; top: 18px; gap: 22px; font: 13px var(--mono); letter-spacing: .04em; text-transform: uppercase; }
+  .brand { display: none; }
+  .m-days::before { content: 'сб · 10 окт 2026 · неделя 41'; margin-right: 22px; }
+  .m-days { font-size: 0; } .m-days::before { font-size: 13px; }
+  .hello { left: 88px; top: 8px; display: flex; align-items: baseline; gap: 14px; font-family: Caveat, cursive; padding-bottom: 6px; }
+  .hello b { font-size: 58px; line-height: 1; color: #c64a63; }
+  .hello span { font-size: 34px; font-weight: 700; }
+  .hello small { font: 12px var(--mono); text-transform: uppercase; opacity: .6; }
+  .hello::after { content: ''; position: absolute; left: -4px; right: 10px; bottom: 0; height: 9px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 9' preserveAspectRatio='none'%3E%3Cpath d='M1 6 C20 2 34 8 52 4 S88 2 119 5' fill='none' stroke='%23c64a63' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E") 0 0 / 100% 100%; }
+
+  /* вкладки-разделители по правому краю */
+  .icons { right: 0; top: 74px; display: grid; gap: 4px; }
+  .icon { grid-template-columns: 40px 1fr; align-items: center; justify-items: start; width: 186px; height: 46px; padding: 0 14px 0 12px; gap: 8px;
+    background: var(--grain), var(--c); border: 1.5px solid var(--ink); border-right: 0; border-radius: 14px 0 0 14px; box-shadow: -3px 3px 0 var(--sh);
+    translate: 12px 0; transition: translate .18s cubic-bezier(.2, .8, .2, 1.2); }
+  .icon:hover, .icon:focus-visible { translate: 4px 0; outline: none; }
+  .icon .ic { width: 36px; height: 36px; background: var(--paper); border-radius: 50%; padding: 2px; border: 1.5px solid var(--ink); }
+  .icon .lbl { font: 700 21px/1 Caveat, cursive; }
+  [data-n]::after { left: -10px; top: 50%; translate: 0 -50%; min-width: 22px; height: 22px; padding: 0 5px; background: var(--paper); color: #c64a63; border: 2px solid #c64a63; border-radius: 50%; font: 700 13px/18px var(--mono); text-align: center; rotate: -8deg; }
+
+  /* окна: лист с дырками и кольцами сверху, под ним стопка листов; заголовок — цветная вкладка над листом */
+  .win { margin-top: 30px; background: var(--grain), var(--paper);
+    box-shadow: 0 0 0 1px rgba(47, 42, 58, .28), 3px 3px 0 0 var(--paper), 3px 3px 0 1px rgba(47, 42, 58, .25), 6px 6px 0 0 var(--paper), 6px 6px 0 1px rgba(47, 42, 58, .22), 10px 12px 0 1px var(--sh); }
+  .win:not(.active) { filter: saturate(.75); }
+  .win:not(.active) .bar { opacity: .85; }
+  .win::before { content: ''; position: absolute; left: 14px; right: 14px; top: -11px; height: 26px; pointer-events: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='26'%3E%3Ccircle cx='12' cy='19' r='4' fill='%23e9e2d2' stroke='%232f2a3a' stroke-width='1.2'/%3E%3Cpath d='M8 19 C7 4 17 4 16 19' fill='none' stroke='%237d8090' stroke-width='2.6' stroke-linecap='round'/%3E%3Cpath d='M9 15 C9 6 13 6 14 9' fill='none' stroke='%23d6d8e0' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E") 0 0 / 24px 26px repeat-x; }
+  .bar { position: absolute; left: 22px; right: 18px; top: -46px; height: 40px; padding: 0; cursor: grab; }
+  .ttl { flex: none; order: -1; display: flex; align-items: center; height: 40px; padding: 0 18px 0 14px; gap: 8px; background: var(--grain), var(--c);
+    border: 1.5px solid var(--ink); border-bottom: 0; border-radius: 12px 12px 0 0; font: 700 28px/1 Caveat, cursive; box-shadow: 3px -2px 0 var(--sh); }
+  .wicon { order: -2; position: relative; z-index: 2; margin-right: -52px; } .wicon .ic { width: 30px; height: 30px; translate: 10px 0; }
+  .ttl { padding-left: 50px; }
+  .lights { margin-left: auto; align-self: flex-end; padding-bottom: 14px; }
+  .lt { width: 15px; height: 15px; border: 1.5px solid var(--ink); border-radius: 50%; font: 700 11px/1 var(--mono); }
+  .lt.r { background: repeating-linear-gradient(-40deg, #e57766 0 2px, transparent 2px 4px); } .lt.y { background: repeating-linear-gradient(-40deg, #e3ad38 0 2px, transparent 2px 4px); } .lt.g { background: repeating-linear-gradient(-40deg, #6ea75e 0 2px, transparent 2px 4px); }
+  .lights:hover .lt { background-color: var(--paper); }
+  .body { padding: 22px 26px 26px 40px; position: relative; }
+  .win.quiz .body { background: linear-gradient(90deg, transparent 22px, rgba(214, 80, 96, .4) 22px 23.5px, transparent 23.5px), repeating-linear-gradient(transparent 0 27px, var(--rule) 27px 28px) 0 12px; }
+  .win.games .body { background: linear-gradient(90deg, transparent 22px, rgba(214, 80, 96, .4) 22px 23.5px, transparent 23.5px), radial-gradient(circle, rgba(60, 50, 80, .24) 1px, transparent 1.5px) 0 0 / 18px 18px; }
+  .runhead { display: flex; justify-content: space-between; margin: -6px 0 10px; font: 11px var(--mono); text-transform: uppercase; letter-spacing: .06em; opacity: .55; border-bottom: 1px solid rgba(47, 42, 58, .35); padding-bottom: 5px; }
+  .win.games { left: 92px; top: 112px; width: 560px; height: calc(100% - 238px); }
+  .win.quiz { left: 690px; top: 92px; width: calc(100% - 900px); min-width: 520px; height: calc(100% - 214px); }
+
+  .btn { border: 1.5px solid var(--ink); background: var(--paper); border-radius: 6px; padding: 5px 12px; font-weight: 800; font-size: 13px; box-shadow: 0 3px 0 var(--ink); transition: transform .08s, box-shadow .08s; }
+  .btn:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
+  .btn.go { background: var(--grain), var(--c, #f095ad); }
+
+  /* «Игры»: вклейки на фотоуголках */
+  .gm-new { gap: 18px; }
+  .gm-card { position: relative; display: grid; grid-template-columns: 1fr 64px; grid-template-rows: auto 1fr auto; padding: 16px 16px 14px;
+    background: linear-gradient(135deg, #3a3346 11px, transparent 11.5px) 0 0, linear-gradient(-135deg, #3a3346 11px, transparent 11.5px) 100% 0, linear-gradient(45deg, #3a3346 11px, transparent 11.5px) 0 100%, linear-gradient(-45deg, #3a3346 11px, transparent 11.5px) 100% 100%,
+      var(--grain), color-mix(in srgb, var(--c) 16%, #fff); background-repeat: no-repeat; background-size: 22px 22px, 22px 22px, 22px 22px, 22px 22px, auto, auto;
+    box-shadow: 0 0 0 1px rgba(47, 42, 58, .2), 3px 4px 0 var(--sh); transition: transform .18s cubic-bezier(.2, .8, .2, 1.2); }
+  .gm-card:hover { transform: translateY(-3px) rotate(-.6deg); }
+  .gm-card .art { grid-column: 2; grid-row: 1 / 3; } .gm-card .art .ic { width: 64px; height: 64px; }
+  .gm-card b { grid-row: 1; font: 700 27px/1 Caveat, cursive; }
+  .gm-card p { grid-row: 2; margin: 4px 0 10px; font-size: 12.5px; line-height: 1.4; opacity: .8; }
+  .gm-card .btn { grid-column: 1 / 3; justify-self: start; }
+  .gm-card.slap { animation: tipin .5s cubic-bezier(.2, .8, .2, 1); }
+  @keyframes tipin { 0% { transform: translateY(-14px) rotate(-3deg); opacity: .4; } }
+  .gm-h { position: relative; margin: 26px 0 6px; font: 700 30px/1 Caveat, cursive; }
+  .gm-h::after { content: ''; position: absolute; left: 0; width: 120px; bottom: -3px; height: 7px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 7' preserveAspectRatio='none'%3E%3Cpath d='M1 4 C30 1 60 6 119 3' fill='none' stroke='%232f2a3a' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") 0 0 / 100% 100%; }
+  .gm-list { display: grid; }
+  /* строки — пункты списка с квадратом-галочкой */
+  .gm-row { gap: 12px; padding: 7px 0; border-bottom: 1px dashed rgba(47, 42, 58, .25); }
+  .gm-row::before { content: ''; width: 18px; height: 18px; border: 1.8px solid var(--ink); border-radius: 3px 5px 3px 4px; rotate: -3deg; order: -2; }
+  .gm-row { grid-template-columns: auto auto 1fr auto auto; }
+  .gm-row > .ic { width: 30px; height: 30px; }
+  .gm-row b { font: 700 24px/1 Caveat, cursive; } .gm-row span { font: 11.5px var(--mono); opacity: .65; text-align: right; }
+  .gm-row .btn { box-shadow: none; border: 0; border-bottom: 2px solid var(--c); border-radius: 0; background: none; padding: 2px 0; font: 700 21px/1 Caveat, cursive; }
+  .gm-row .btn::after { content: ' →'; }
+  .gm-row.enter::before { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Cpath d='M3 9 L7 13 L16 2' fill='none' stroke='%23c64a63' stroke-width='2.6' stroke-linecap='round' stroke-dasharray='24' stroke-dashoffset='24'%3E%3Canimate attributeName='stroke-dashoffset' to='0' dur='.4s' fill='freeze'/%3E%3C/path%3E%3C/svg%3E") center / 100%; }
+
+  /* «Тесты»: вопрос дня — карточка в кармашке-конверте */
+  .qz-day { margin: 4px 0 26px; padding: 0 0 46px; }
+  .qz-day > *:not(.pocket) { position: relative; z-index: 1; }
+  .qz-day .card { position: relative; z-index: 1; padding: 16px 18px 14px; background: repeating-linear-gradient(transparent 0 23px, var(--rule) 23px 24px) 0 10px, #fff; border: 1px solid rgba(47, 42, 58, .3); box-shadow: 2px 3px 0 var(--sh); rotate: -1.2deg; margin: 0 22px; }
+  .pocket { position: absolute; left: 0; right: 0; bottom: 0; height: 74px; z-index: 2; background: var(--grain), #d8b787; border: 1.5px solid rgba(47, 42, 58, .5); clip-path: polygon(0 0, 50% 26%, 100% 0, 100% 100%, 0 100%); }
+  .pocket i { position: absolute; left: 0; right: 0; bottom: 12px; display: grid; justify-items: center; gap: 4px; align-items: center; font: 12px var(--mono); text-transform: uppercase; letter-spacing: .08em; font-style: normal; }
+  .day-head b { font: 12px var(--mono); text-transform: uppercase; letter-spacing: .1em; opacity: .6; }
+  .streak { gap: 4px; font: 700 20px Caveat, cursive; } .streak i { font-size: 28px; color: #c64a63; }
+  .day-q { margin: 6px 0 12px; font: 700 33px/1.05 Caveat, cursive; }
+  .day-opts, .day-reveal { gap: 12px; }
+  .opt { padding: 9px; font-size: 14.5px; }
+  .ans { padding: 6px; border-bottom: 2px solid var(--c); animation: write .6s steps(14) backwards; }
+  .ans.she { animation-delay: .45s; }
+  .ans small { font: 11px var(--mono); text-transform: uppercase; opacity: .6; } .ans b { font: 700 27px/1.05 Caveat, cursive; }
+  @keyframes write { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  .qz-day.same .day-reveal::after { content: 'совпало!'; grid-column: 1 / 3; justify-self: center; margin-top: 6px; padding: 2px 14px; font: 700 26px Caveat, cursive; color: #c64a63; border: 2px solid #c64a63; border-radius: 50%; rotate: -4deg; animation: stamp .35s .9s cubic-bezier(.3, 1.4, .5, 1) backwards; }
+  .day-note { display: block; font: 11px var(--mono); text-transform: none; letter-spacing: 0; opacity: .75; }
+  .qz-head { gap: 14px; }
+  .qz-tabs { gap: 0; }
+  .tab { border: 1.5px solid var(--ink); border-bottom-width: 0; background: var(--page); padding: 6px 16px 4px; border-radius: 10px 10px 0 0; font: 700 21px/1 Caveat, cursive; margin-right: -4px; }
+  .tab.on { background: #f2c25a; position: relative; z-index: 1; }
+  .qz-head { border-bottom: 1.5px solid var(--ink); }
+  .qz-search input { border: 0; background: transparent; font: 13px var(--mono); padding: 4px; }
+  .qz-chips { gap: 4px 14px; margin: 12px 0 2px; }
+  .chip { border: 0; background: none; padding: 3px 6px; font: 700 20px/1 Caveat, cursive; border-radius: 50%; }
+  .chip.on { box-shadow: inset 0 0 0 2px #c64a63; rotate: -3deg; color: #c64a63; }
+  .chip:hover { text-decoration: underline wavy rgba(198, 74, 99, .7); }
+  .qz-wait { gap: 10px; margin: 14px 0 4px; padding: 6px 0 6px 14px; border-left: 4px solid #c64a63; }
+  .qz-wait b { font: 700 24px/1 Caveat, cursive; }
+  .qz-grid { gap: 20px 18px; margin-top: 18px; }
+  .qz-card { gap: 3px; padding: 22px 12px 14px; background: var(--grain), #fff; border: 1px solid rgba(47, 42, 58, .28); box-shadow: 3px 4px 0 var(--sh); transition: transform .18s cubic-bezier(.2, .8, .2, 1.2); }
+  .qz-card::before { content: ''; position: absolute; left: -1px; right: -1px; top: -1px; height: 8px; background: var(--c); border: 1px solid rgba(47, 42, 58, .3); }
+  .qz-card:hover { transform: translateY(-3px); }
+  .qz-card .art .ic { width: 64px; height: 64px; }
+  .qz-card b { font: 700 25px/1.02 Caveat, cursive; } .qz-card small { font: 10.5px var(--mono); opacity: .6; }
+  .qz-marks { gap: 10px; font: 11.5px var(--mono); } .qz-marks .ok { color: #2f7d4a; }
+  .qz-acts { gap: 6px; justify-content: center; margin-top: 8px; }
+  /* штамп-дата: круглая печать фиолетовыми чернилами */
+  .stamp { top: 14px; right: 8px; width: 74px; height: 74px; display: grid; place-content: center; text-align: center; border: 2.5px solid #6a4fb0; border-radius: 50%; color: #6a4fb0;
+    font: 700 11px/1.1 var(--mono); text-transform: uppercase; rotate: 12deg; mix-blend-mode: multiply; box-shadow: inset 0 0 0 4px var(--paper), inset 0 0 0 5.5px #6a4fb0; }
+  .stamp::after { content: '10.10.26'; display: block; font-size: 9.5px; margin-top: 2px; }
+  .qz-card.done .stamp { opacity: .78; }
+  .qz-card.stamped .stamp { animation: stamp .36s cubic-bezier(.3, 1.4, .5, 1) both; }
+  @keyframes stamp { 0% { opacity: 0; transform: scale(2.2) rotate(-20deg); } 60% { opacity: .9; } }
+
+  /* док — школьная линейка */
+  .dock { gap: 4px; padding: 14px 18px 6px; background:
+      repeating-linear-gradient(90deg, var(--ink) 0 1.2px, transparent 1.2px 9.6px) 18px 0 / calc(100% - 36px) 6px no-repeat,
+      repeating-linear-gradient(90deg, var(--ink) 0 1.4px, transparent 1.4px 48px) 18px 0 / calc(100% - 36px) 11px no-repeat,
+      var(--grain), #f1d27d; border: 1.5px solid var(--ink); border-radius: 4px; box-shadow: 4px 5px 0 var(--sh); }
+  .dock button { width: 48px; height: 48px; }
+  .dock button .ic { width: 46px; height: 46px; }
+  .dock button.run::before { content: ''; position: absolute; left: 50%; bottom: -5px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--ink); }
+</style>
+</head>
+<body>
+<div id="desktop"></div>
+<script type="module">
+  import { build } from './ui/proto.js';
+  build({
+    style: 'pencil',
+    colors: { tube: '#e8806e', gallery: '#7fb0d9', plans: '#92bf7a', thoughts: '#b39ad8', counter: '#f095ad', quiz: '#f2c25a', games: '#5fb3a8', shop: '#f2a05e', profile: '#7f9bd2', power: '#f2c25a',
+      g_wave: '#7fb0d9', g_draw: '#e8806e', g_ttt: '#f095ad', g_cats: '#f2a05e', t_chaos: '#b39ad8', t_cats: '#f2a05e', t_bowl: '#5fb3a8', t_cake: '#f095ad', t_love: '#e8806e', t_cloud: '#7fb0d9', day: '#f2a05e' },
+    decorate(root, { h }) {
+      // колонтитулы листов
+      root.querySelector('.win.games .body').prepend(h('div', { cls: 'runhead' }, h('span', {}, 'игры · партии'), h('span', {}, 'стр. 12')));
+      root.querySelector('.win.quiz .body').prepend(h('div', { cls: 'runhead' }, h('span', {}, 'тесты для двоих'), h('span', {}, 'стр. 31')));
+      // вопрос дня: карточка в кармашке
+      const day = root.querySelector('.qz-day'), card = h('div', { cls: 'card' }, ...[...day.children]);
+      day.append(card, h('div', { cls: 'pocket' }, h('i', {}, h('span', {}, 'вопрос дня · ответы прячутся до пары'), card.querySelector('.day-note'))));
+    },
+  });
+</script>
+</body>
+</html>
