@@ -229,6 +229,8 @@
   .wbox label input { display: none; }
   .wbox .ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
   .wbox .status { display: block; min-height: 18px; font-size: 13px; opacity: .7; margin-top: 6px; }
+  #trashBtn { position: fixed; right: 26px; bottom: 26px; z-index: 5; padding: 8px 16px; font: 700 22px/1 Caveat, cursive; color: var(--ink); background: var(--paper); border: 2px solid var(--ink); border-radius: 14px 6px 12px 5px / 5px 12px 6px 14px; box-shadow: 0 4px 0 rgba(59,42,53,.35); cursor: pointer; rotate: -2deg; }
+  #trashBtn:active { translate: 0 3px; box-shadow: 0 1px 0 rgba(59,42,53,.35); } #trashBtn[hidden] { display: none; }
   #noteNav { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; z-index: 5; }
   #noteNav[hidden] { display: none; }
   #noteNav button { width: 46px; height: 46px; border: 0; border-radius: 50%; background: var(--glass); font-size: 24px; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
@@ -731,6 +733,7 @@
 
 <div class="booklabel" id="booklabel" hidden></div>
 
+<button id="trashBtn" hidden title="скомкать и выбросить в мусорку">🗑 в мусорку</button>
 <div id="noteNav" hidden><button class="prev" aria-label="Предыдущая">‹</button><span></span><button class="next" aria-label="Следующая">›</button></div>
 
 <div id="gate" hidden></div>

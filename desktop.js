@@ -40,7 +40,7 @@ export function whoSelect() {
 export const myName = () => (store.isCloud() ? store.me().name : load('who', store.me().name));
 
 // всплывашка внизу экрана: «+5 ♥ за записку», «не сохранилось»
-const REASON = { daily: 'за визит', note: 'за записку', photo: 'за фото', album: 'за альбом', step: 'за этап плана', plan: 'за выполненный план', watch: 'за кино вместе' };
+const REASON = { daily: 'за визит', note: 'за записку', photo: 'за фото', album: 'за альбом', step: 'за этап плана', plan: 'за выполненный план', watch: 'за кино вместе', trash: 'точно в мусорку', game: 'за игру', quiz: 'за тест' };
 export function toast(text, ms = 2600) {
   const t = h('div', { className: 'toast', textContent: text });
   document.body.append(t);

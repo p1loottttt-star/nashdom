@@ -17,7 +17,7 @@ const L = [
 assert.deepEqual(inventory(L, 'a'), [{ id: 'L1', item: 'cactus' }, { id: 'L3', item: 'teddy' }]);
 assert.ok(ownedStyles(L, 'a').has('wp_hearts') && ownedStyles(L, 'a').has('w_rose') && !ownedStyles(L, 'b').has('wp_hearts'));
 // начисления (award в SQL) = EARN на сайте: иначе тост покажет одно, а копилка получит другое
-const fn = sql.slice(sql.indexOf('function public.award'));
+const fn = sql.slice(sql.lastIndexOf('function public.award')); // последняя миграция с award
 const award = new Map([...fn.slice(0, fn.indexOf('as t(r, a, l)')).matchAll(/\('([a-z]+)', (\d+), (\d+)\)/g)].map((m) => [m[1], [+m[2], +m[3]]]));
 assert.deepEqual([...award.keys()].sort(), Object.keys(EARN).sort(), 'причины начислений');
 for (const [k, [n, cap]] of Object.entries(EARN)) assert.deepEqual(award.get(k), [n, cap], `начисление ${k}`);
