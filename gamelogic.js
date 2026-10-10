@@ -66,3 +66,32 @@ export function hintMask(word, n) {
   let shown = 0;
   return [...word].map((ch) => (ch === ' ' ? ' ' : shown++ < n ? ch : '_')).join(' ');
 }
+// ошибка в 1 букву (в словах длиннее 5 — в 2): «близко!»
+export function closeWord(a, b) {
+  a = normWord(a); b = normWord(b);
+  if (a === b || Math.abs(a.length - b.length) > 2) return false;
+  const d = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    let prev = d[0]; d[0] = i;
+    for (let j = 1; j <= b.length; j++) { const t = d[j]; d[j] = Math.min(d[j] + 1, d[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1)); prev = t; }
+  }
+  return d[b.length] <= (b.length > 5 ? 2 : 1);
+}
+export const DRAW_T = 80; // секунд на живой раунд
+// очки раунда: звёзды ×2 + скорость (вживую 1..3 по оставшемуся времени, без таймера — 1) − подсказки, не меньше 1
+export const drawPoints = ({ ok, stars, hints = 0, live = false, left = 0 }) => (ok ? Math.max(1, stars * 2 + (live ? Math.ceil((3 * Math.max(0, left)) / DRAW_T) : 1) - hints) : 0);
+// три слова на ★/★★/★★★; своё слово пары с вероятностью ½ встаёт на место ★★
+export function drawChoices(tiers, ours = [], rnd = Math.random) {
+  const one = (l) => l[Math.floor(rnd() * l.length)];
+  const c = tiers.map((l, i) => ({ w: one(l), s: i + 1 }));
+  if (ours.length && rnd() < 0.5) c[1] = { w: one(ours), s: 2, ours: true };
+  return c;
+}
+// повтор рисунка: паузы длиннее gap мс ужимаются до gap
+export function squeeze(strokes, gap = 350) {
+  const pts = strokes.flatMap((s, i) => s.p.map((q, k) => [q[2], i, k])).sort((a, b) => a[0] - b[0]);
+  const out = strokes.map((s) => ({ ...s, p: s.p.map((q) => [...q]) }));
+  let last = 0, shift = 0;
+  for (const [t, i, k] of pts) { if (t - last > gap) shift += t - last - gap; out[i].p[k][2] = t - shift; last = t; }
+  return out;
+}

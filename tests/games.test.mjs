@@ -42,3 +42,21 @@ import { SPECTRA, WORDS } from '../gamedata.js';
 assert.equal(new Set(WORDS).size, WORDS.length, 'повтор слова');
 assert.ok(SPECTRA.length >= 30 && WORDS.length >= 120 && SPECTRA.every((s) => s.length === 2));
 console.log('games: ok');
+
+// «Рисуй — угадывай»: близкие слова, очки, выбор слов, ужатие пауз
+import { closeWord, drawPoints, drawChoices, squeeze, DRAW_T } from '../gamelogic.js';
+import { EASY, MID, HARD } from '../gamedata.js';
+assert.ok(closeWord('кошкa', 'кошка') && closeWord('жирав', 'жираф') && closeWord('черепаа', 'черепаха'));
+assert.ok(!closeWord('кошка', 'кошка') && !closeWord('кот', 'дом лес') && !closeWord('сыр', 'нос'));
+assert.ok(closeWord('ёлка', 'елкаа'));
+assert.equal(drawPoints({ ok: false, stars: 3 }), 0);
+assert.equal(drawPoints({ ok: true, stars: 1 }), 3);
+assert.equal(drawPoints({ ok: true, stars: 3, live: true, left: DRAW_T }), 9);
+assert.equal(drawPoints({ ok: true, stars: 1, live: true, left: 0, hints: 3 }), 1);
+const ch = drawChoices([EASY, MID, HARD], [], () => 0.3);
+assert.deepEqual(ch.map((c) => c.s), [1, 2, 3]); assert.ok(EASY.includes(ch[0].w) && HARD.includes(ch[2].w));
+assert.equal(drawChoices([EASY, MID, HARD], ['наш диван'], () => 0.2)[1].w, 'наш диван');
+assert.equal(drawChoices([EASY, MID, HARD], ['наш диван'], () => 0.7)[1].ours, undefined);
+const sq = squeeze([{ c: 'x', w: 1, p: [[0, 0, 0], [0, 0, 100]] }, { c: 'x', w: 1, p: [[0, 0, 5100], [0, 0, 5200]] }], 350);
+assert.deepEqual(sq[1].p.map((q) => q[2]), [450, 550]);
+console.log('draw: ok');
