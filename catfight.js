@@ -19,8 +19,9 @@ const COLORS = { kitten: '#f0a35e', ball: '#a9a3b8', tail: '#4a3f4f', stretch: '
 const rc = (i) => [Math.floor(i / CN), i % CN];
 const S = 34; // клетка, px
 
-// кот рисунком: тело — клетки, слитые перемычками; голова с ушами и глазами — первая клетка, хвост — у последней
-function catSVG(cat, { angry = false } = {}) {
+// кот рисунком: тело — клетки, слитые перемычками; голова с ушами и глазами — первая клетка, хвост — у последней.
+// Живой: моргает, дёргает ушами, машет хвостом (CSS, у каждого кота своя задержка). mood: 'calm' | 'sad' (попали) | 'angry' (пойман)
+function catSVG(cat, mood = 'calm', n = 0) {
   const col = COLORS[cat.k], dark = cat.k === 'tail';
   const parts = [];
   const cells = cat.cells.map(rc);
@@ -34,21 +35,36 @@ function catSVG(cat, { angry = false } = {}) {
   for (const [r, c] of cells) if (has(r, c + 1) && has(r + 1, c) && has(r + 1, c + 1)) parts.push(`<rect x="${c * S + S / 2}" y="${r * S + S / 2}" width="${S}" height="${S}"/>`); // середина «квадрата» 2×2
   const [hr, hc] = cells[0], hx = hc * S + S / 2, hy = hr * S + S / 2;
   const [tr, tc] = cells.at(-1), [pr, pc] = cells.at(-2) || cells[0];
-  const dx = tc - pc || 0.7, dy = tr - pr || -0.7, tx = tc * S + S / 2 + dx * 12, ty = tr * S + S / 2 + dy * 12;
-  const ink = '#3b2a35', eye = dark ? '#f6e27a' : ink;
-  const eyes = angry
-    ? `<path d="M${hx - 9} ${hy - 4} l6 3 M${hx + 9} ${hy - 4} l-6 3" stroke="${eye}" stroke-width="2.2" stroke-linecap="round"/><path d="M${hx - 4} ${hy + 7} q4 -4 8 0" stroke="${eye}" stroke-width="1.8" fill="none"/>`
-    : `<circle cx="${hx - 5}" cy="${hy - 1}" r="2.2" fill="${eye}"/><circle cx="${hx + 5}" cy="${hy - 1}" r="2.2" fill="${eye}"/><path d="M${hx - 3} ${hy + 5} q3 3 6 0" stroke="${eye}" stroke-width="1.5" fill="none"/>`;
-  return `<g class="kb-cat">
-    <path d="M${tc * S + S / 2} ${tr * S + S / 2} Q${tx + dy * 8} ${ty - dx * 8} ${tx + dx * 6} ${ty + dy * 6}" stroke="${ink}" stroke-width="9" stroke-linecap="round" fill="none"/>
-    <path d="M${tc * S + S / 2} ${tr * S + S / 2} Q${tx + dy * 8} ${ty - dx * 8} ${tx + dx * 6} ${ty + dy * 6}" stroke="${col}" stroke-width="5.5" stroke-linecap="round" fill="none"/>
-    <path d="M${hx - 12} ${hy - 6} l3 -13 l8 8 z M${hx + 12} ${hy - 6} l-3 -13 l-8 8 z" fill="${col}" stroke="${ink}" stroke-width="1.6" stroke-linejoin="round"/>
-    <g fill="${col}" stroke="${ink}" stroke-width="3.2" paint-order="stroke">${parts.join('')}</g>
+  const dx = tc - pc || 0.7, dy = tr - pr || -0.7, bx = tc * S + S / 2, by = tr * S + S / 2, tx = bx + dx * 12, ty = by + dy * 12;
+  const ink = '#3b2a35', eye = dark ? '#f6e27a' : ink, d = ((n * 1.7) % 5).toFixed(2);
+  const tail = `M${bx} ${by} Q${tx + dy * 8} ${ty - dx * 8} ${tx + dx * 6} ${ty + dy * 6}`;
+  const face = mood === 'angry'
+    ? `<path d="M${hx - 10} ${hy - 6} l7 3 M${hx + 10} ${hy - 6} l-7 3" stroke="${eye}" stroke-width="2.4" stroke-linecap="round"/>
+       <path d="M${hx - 7} ${hy} l3 0 M${hx + 4} ${hy} l3 0" stroke="${eye}" stroke-width="2.6" stroke-linecap="round"/>
+       <path d="M${hx - 4} ${hy + 8} q4 -4 8 0" stroke="${eye}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+       <path d="M${hx + 9} ${hy - 15} l4 4 m0 -4 l-4 4" stroke="#d94f62" stroke-width="2" stroke-linecap="round"/>`
+    : mood === 'sad'
+      ? `<path d="M${hx - 8} ${hy - 1} q3 -3 6 0 M${hx + 2} ${hy - 1} q3 -3 6 0" stroke="${eye}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+         <path d="M${hx - 3} ${hy + 7} q3 -3 6 0" stroke="${eye}" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+         <path class="kb-tear" d="M${hx - 6} ${hy + 2} q-2 4 0 5 q2 -1 0 -5z" fill="#5a9fd0"/>`
+      : `<g class="kb-eyes"><circle cx="${hx - 5}" cy="${hy - 1}" r="2.3" fill="${eye}"/><circle cx="${hx + 5}" cy="${hy - 1}" r="2.3" fill="${eye}"/></g>
+         <path d="M${hx - 3} ${hy + 5} q3 3 6 0" stroke="${eye}" stroke-width="1.5" fill="none" stroke-linecap="round"/>`;
+  return `<g class="kb-cat ${mood}" style="--d:-${d}s">
+    <g class="kb-tail" style="transform-origin:${bx}px ${by}px">
+      <path d="${tail}" stroke="${ink}" stroke-width="9" stroke-linecap="round" fill="none"/>
+      <path d="${tail}" stroke="${col}" stroke-width="5.5" stroke-linecap="round" fill="none"/></g>
+    <g class="kb-ears" style="transform-origin:${hx}px ${hy - 6}px"><path d="M${hx - 12} ${hy - 6} l3 -13 l8 8 z M${hx + 12} ${hy - 6} l-3 -13 l-8 8 z" fill="${col}" stroke="${ink}" stroke-width="1.6" stroke-linejoin="round"/></g>
+    <g fill="${col}" stroke="${ink}" stroke-width="3.2">${parts.join('')}</g>
     <g fill="${col}">${parts.join('')}</g>
-    ${eyes}
+    ${face}
     <path d="M${hx - 15} ${hy + 3} h6 M${hx + 9} ${hy + 3} h6" stroke="${eye}" stroke-width="1" opacity=".7"/>
   </g>`;
 }
+// отметки рисунком (эмодзи внутри SVG не рисуются — их подменяет emoji.js на <img>)
+const pawSVG = (x, y) => `<g class="kb-paw" transform="translate(${x} ${y})"><ellipse cx="0" cy="4" rx="5.5" ry="4.5"/><circle cx="-6" cy="-3" r="2.3"/><circle cx="-2" cy="-7" r="2.3"/><circle cx="2.5" cy="-7" r="2.3"/><circle cx="6.5" cy="-3" r="2.3"/></g>`;
+const blotSVG = (x, y) => `<g class="kb-blot" transform="translate(${x + 8} ${y + 8}) scale(.55)"><path d="M0 -12 q9 2 11 9 q5 6 -1 12 q-4 7 -12 4 q-9 3 -11 -5 q-6 -6 0 -12 q4 -8 13 -8z"/></g>`; // клякса в углу клетки — морда кота видна
+const fishSVG = (x, y) => `<g class="kb-fishm" transform="translate(${x} ${y})"><path d="M-9 0 q6 -7 13 0 q-7 7 -13 0z M4 0 l6 -5 l0 10z"/><circle cx="-4" cy="-1" r="1.2" fill="#3b2a35"/></g>`;
+const boxSVG = (x, y) => `<g class="kb-boxm" transform="translate(${x} ${y})"><path d="M-10 -4 h20 v12 h-20z"/><path d="M-10 -4 l-3 -5 h20 l6 5" fill="none"/><path d="M-2 -4 v4 h4 v-4"/></g>`;
 
 // поле: cats — каких котов показать, shots — выстрелы по полю, marks — подсказки карточек; onCell — клик
 function board({ cats = [], shown = cats, shots = [], marks = [], box = null, showBox = false, onCell, onHover, fog = false, preview = null, bad = false }) {
@@ -65,10 +81,13 @@ function board({ cats = [], shown = cats, shots = [], marks = [], box = null, sh
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', `0 0 ${CN * S} ${CN * S}`); svg.setAttribute('class', 'kb-svg');
   const draw = [...new Set([...shown, ...caught])];
-  svg.innerHTML = draw.map((c) => catSVG(c, { angry: caught.includes(c) })).join('')
-    + [...hit].map((i) => { const [r, c] = rc(i); return all.has(i) ? `<g class="kb-blot"><path d="M${c * S + 17} ${r * S + 5} q9 2 11 9 q5 6 -1 12 q-4 7 -12 4 q-9 3 -11 -5 q-6 -6 0 -12 q4 -8 13 -8z" fill="#3b2a35" opacity=".82"/><text x="${c * S + 17}" y="${r * S + 21}" text-anchor="middle">мяу</text></g>` : `<text class="kb-paw" x="${c * S + 17}" y="${r * S + 23}" text-anchor="middle">🐾</text>`; }).join('')
-    + marks.map((mk) => { const [r, c] = rc(mk.c); return mk.fish ? `<text class="kb-fish" x="${c * S + 17}" y="${r * S + 23}" text-anchor="middle">🐟</text>` : `<g class="kb-bell"><rect x="${(c - 1) * S + 2}" y="${(r - 1) * S + 2}" width="${S * 3 - 4}" height="${S * 3 - 4}" rx="10"/><text x="${c * S + 17}" y="${r * S + 24}" text-anchor="middle">${mk.n}</text></g>`; }).join('')
-    + (showBox && box != null ? (() => { const [r, c] = rc(box); return `<text class="kb-boxi" x="${c * S + 17}" y="${r * S + 24}" text-anchor="middle">📦</text>`; })() : '');
+  const hurt = (c) => c.cells.some((i) => hit.has(i));
+  const caughtCells = new Set(caught.flatMap((c) => c.cells));
+  svg.innerHTML = [...hit].filter((i) => !all.has(i)).map((i) => { const [r, c] = rc(i); return pawSVG(c * S + 17, r * S + 18); }).join('')
+    + draw.map((c, n) => catSVG(c, caught.includes(c) ? 'angry' : hurt(c) ? 'sad' : 'calm', n)).join('')
+    + [...hit].filter((i) => all.has(i) && !caughtCells.has(i)).map((i) => { const [r, c] = rc(i); return blotSVG(c * S + 17, r * S + 17); }).join('')
+    + marks.map((mk) => { const [r, c] = rc(mk.c); return mk.fish ? fishSVG(c * S + 17, r * S + 17) : `<g class="kb-bell"><rect x="${(c - 1) * S + 2}" y="${(r - 1) * S + 2}" width="${S * 3 - 4}" height="${S * 3 - 4}" rx="10"/><text x="${c * S + 17}" y="${r * S + 24}" text-anchor="middle">${mk.n}</text></g>`; }).join('')
+    + (showBox && box != null ? (() => { const [r, c] = rc(box); return boxSVG(c * S + 17, r * S + 18); })() : '');
   wrap.append(grid, svg);
   return wrap;
 }

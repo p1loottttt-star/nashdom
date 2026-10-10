@@ -981,8 +981,16 @@ class Paper {
     scene.add(this.mesh);
   }
   setT(t, flat = 1) { // 0 — комок, 1 — развёрнутый лист; flat < 1 — разглаженный в стопке
+    // развёрнутый лист: «разглаженность» — просто масштаб по z (нормали поправит normalMatrix), геометрию не трогаем;
+    // раньше пересчёт вершин и нормалей двух листов каждый кадр давал рывки при листании стопки
+    if (t === 1) { if (this.t !== 1) this.morph(1); if (this.mesh) this.mesh.scale.z = flat; return; }
+    if (this.mesh) this.mesh.scale.z = 1;
+    this.morph(t);
+  }
+  morph(t) {
+    this.t = t;
     const a = this.g.attributes.position.array, b = this.ball, s = this.sheet;
-    for (let i = 0; i < a.length; i++) a[i] = b[i] + (s[i] * (i % 3 === 2 ? flat : 1) - b[i]) * t;
+    for (let i = 0; i < a.length; i++) a[i] = b[i] + (s[i] - b[i]) * t;
     this.g.attributes.position.needsUpdate = true;
     // комок — плоские грани (острые сгибы), лист — гладкий, без сетки треугольников
     const m = this.mesh?.material, faceted = t < 0.6;

@@ -84,6 +84,12 @@ await step('zoom-photos', () => page.evaluate(() => window.__room.zoomTo('photos
 await step('unzoom2', () => page.evaluate(() => window.__room.unzoom()), 1300);
 await step('note-open', () => click('window.__room.papers.find((p) => !p.read)?.mesh || window.__room.papers[0].mesh'), 2200);
 await step('note-close', () => page.keyboard.press('Escape'), 1800);
+// листание прочитанных: нужна стопка хотя бы из двух
+await step('note-open2', () => click('(window.__room.papers.find((p) => !p.read) || window.__room.papers[1]).mesh'), 2200);
+await step('note-close2', () => page.keyboard.press('Escape'), 1800);
+await step('note-open-read', () => click('window.__room.papers.find((p) => p.read).mesh'), 2200);
+for (let i = 0; i < 3; i++) await step('note-flip' + i, () => page.keyboard.press('ArrowRight'), 1100);
+await step('note-close3', () => page.keyboard.press('Escape'), 1800);
 await step('note-write', async () => { await page.click('#write'); await sleep(300); await page.fill('#noteForm textarea', 'привет, проверка плавности'); }, 500);
 await step('note-aim', () => page.evaluate(() => document.getElementById('noteForm').requestSubmit()), 1200);
 await step('note-throw', async () => { // рогатка: оттянуть вниз и отпустить

@@ -11,7 +11,8 @@ let z = 10;
 const still = matchMedia('(prefers-reduced-motion: reduce)');
 const anim = (el, frames, ms) => (still.matches ? Promise.resolve() : el.animate(frames, { duration: ms, easing: EASE }).finished.catch(() => {}));
 const h = (tag, props = {}, ...kids) => { const e = Object.assign(document.createElement(tag), props); e.append(...kids); return e; };
-const area = () => ({ x: 8, y: TOP, w: innerWidth - 16, h: innerHeight - TOP - (dock.offsetHeight + 22) });
+let dockH = 0; // высота дока: замер раз, а не на каждое движение мыши (offsetHeight пересчитывал раскладку)
+const area = () => ({ x: 8, y: TOP, w: innerWidth - 16, h: innerHeight - TOP - ((dockH ||= dock.offsetHeight) + 22) });
 const remember = (name, s) => { try { localStorage.setItem('lr:win:' + name, JSON.stringify({ x: s.x, y: s.y, w: s.w, h: s.h })); } catch {} };
 const recall = (name) => { try { return JSON.parse(localStorage.getItem('lr:win:' + name)); } catch { return null; } };
 
@@ -203,5 +204,5 @@ function magnify() {
 dock.onpointermove = (e) => { if (e.pointerType !== 'mouse') return; mx = e.clientX; if (!draf) draf = requestAnimationFrame(magnify); };
 dock.onpointerleave = () => { mx = null; if (!draf) draf = requestAnimationFrame(magnify); };
 // ресайз экрана — окна в пределах
-addEventListener('resize', () => { for (const s of wins.values()) { clamp(s); place(s); } });
+addEventListener('resize', () => { dockH = 0; for (const s of wins.values()) { clamp(s); place(s); } });
 export { minimize, restore, focus };

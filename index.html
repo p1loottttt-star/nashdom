@@ -342,10 +342,22 @@
   .kb-board.fog .kb-cell:not(.hit):not(.miss) { background: repeating-linear-gradient(-45deg, rgba(59,42,53,.07) 0 2px, transparent 2px 7px), #efe6d6; }
   .kb-board.aim .kb-cell:not(:disabled):hover { background: #ffe0e8; box-shadow: inset 0 0 0 2px #ef6f8c; cursor: crosshair; }
   .gm .kb-cell.pv { background: rgba(134,184,95,.35); } .gm .kb-cell.pv.bad { background: rgba(217,79,98,.35); }
-  .gm .kb-cell.miss { background: #fbf7ef; }
+  .gm .kb-cell.miss { background: #fbf7ef; } .gm .kb-cell.hit { background: #f6d3d9; }
   .kb-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-  .kb-blot text { font: 700 11px Caveat, cursive; fill: #fff; } .kb-paw { font-size: 15px; opacity: .55; }
-  .kb-fish, .kb-boxi { font-size: 18px; }
+  .kb-blot path { fill: #3b2a35; opacity: .82; } .kb-blot text { font: 700 11px Caveat, cursive; fill: #fff; }
+  .kb-paw { fill: #3b2a35; opacity: .3; } .kb-fishm path { fill: #f0995a; stroke: #3b2a35; stroke-width: 1.4; } .kb-boxm path { fill: #d9b48a; stroke: #3b2a35; stroke-width: 1.5; stroke-linejoin: round; }
+  .kb-eyes { transform-box: fill-box; transform-origin: center; animation: kbblink 4.6s infinite var(--d, 0s); }
+  .kb-ears { animation: kbear 6.5s infinite var(--d, 0s); }
+  .kb-tail { animation: kbtail 3.2s ease-in-out infinite alternate var(--d, 0s); }
+  .kb-cat.angry .kb-tail { animation: kbtail .35s ease-in-out infinite alternate; }
+  .kb-cat.sad .kb-tail { animation: none; } .kb-tear { animation: kbtear 1.6s ease-in infinite; }
+  .kb-cat.angry { animation: kbshake 2.4s infinite; }
+  @keyframes kbblink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.1); } }
+  @keyframes kbear { 0%, 84%, 100% { transform: rotate(0); } 87% { transform: rotate(-9deg); } 90% { transform: rotate(5deg); } }
+  @keyframes kbtail { from { transform: rotate(-12deg); } to { transform: rotate(14deg); } }
+  @keyframes kbtear { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(9px); opacity: 0; } }
+  @keyframes kbshake { 0%, 80%, 100% { transform: translateX(0); } 84% { transform: translateX(-1.5px); } 88% { transform: translateX(1.5px); } 92% { transform: translateX(-1px); } }
+  @media (prefers-reduced-motion: reduce) { .kb-eyes, .kb-ears, .kb-tail, .kb-tear, .kb-cat.angry { animation: none !important; } }
   .kb-bell rect { fill: rgba(242,201,76,.18); stroke: #c08a1e; stroke-width: 2; stroke-dasharray: 5 4; } .kb-bell text { font: 700 26px Caveat, cursive; fill: #c08a1e; }
   .kb-say { min-height: 1.2em; color: #7a5547; }
   .kb-fx { position: absolute; inset: 30px 0 0; pointer-events: none; display: grid; place-items: center; }
