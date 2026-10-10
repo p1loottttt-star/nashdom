@@ -26,15 +26,16 @@ async function blobURL(url, type, progress, size = 32.1e6) {
   return URL.createObjectURL(new Blob(parts, { type }));
 }
 
-let loading = null;
-function loadFF(progress) {
-  return (loading ||= (async () => {
-    const { FFmpeg } = await import('@ffmpeg/ffmpeg');
-    const ff = new FFmpeg();
-    await ff.load({ coreURL: await blobURL(`${CORE}/ffmpeg-core.js`, 'text/javascript'), wasmURL: await blobURL(`${CORE}/ffmpeg-core.wasm`, 'application/wasm', progress) });
-    return ff;
-  })().catch((e) => { loading = null; throw e; }));
-}
+// ядро качается один раз за вкладку; экземпляров ffmpeg может быть сколько угодно (каждый — свой воркер)
+let core = null;
+const getCore = (progress) => (core ||= (async () => ({
+  FFmpeg: (await import('@ffmpeg/ffmpeg')).FFmpeg,
+  coreURL: await blobURL(`${CORE}/ffmpeg-core.js`, 'text/javascript'),
+  wasmURL: await blobURL(`${CORE}/ffmpeg-core.wasm`, 'application/wasm', progress),
+}))().catch((e) => { core = null; throw e; }));
+// ffmpeg.wasm течёт памятью: ~110 запусков подряд — «memory access out of bounds» (стенд afix-stress.mjs, 11.10).
+// Поэтому экземпляр живёт RECYCLE кусков, потом заменяется свежим (≈0,5 с: ядро уже в blob:)
+const RECYCLE = 50;
 
 export function fixAudio(v, file, note) {
   const { ctx } = audio();
@@ -42,17 +43,37 @@ export function fixAudio(v, file, note) {
   gain.connect(ctx.destination); gain.connect(dest);
   const vol = () => { gain.gain.value = v.muted ? 0 : v.volume; };
   vol();
-  let ff = null, dir = '', name = '', dead = false, gen = 0, srcs = [], anchor = null, queue = Promise.resolve();
+  let ff = null, runs = 0, dir = '', name = '', dead = false, gen = 0, srcs = [], anchor = null, queue = Promise.resolve();
   const chunks = new Map(); // номер куска → Promise<AudioBuffer>
 
   // один ffmpeg — по очереди; кусок k = [k·20 с, (k+1)·20 с), стыкуется с соседним до сэмпла
-  const stat = (window.__afix = { ms: [], exec: [], restarts: 0, drift: [] }); // отладка: сколько мс уходит на кусок 20 с, сколько раз сверка перезапускала звук
-  const decode = (k) => (queue = queue.then(async () => {
-    const t0 = performance.now(), out = `/a${k}.raw`;
+  const stat = (window.__afix = { ms: [], exec: [], restarts: 0, drift: [], recycles: 0 }); // отладка: мс на кусок, перезапуски звука, замены ffmpeg
+  // свежий ffmpeg с подключённым файлом (WORKERFS — читает прямо с диска)
+  async function spawn(progress) {
+    const C = await getCore(progress), x = new C.FFmpeg();
+    await x.load({ coreURL: C.coreURL, wasmURL: C.wasmURL });
+    dir = '/f'; name = file.name;
+    await x.createDir(dir);
+    await x.mount('WORKERFS', { files: [file] }, dir);
+    if (dead) { x.terminate(); throw new Error('closed'); }
+    runs = 0;
+    return x;
+  }
+  const recycle = async () => { stat.recycles++; try { ff?.terminate(); } catch {} ff = await spawn(); };
+  async function cut(k) {
+    if (runs >= RECYCLE) await recycle();
+    runs++;
+    const out = `/a${k}.raw`;
     // -probesize/-analyzeduration: без них ffmpeg каждый раз ~3 с «принюхивается» к файлу
     await ff.exec(['-hide_banner', '-nostdin', '-probesize', '1000000', '-analyzeduration', '0', '-ss', String(k * D), '-i', `${dir}/${name}`, '-t', String(D), '-map', '0:a:0', '-vn', '-ac', '2', '-ar', String(RATE), '-f', 'f32le', out]);
-    stat.exec.push(Math.round(performance.now() - t0));
     const raw = await ff.readFile(out); ff.deleteFile(out).catch(() => {});
+    return raw;
+  }
+  const decode = (k) => (queue = queue.then(async () => {
+    const t0 = performance.now();
+    let raw;
+    try { raw = await cut(k); } catch (e) { if (dead) throw e; console.warn('audiofix: ffmpeg упал, заменяю', e); await recycle(); raw = await cut(k); } // упал — свежий экземпляр и ещё раз
+    stat.exec.push(Math.round(performance.now() - t0));
     const f = new Float32Array(raw.buffer, raw.byteOffset, raw.byteLength >> 2), n = f.length >> 1;
     const buf = ctx.createBuffer(2, Math.max(1, n), RATE), L = buf.getChannelData(0), R = buf.getChannelData(1);
     for (let i = 0; i < n; i++) { L[i] = f[2 * i]; R[i] = f[2 * i + 1]; }
@@ -64,6 +85,7 @@ export function fixAudio(v, file, note) {
     for (const j of chunks.keys()) if (j < k - 1 || j > k + 2) chunks.delete(j); // в памяти — только соседние куски
     return chunks.get(k);
   };
+  stat.get = get; // отладка: стенд tests/perf/afix-stress.mjs
   const stop = () => { gen++; for (const s of srcs) { try { s.stop(); } catch {} } srcs = []; anchor = null; };
 
   // играть с места видео: первый кусок — со смещения, дальше цепочкой, каждый следующий заранее
@@ -110,11 +132,7 @@ export function fixAudio(v, file, note) {
   (async () => {
     note?.('Звук этого файла браузер сам не понимает — перевожу его на лету. Первый раз грузится переводчик (~30 МБ)…');
     let last = 0;
-    ff = await loadFF((k) => { const p = Math.round(k * 100); if (p >= last + 25 && p < 100) { last = p; note?.(`переводчик звука: ${p}%`); } });
-    if (dead) return;
-    dir = '/f' + Date.now(); name = file.name;
-    await ff.createDir(dir);
-    await ff.mount('WORKERFS', { files: [file] }, dir);
+    ff = await spawn((k) => { const p = Math.round(k * 100); if (p >= last + 25 && p < 100) { last = p; note?.(`переводчик звука: ${p}%`); } });
     note?.('Звук включён ✓');
     play();
   })().catch((e) => { console.warn(e); note?.('Не получилось включить звук этого файла. Подойдёт mp4 со звуком AAC.'); });
@@ -125,7 +143,7 @@ export function fixAudio(v, file, note) {
       dead = true; stop(); clearInterval(watch);
       for (const [e, f] of Object.entries(on)) v.removeEventListener(e, f);
       gain.disconnect();
-      if (ff && dir) ff.unmount(dir).then(() => ff.deleteDir(dir)).catch(() => {});
+      try { ff?.terminate(); } catch {}
     },
   };
 }
