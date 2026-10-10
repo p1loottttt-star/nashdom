@@ -12,7 +12,7 @@ create trigger messages_gone after delete on public.messages for each row execut
 create or replace function public.clear_chat(p_room text) returns int
 language plpgsql security definer set search_path = public as $$
 declare c uuid := my_couple(); n int;
-begin
+begin у
   if c is null then raise exception 'no couple'; end if;
   perform set_config('lr.bulk', 'on', true);
   delete from messages where couple_id = c and room = p_room;

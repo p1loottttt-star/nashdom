@@ -43,6 +43,7 @@ await A.locator('.tpick input[type=file]').setInputFiles(FILE);
 console.log('файл выбран, ждём эфир…');
 if (arg('seek')) { await A.waitForTimeout(3000); await A.evaluate((t) => { document.querySelector('.tube video').currentTime = t; }, +arg('seek')); }
 await B.waitForFunction(() => window.__cast?.viewer?.samples?.length > 3, null, { timeout: 60000 }).catch(() => console.log('эфир не пришёл'));
+if (arg('viewshot')) await B.locator('.tscreen').screenshot({ path: arg('viewshot') }); // как видит смотрящий (ловит то, что легло поверх видео)
 if (process.argv.includes('--own')) { // у смотрящего тот же файл: свой экземпляр в такт с показывающим
   await B.locator('.town input').setInputFiles(FILE);
   for (let i = 0; i < 6; i++) {
