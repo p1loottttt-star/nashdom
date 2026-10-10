@@ -93,9 +93,9 @@ const onLedger = hold((r) => H.ledger(r));
 const reloadPeople = () => loadPeople().then(H.people).catch(console.warn);
 
 // изменения в базе: триггеры шлют их в канал пары событием 'db' = { t: таблица, op, row } (миграция, broadcast_row)
-function onDb({ t, row }) {
+function onDb({ t, op, row }) {
   if (t === 'items') onItem(row);
-  else if (t === 'messages') H.message(row);
+  else if (t === 'messages') (op === 'DELETE' || op === 'CLEAR' ? H.unmessage(op === 'CLEAR' ? { room: row.room } : { id: row.id }) : H.message(row));
   else if (t === 'ledger') onLedger(row);
   else reloadPeople(); // members, people
 }
@@ -180,6 +180,8 @@ export async function messages(room) {
   const r = check(await sb.from('messages').select('*').eq('couple_id', cid).eq('room', room).order('created_at', { ascending: false }).limit(100));
   return r.reverse();
 }
+export async function unsay(id) { check(await sb.from('messages').delete().eq('couple_id', cid).eq('id', id)); H.unmessage({ id }); }
+export async function clearChat(room) { check(await sb.rpc('clear_chat', { p_room: room })); H.unmessage({ room }); }
 export async function say(room, text) { H.message(check(await sb.from('messages').insert({ couple_id: cid, room, text }).select().single())); } // Realtime пришлёт то же — окно чата отсекает повтор по id
 
 // строку ленты берём сразу, не дожидаясь Realtime

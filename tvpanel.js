@@ -35,11 +35,12 @@ const ICON = {
   pause: '<path d="M8 6 C8.3 10 7.8 14 8.2 18"/><path d="M15.6 6.2 C15.9 10 15.4 14.2 15.8 18"/>',
   vol: '<path d="M4.5 9.6 L8.2 9.4 L12.6 5.8 C12.9 10 12.5 14 12.8 18.3 L8.3 14.6 L4.7 14.5 Z"/><path class="w" d="M15.6 9 C16.8 10.6 16.9 13.3 15.6 15"/><path class="w" d="M18.3 6.8 C20.6 9.6 20.7 14.6 18.4 17.4"/>',
   mute: '<path d="M4.5 9.6 L8.2 9.4 L12.6 5.8 C12.9 10 12.5 14 12.8 18.3 L8.3 14.6 L4.7 14.5 Z"/><path class="w" d="M15.5 9.4 L20.3 14.6 M20.2 9.3 L15.6 14.8"/>',
+  cc: '<path class="w" d="M3.6 6.4 C9 5.8 15 5.9 20.4 6.3 C20.8 10 20.7 14 20.3 17.6 C15 18.2 9 18.1 3.7 17.7 C3.3 14 3.3 10 3.6 6.4 Z"/><path class="w" d="M10.4 10.2 C9 9.2 7 9.8 7.1 12 C7.2 14.2 9.2 14.6 10.5 13.6 M16.9 10.2 C15.5 9.2 13.5 9.8 13.6 12 C13.7 14.2 15.7 14.6 17 13.6"/>',
   full: '<path class="w" d="M4.5 9.5 L4.6 4.7 L9.4 4.5 M14.6 4.6 L19.4 4.5 L19.5 9.4 M19.4 14.6 L19.5 19.4 L14.5 19.5 M9.5 19.4 L4.6 19.5 L4.5 14.6"/>',
 };
 const icon = (name) => { const s = svg(ICON[name], 'tp-ico'); s.setAttribute('viewBox', '0 0 24 24'); return s; };
 
-export function createPanel({ onToggle, onSeek, onVolume, onFullscreen, volume = 1 }) {
+export function createPanel({ onToggle, onSeek, onVolume, onFullscreen, onSubs, volume = 1 }) {
   const play = h('button', { className: 'tp-btn big', type: 'button', title: 'пауза / play (пробел)', onclick: onToggle });
   const now = h('span', { className: 'tp-time' }), total = h('span', { className: 'tp-time dim' });
   const seek = sketchTrack('tp-track', 11);
@@ -50,7 +51,8 @@ export function createPanel({ onToggle, onSeek, onVolume, onFullscreen, volume =
   const mute = h('button', { className: 'tp-btn', type: 'button', title: 'звук (M)' });
   const vol = sketchTrack('tp-vol', 29);
   const full = h('button', { className: 'tp-btn', type: 'button', title: 'на весь экран (F)', onclick: onFullscreen }, icon('full'));
-  const el = h('div', { className: 'tpanel' }, play, now, seek.el, live, total, mute, vol.el, full);
+  const cc = h('button', { className: 'tp-btn tp-cc', type: 'button', title: 'субтитры (C)', hidden: true, onclick: () => onSubs?.() }, icon('cc'));
+  const el = h('div', { className: 'tpanel' }, play, now, seek.el, live, total, mute, vol.el, cc, full);
 
   let dur = 0, dragging = false, level = volume, lastLevel = volume > 0 ? volume : 1, shownPlay = null;
   const setLevel = (v) => {
@@ -77,7 +79,9 @@ export function createPanel({ onToggle, onSeek, onVolume, onFullscreen, volume =
   return {
     el,
     toggleMute: () => mute.click(),
-    update({ t, duration, playing, isLive }) {
+    toggleSubs: () => cc.hidden || cc.click(),
+    update({ t, duration, playing, isLive, subs = null }) {
+      cc.hidden = subs === null; cc.classList.toggle('on', !!subs); cc.title = subs ? 'выключить субтитры (C)' : 'включить субтитры (C)';
       dur = duration || 0;
       if (shownPlay !== playing) { shownPlay = playing; play.replaceChildren(icon(playing ? 'pause' : 'play')); }
       now.textContent = clockText(t);

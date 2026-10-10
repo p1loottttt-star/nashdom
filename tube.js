@@ -76,6 +76,7 @@ export function renderTube(el) {
     onSeek: (t) => { if (P && S && !P.live) publish({ playing: S.playing, pos: t }); },
     onVolume: (v) => { vol = v; try { localStorage.setItem('lr:tubevol', v); } catch {} P?.volume(v); },
     onFullscreen: () => (document.fullscreenElement ? document.exitFullscreen() : tvbox.requestFullscreen?.()).catch?.(() => {}),
+    onSubs: () => { if (P?.subs) { P.subs(!P.subsOn()); drawPanel(); } }, // субтитры — у каждого свои, не общие
   });
   const together = h('span', { className: 'ttogether' });
   const tvbox = h('div', { className: 'tvbox' }, screen, panel.el); // экран + панель; в полный экран уходят вместе
@@ -83,7 +84,12 @@ export function renderTube(el) {
 
   // чат
   const status = h('small');
-  const head = h('header', {}, h('i', { className: 'tava' }), h('div', {}, h('b'), status));
+  // очистить чат у обоих — со вторым нажатием «точно?»
+  const wipe = h('button', { type: 'button', className: 'twipe', textContent: 'очистить', title: 'удалить всю переписку у обоих', onclick: () => {
+    if (!wipe.classList.contains('sure')) { wipe.classList.add('sure'); wipe.textContent = 'точно? у обоих'; setTimeout(() => { wipe.classList.remove('sure'); wipe.textContent = 'очистить'; }, 4000); return; }
+    store.clearChat('tube').catch(() => system('не получилось очистить — проверь интернет'));
+  } });
+  const head = h('header', {}, h('i', { className: 'tava' }), h('div', {}, h('b'), status), wipe);
   const msgs = h('div', { className: 'tmsgs' });
   const typing = h('div', { className: 'ttyping' });
   const input = h('input', { placeholder: 'написать…', maxLength: 1000, autocomplete: 'off' });
@@ -106,7 +112,9 @@ export function renderTube(el) {
     if (m.room !== 'tube' || shown.has(m.id)) return;
     shown.add(m.id);
     const mine = m.user_id === me.id, end = !bulk && stick();
-    msgs.append(h('div', { className: 'tmsg' + (mine ? ' me' : '') }, h('p', { textContent: m.text }), h('small', { textContent: hhmm(m.created_at) })));
+    msgs.append(h('div', { className: 'tmsg' + (mine ? ' me' : '') }, h('p', { textContent: m.text }), h('small', { textContent: hhmm(m.created_at) }),
+      mine ? h('button', { type: 'button', className: 'tdel', textContent: '×', title: 'удалить у обоих', onclick: (e) => { const row = e.currentTarget.parentNode; row.classList.add('gone'); store.unsay(m.id).catch(() => { row.classList.remove('gone'); system('не удалилось — проверь интернет'); }); } }) : null));
+    msgs.lastChild.dataset.id = m.id;
     if (bulk) return;
     if (end || mine) msgs.scrollTop = msgs.scrollHeight;
     if (!mine) { typing.textContent = ''; pop(); }
@@ -121,6 +129,10 @@ export function renderTube(el) {
     requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; }); // вниз — один раз, когда браузер и так считает раскладку
   }).catch(console.warn);
   offs.push(store.onMessage(addMsg));
+  offs.push(store.onUnmessage((x) => {
+    if (x.id != null) { msgs.querySelector(`.tmsg[data-id="${x.id}"]`)?.remove(); shown.delete(x.id); }
+    else if (x.room === 'tube') { msgs.replaceChildren(); shown.clear(); system('Чат очищен'); }
+  }));
   let typingT = 0;
   offs.push(store.live.on('typing', () => {
     typing.textContent = `${partner()?.name || 'партнёр'} печатает…`;
@@ -273,7 +285,7 @@ export function renderTube(el) {
   function drawPanel() {
     if (!el.isConnected) return;
     const d = P?.duration() || 0;
-    panel.update({ t: P?.time() || 0, duration: d, playing: !!S?.playing, isLive: !!P?.live });
+    panel.update({ t: P?.time() || 0, duration: d, playing: !!S?.playing, isLive: !!P?.live, subs: P?.subs ? P.subsOn() : null });
     together.textContent = togetherSec >= 60 ? `смотрим вместе ${Math.floor(togetherSec / 60)} мин ♥` : '';
   }
   const ui = setInterval(drawPanel, 250);
@@ -284,6 +296,7 @@ export function renderTube(el) {
     else if (e.code === 'ArrowRight' || e.code === 'ArrowLeft') { if (P && S) { e.preventDefault(); e.stopPropagation(); publish({ playing: S.playing, pos: Math.max(0, P.time() + (e.code === 'ArrowRight' ? 10 : -10)) }); } }
     else if (e.code === 'KeyF') tvbox.requestFullscreen?.().catch(() => {});
     else if (e.code === 'KeyM') panel.toggleMute();
+    else if (e.code === 'KeyC') panel.toggleSubs();
   };
   addEventListener('keydown', keys, true);
   ensurePlayer();

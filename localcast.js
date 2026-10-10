@@ -2,6 +2,7 @@
 // Договариваются через живой канал пары (store.live 'cast'); сервер видео не видит, файл никуда не загружается.
 import * as store from './store.js';
 import { file as filePlayer } from './players.js';
+import { watchCast } from './caststats.js';
 
 const h = (tag, props = {}) => Object.assign(document.createElement(tag), props);
 const files = new Map(); // sid → File; живёт только в этой вкладке
@@ -9,6 +10,8 @@ const files = new Map(); // sid → File; живёт только в этой в
 const ICE = [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun.cloudflare.com:3478'] }];
 // Opus по умолчанию почти «телефонный» — для кино просим стерео и 256 кбит/с
 const hifi = (sdp) => sdp.replace(/^(a=fmtp:\d+ .*useinbandfec=1.*?)\r?$/gm, (l) => (l.includes('stereo=1') ? l : l + ';stereo=1;sprop-stereo=1;maxaveragebitrate=256000'));
+// отладка стендом tests/perf/cast.mjs: ?castcodec=vp8|h264  ?castdeg=balanced|maintain-resolution|maintain-framerate
+const Q = new URLSearchParams(location.search), CODEC = Q.get('castcodec') || 'h264', DEG = Q.get('castdeg') || 'balanced';
 const send = (m) => store.live.send('cast', { ...m, from: store.me().id });
 
 export function shareFile(file) { const sid = store.uid(); files.set(sid, file); return sid; }
@@ -40,27 +43,38 @@ export async function shareTab() {
 }
 
 // раздача эфира партнёру: tracks() — откуда брать картинку и звук; один зритель — одно соединение
-function broadcast(src, tracks) {
+function broadcast(src, tracks, video) {
   const me = store.me().id;
   let pc = null;
   async function connect(to) {
     pc?.close();
     const cur = pc = new RTCPeerConnection({ iceServers: ICE });
     cur.onicecandidate = (e) => e.candidate && send({ sid: src.sid, to, type: 'ice', cand: e.candidate.toJSON() });
+    watchCast(cur, { role: 'host', sid: src.sid, video });
     const list = await tracks();
     for (const t of list.tracks) { if (t.kind === 'video') t.contentHint = 'motion'; cur.addTrack(t, list.stream); }
     if (cur !== pc) return;
+    // H.264 первым: на ноутбуках его обычно кодирует видеокарта (VP8 — процессор), декодер есть у всех браузеров
+    for (const tr of cur.getTransceivers()) {
+      if (tr.sender.track?.kind !== 'video' || !tr.setCodecPreferences) continue;
+      const cs = RTCRtpSender.getCapabilities('video')?.codecs || [];
+      const want = CODEC === 'vp8' ? /vp8/i : /h264/i;
+      const rank = (c) => (want.test(c.mimeType) ? (/packetization-mode=1/.test(c.sdpFmtpLine || '') ? 0 : 1) : /vp8|h264/i.test(c.mimeType) ? 2 : 3);
+      try { tr.setCodecPreferences([...cs].sort((a, b) => rank(a) - rank(b))); } catch {}
+    }
     const offer = await cur.createOffer();
     offer.sdp = hifi(offer.sdp);
     await cur.setLocalDescription(offer);
     send({ sid: src.sid, to, type: 'offer', sdp: offer.sdp });
   }
-  // качество картинки: до 8 Мбит/с, разрешение держим, при слабом канале проседает частота кадров
+  // качество: потолок по размеру картинки (720p — 4,5 Мбит/с, 1080p — 7), при слабом канале проседает
+  // и разрешение, и частота понемногу ('balanced'), а не одни кадры — иначе в кино фризы (замер 10.10, tests/perf/cast.mjs)
   const tune = (cur) => cur.getSenders().forEach((s) => {
     if (s.track?.kind !== 'video') return;
+    const { height = 720 } = s.track.getSettings?.() || {};
     const prm = s.getParameters();
-    prm.encodings = (prm.encodings?.length ? prm.encodings : [{}]).map((e) => ({ ...e, maxBitrate: 8_000_000, maxFramerate: 30 }));
-    prm.degradationPreference = 'maintain-resolution';
+    prm.encodings = (prm.encodings?.length ? prm.encodings : [{}]).map((e) => ({ ...e, maxBitrate: height > 800 ? 7_000_000 : 4_500_000, maxFramerate: 30 }));
+    prm.degradationPreference = DEG;
     s.setParameters(prm).catch(() => {});
   });
   const off = store.live.on('cast', async (m) => {
@@ -88,7 +102,7 @@ async function host(box, src, on) {
     for (let i = 0; i < 40 && !cap.getVideoTracks().length; i++) await new Promise((r) => setTimeout(r, 100));
     await new Promise((r) => setTimeout(r, 150)); // звук приходит чуть позже картинки
     return { stream: cap, tracks: cap.getTracks() };
-  });
+  }, v);
   // время и длительность для шкалы у партнёра
   const beat = setInterval(() => send({ sid: src.sid, to: '*', type: 'pos', t: v.currentTime, d: v.duration || 0, playing: !v.paused }), 1000);
   // Chrome молча играет файл без звука, если звук в AC3/DTS, — предупредим
@@ -139,7 +153,10 @@ async function viewer(box, src, on) {
         gotOffer = Date.now();
         pc?.close();
         const cur = pc = new RTCPeerConnection({ iceServers: ICE });
+        watchCast(cur, { role: 'viewer', sid: src.sid, video: v });
         cur.ontrack = (e) => {
+          // буфер приёма 0,8 с вместо ~0,03: кино не разговор, задержка не мешает, а скачки сети сглаживаются
+          try { if ('jitterBufferTarget' in e.receiver) e.receiver.jitterBufferTarget = 800; else e.receiver.playoutDelayHint = 0.8; } catch {}
           if (v.srcObject === e.streams[0]) return;
           v.srcObject = e.streams[0];
           v.play().catch((er) => er.name === 'NotAllowedError' && on('blocked'));

@@ -594,6 +594,7 @@
     background: var(--paper); border: 2px solid var(--ink); border-radius: 52% 46% 55% 44% / 47% 55% 45% 53%; transition: transform .12s, background .12s; }
   .tp-btn:hover { background: #ffe6ec; transform: rotate(-4deg) scale(1.06); }
   .tp-btn.big { width: 48px; height: 48px; background: var(--rose); }
+  .tp-btn.tp-cc.on { background: #ffe0a8; } .tp-btn[hidden] { display: none; }
   .tp-btn.big:hover { background: #f37a95; }
   .tp-ico { width: 22px; height: 22px; fill: none; stroke: var(--ink); stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
   .tp-btn.big .tp-ico { width: 26px; height: 26px; fill: #fffaf2; }
@@ -650,6 +651,11 @@
   .tmsg.me { align-self: flex-end; border-radius: 14px 14px 4px 14px; background: #ffd9e1; }
   .tmsg p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
   .tmsg small { display: block; text-align: right; font-size: 11px; opacity: .5; }
+  .tmsg { position: relative; transition: opacity .2s, transform .2s; } .tmsg.gone { opacity: 0; transform: scale(.9); }
+  .tdel { position: absolute; top: -7px; left: -7px; width: 20px; height: 20px; padding: 0; border: 1.5px solid var(--ink); border-radius: 50%; background: #fffaf0; font: 800 12px/1 Nunito, sans-serif; opacity: 0; transition: opacity .12s; cursor: pointer; }
+  .tmsg:hover .tdel, .tdel:focus-visible { opacity: 1; }
+  .twipe { margin-left: auto; border: 1.5px solid var(--ink); background: #fffaf0; border-radius: 8px; padding: 4px 10px; font: 700 12px Nunito, sans-serif; cursor: pointer; opacity: .65; }
+  .twipe:hover { opacity: 1; } .twipe.sure { opacity: 1; background: #e0614f; color: #fff; }
   .tsys { align-self: center; font-size: 12px; opacity: .6; text-align: center; }
   .ttyping { min-height: 18px; padding: 0 12px; font-size: 12px; font-style: italic; opacity: .7; }
   .tsend { display: flex; gap: 6px; padding: 10px; border-top: 1px solid var(--line); }

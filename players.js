@@ -40,15 +40,16 @@ async function yt(box, src, on) {
   const YT = await timeout(12000, loadYT(), 'yt api').catch((e) => { on('error', 'YouTube не загружается — похоже, в вашей сети он заблокирован или замедлен'); throw e; });
   const div = h('div');
   box.append(div);
-  let p;
+  let p, subsOn = false;
   await new Promise((ready) => {
     setTimeout(ready, 15000); // плеер так и не ответил — дальше разберётся tube.js
     p = new YT.Player(div, {
       videoId: src.id, width: '100%', height: '100%',
-      playerVars: { playsinline: 1, rel: 0, start: src.start || 0, origin: location.origin, controls: 0, fs: 0, iv_load_policy: 3, disablekb: 1 },
+      playerVars: { playsinline: 1, rel: 0, start: src.start || 0, origin: location.origin, controls: 0, fs: 0, iv_load_policy: 3, disablekb: 1, cc_load_policy: 0 },
       events: {
         onReady: ready,
-        onStateChange: (e) => { if (e.data === 1) on('play'); else if (e.data === 2) on('pause'); },
+        // субтитры YouTube включает сам (по языку аккаунта), а своих кнопок у плеера нет (controls: 0) — выключаем, пока не попросят
+        onStateChange: (e) => { if (e.data === 1) { on('play'); if (!subsOn) p.unloadModule?.('captions'); } else if (e.data === 2) on('pause'); },
         onError: (e) => on('error', [101, 150, 153].includes(e.data) ? EMBED_OFF : 'YouTube не открыл это видео'),
       },
     });
@@ -62,6 +63,8 @@ async function yt(box, src, on) {
     duration: () => p.getDuration() || 0,
     play: () => p.playVideo(), pause: () => p.pauseVideo(), seek: (t) => p.seekTo(t, true), rate: () => {},
     volume: (v) => { p.setVolume(Math.round(v * 100)); if (v > 0) p.unMute(); },
+    subsOn: () => subsOn,
+    subs(on) { subsOn = on; if (on) { p.loadModule?.('captions'); p.setOption?.('captions', 'reload', true); } else p.unloadModule?.('captions'); },
     destroy: () => { p.destroy(); div.remove(); },
   };
 }

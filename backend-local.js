@@ -28,6 +28,7 @@ export async function init(hooks) {
     else if (m.t === 'people') { P = read(K.people, P); H.people(view()); }
     else if (m.t === 'ledger') H.ledger(m.row);
     else if (m.t === 'msg') H.message(m.m);
+    else if (m.t === 'unmsg') H.unmessage(m.x);
     else if (m.t === 'live' && m.from !== ME) H.live(m.ev, m.payload);
     else if (m.t === 'hb' && m.who !== ME) {
       const prev = seen[m.who] && JSON.stringify(seen[m.who].state);
@@ -66,6 +67,9 @@ export const live = {
 export const serverNow = () => Date.now();
 
 export async function messages(room) { return read(K.msgs, []).filter((m) => m.room === room).slice(-100); }
+function unmsg(keep, x) { write(K.msgs, read(K.msgs, []).filter(keep)); H.unmessage(x); send({ t: 'unmsg', x }); }
+export async function unsay(id) { unmsg((m) => !(m.id === id && m.user_id === ME), { id }); }
+export async function clearChat(room) { unmsg((m) => m.room !== room, { room }); }
 export async function say(room, text) {
   const all = read(K.msgs, []);
   const m = { id: Date.now(), user_id: ME, room, text, created_at: new Date().toISOString() };

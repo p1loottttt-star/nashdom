@@ -31,6 +31,7 @@ const hooks = {
   people(p) { people = { ...people, ...p }; emit('people'); },
   ledger(r) { if (!rows.some((x) => x.id === r.id)) rows.push(r); else rows = rows.map((x) => (x.id === r.id ? r : x)); emit('ledger', r); },
   message(m) { emit('msg', m); },
+  unmessage(x) { emit('unmsg', x); }, // { id } — удалено одно, { room } — чат очищен
 };
 
 export async function initStore() {
@@ -135,6 +136,9 @@ export const serverNow = () => B.serverNow();
 export const messages = (room) => B.messages(room);
 export const say = (room, text) => B.say(room, text.trim().slice(0, 1000));
 export const onMessage = (cb) => sub('msg', cb);
+export const unsay = (id) => B.unsay(id);
+export const clearChat = (room) => B.clearChat(room);
+export const onUnmessage = (cb) => sub('unmsg', cb);
 
 // ---------- баллы, магазин, подарки ----------
 export const ledger = () => rows.slice().sort((a, b) => a.created_at.localeCompare(b.created_at));
