@@ -44,6 +44,8 @@ export const myName = () => (store.isCloud() ? store.me().name : load('who', sto
 const REASON = { daily: 'за визит', note: 'за записку', photo: 'за фото', album: 'за альбом', step: 'за этап плана', plan: 'за выполненный план', watch: 'за кино вместе', trash: 'точно в мусорку', game: 'за игру', quiz: 'за тест' };
 export function toast(text, ms = 2600) {
   const t = h('div', { className: 'toast', textContent: text });
+  const n = document.querySelectorAll('.toast:not(.out)').length; // несколько сразу — стопкой, а не друг на друге
+  if (n) t.style.bottom = 84 + n * 54 + 'px';
   document.body.append(t);
   setTimeout(() => t.classList.add('out'), ms);
   setTimeout(() => t.remove(), ms + 600);

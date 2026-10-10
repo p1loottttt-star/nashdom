@@ -32,6 +32,17 @@ export function renderGames(el) {
     el.replaceChildren(h('div', { className: 'gm' }, m ? matchView({ id: open, ...m }) : listView()));
   }
 
+  // убрать партию из списка у обоих: второе нажатие подтверждает
+  function dropBtn(id, label) {
+    const b = h('button', { className: 'gm-x', textContent: label, title: 'убрать партию у обоих', onclick: () => {
+      if (!b.classList.contains('sure')) { b.classList.add('sure'); b.textContent = 'точно?'; setTimeout(() => { b.classList.remove('sure'); b.textContent = label; }, 3000); return; }
+      store.del('game', id).catch(console.warn);
+      if (open === id) open = null;
+      badge(); pop(); draw();
+    } });
+    return b;
+  }
+
   function newMatch(g, firstTurn) { // firstTurn — кто ходит первым (по умолчанию создатель)
     const p = store.partner();
     if (!p) return toast('Игры откроются, когда в дом войдёт вторая половинка');
@@ -43,7 +54,7 @@ export function renderGames(el) {
 
   function listView() {
     const all = matches(), mine = all.filter((m) => isMine(m)), wait = all.filter((m) => !m.done && !isMine(m)), done = all.filter((m) => m.done).slice(0, 8);
-    const row = (m, btn) => { const g = byKind(m.kind); return h('div', { className: 'gm-row', style: `--c:${TONE[g.kind]}` }, h('i', { innerHTML: art(g) }), h('b', { textContent: g.title }), h('span', { textContent: g.status(m, meId()) }), h('button', { className: btn === 'играть' ? 'gm-go' : '', textContent: btn, onclick: () => { open = m.id; draw(); } })); };
+    const row = (m, btn) => { const g = byKind(m.kind); return h('div', { className: 'gm-row', style: `--c:${TONE[g.kind]}` }, h('i', { innerHTML: art(g) }), h('b', { textContent: g.title }), h('span', { textContent: g.status(m, meId()) }), h('button', { className: btn === 'играть' ? 'gm-go' : '', textContent: btn, onclick: () => { open = m.id; draw(); } }), dropBtn(m.id, '×')); };
     return [
       h('div', { className: 'gm-new' }, ...GAMES.map((g) => h('button', { className: 'gm-card', style: `--c:${TONE[g.kind]}`, onclick: () => newMatch(g) }, h('span', { className: 'art', innerHTML: art(g) }), h('b', { textContent: g.title }), h('small', { textContent: g.rules }), h('span', { className: 'gm-go', textContent: 'новая партия' })))),
       mine.length ? [h('h4', { className: 'gm-h', textContent: 'Твой ход' }), h('div', { className: 'gm-list' }, mine.map((m) => row(m, 'играть')))] : null,
@@ -68,7 +79,7 @@ export function renderGames(el) {
       again: (first) => newMatch(g, first),
     };
     g.render(box, ctx);
-    return [h('div', { className: 'gm-head' }, h('button', { className: 'gm-back', textContent: '← к играм', onclick: () => { open = null; draw(); } }), h('b', {}, h('i', { innerHTML: art(g) }), g.title), h('span', { textContent: g.status(m, me) })), box];
+    return [h('div', { className: 'gm-head' }, h('button', { className: 'gm-back', textContent: '← к играм', onclick: () => { open = null; draw(); } }), h('b', {}, h('i', { innerHTML: art(g) }), g.title), h('span', { textContent: g.status(m, me) }), dropBtn(m.id, 'убрать партию')), box];
   }
 
   draw();
