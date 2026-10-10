@@ -92,7 +92,9 @@ export async function uploadPhoto(file, max = 1800) {
   const bmp = await createImageBitmap(file);
   const k = Math.min(1, max / Math.max(bmp.width, bmp.height));
   const c = Object.assign(document.createElement('canvas'), { width: Math.round(bmp.width * k), height: Math.round(bmp.height * k) });
-  c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+  const x = c.getContext('2d');
+  x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); // прозрачный PNG в JPEG без подложки становится чёрным
+  x.drawImage(bmp, 0, 0, c.width, c.height);
   return B.upload(c);
 }
 // адрес фото для показа: в облаке фото закрыты ('sb:<путь>' → подписанная ссылка), локально — как есть
