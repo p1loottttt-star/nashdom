@@ -602,6 +602,77 @@
   .day-arch-list { display: grid; gap: 8px; margin: 10px 0 6px; max-height: 260px; overflow: auto; }
   .arch-row { display: grid; grid-template-columns: 90px 1fr; gap: 0 10px; padding: 8px 10px; background: rgba(255,250,240,.75); font-size: 12.5px; }
   .arch-row small { grid-row: 1 / 4; font: 700 17px Caveat, cursive; opacity: .7; } .arch-row b { font-size: 13.5px; } .arch-row.same { box-shadow: inset 4px 0 0 #7fae6a; }
+  /* «Тесты» как у сайтов тестов (quizplay.js): фото-отпечатки на ленте, фильтры, старт, турнир, тирлист, викторина */
+  .qph { position: relative; margin: 0; line-height: 0; }
+  .qph img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; background: #e9dfcd; }
+  .qph figcaption { line-height: 1.2; margin-top: 4px; text-align: left; } .qph figcaption a { font-size: 10px; font-weight: 700; color: var(--ink); opacity: .55; text-decoration: none; } .qph figcaption a:hover { opacity: 1; text-decoration: underline; }
+  .qz-card.photo { padding-top: 12px; }
+  .qz-card .qph.cover { width: 100%; padding: 7px 7px 4px; background: #fff; box-shadow: 2px 3px 0 var(--sh); rotate: calc(var(--r, -1.2) * -1.4deg); margin-bottom: 6px; }
+  .qz-card .qph.cover::before { content: ''; position: absolute; left: 50%; top: -9px; width: 70px; height: 20px; translate: -50%; rotate: -3deg; background: color-mix(in srgb, var(--c) 45%, rgba(255,250,240,.7)); z-index: 1; }
+  .qz-fan { font-style: italic; font-weight: 700; font-size: 11px; opacity: .6; }
+  .qz-filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0 6px; }
+  .qz-sel { font: 800 12.5px Nunito, sans-serif; color: var(--ink); background: #fffaf0; border: 2px solid var(--ink); border-radius: 8px; padding: 5px 8px; box-shadow: 0 3px 0 var(--ink); cursor: pointer; }
+  .qz-rand { margin-left: auto; font: 13px var(--dymo); letter-spacing: .08em; text-transform: uppercase; color: #fff; background: #2f3a5a; border: 0; padding: 8px 14px 7px; cursor: pointer; rotate: -1.5deg; box-shadow: 2px 3px 0 var(--sh); transition: transform .12s; }
+  .qz-rand:hover { transform: rotate(3deg) scale(1.04); } .qz-rand:active { transform: translateY(2px); }
+  .qz-credlink { display: block; margin: 26px auto 0; border: 0; background: none; font: 700 18px Caveat, cursive; color: var(--ink); opacity: .6; text-decoration: underline wavy rgba(59,42,53,.35); cursor: pointer; }
+  .qz-dymo { justify-self: start; padding: 4px 10px 3px; font: 12px var(--dymo); letter-spacing: .12em; text-transform: uppercase; color: #fff; background: #2f3a5a; box-shadow: 1px 2px 0 var(--sh); }
+  /* экран старта */
+  .qz-intro { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 26px; align-items: center; max-width: 900px; margin: 22px auto; padding: 22px; background: #fffdf7; box-shadow: 6px 8px 0 var(--sh); }
+  .qz-intro .qph.cover { padding: 8px 8px 6px; background: #fff; box-shadow: 3px 4px 0 var(--sh); rotate: -1.5deg; }
+  .qz-intro-t { display: grid; gap: 8px; }
+  .qz-intro-t > b { font: 700 42px/1 Caveat, cursive; } .qz-intro-t p { margin: 0; line-height: 1.45; } .qz-meta { font-weight: 800; opacity: .6; }
+  .qz-intro .qz-go.big { justify-self: start; font-size: 17px; padding: 12px 34px; }
+  /* вопрос с фото: фото-полароид слева, варианты справа */
+  .qz-ask.nw { max-width: 920px; }
+  .qz-qrow.has { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 26px; align-items: center; text-align: left; }
+  .qz-qrow .qph.qimg { padding: 8px 8px 6px; background: #fff; box-shadow: 3px 4px 0 var(--sh); rotate: -1.6deg; }
+  .qz-qrow.has .qz-q { font-size: 34px; margin-bottom: 14px; }
+  .qz-opts.list { grid-template-columns: 1fr; gap: 8px; } .qz-opts.list button { text-align: left; padding: 10px 14px; }
+  .qz-opts button.right { background: #cfe8bd; } .qz-opts button.wrong { background: #f6c1b8; } .qz-opts button.dim { opacity: .5; } .qz-opts button:disabled { cursor: default; transform: none; }
+  .qz-verdict { display: flex; align-items: center; gap: 14px; margin-top: 14px; } .qz-verdict b { flex: 1; font: 700 32px/1 Caveat, cursive; } .qz-verdict.ok b { color: #3c7f4c; } .qz-verdict.no b { color: #c2405a; }
+  .qz-steps { display: flex; justify-content: center; gap: 10px; } .qz-steps .qz-prev { margin: 8px 0 0; }
+  /* турнир: два отпечатка, «или» посередине */
+  .qz-cup { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 44px; max-width: 700px; margin: 0 auto; }
+  .qz-cup .or, .qz-pick .or { position: absolute; left: 50%; top: 50%; translate: -50% -50%; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; background: #2f3a5a; color: #fff; font: 13px var(--dymo); text-transform: uppercase; font-style: normal; box-shadow: 2px 3px 0 var(--sh); z-index: 1; }
+  .cupk { display: grid; gap: 6px; padding: 9px 9px 10px; border: 0; background: #fff; cursor: pointer; box-shadow: 4px 6px 0 var(--sh); rotate: -1.5deg; transition: transform .16s cubic-bezier(.2,.8,.2,1.3), box-shadow .16s; }
+  .cupk:nth-of-type(2) { rotate: 1.5deg; }
+  .cupk:hover { transform: translateY(-6px) scale(1.02); } .cupk b { font: 700 30px/1 Caveat, cursive; color: var(--ink); }
+  .cupk.chosen { transform: translateY(-12px) scale(1.05) rotate(-2deg); box-shadow: 0 0 0 4px #ef7f9b, 8px 12px 0 4px var(--sh); }
+  /* тирлист */
+  .qz-ask.k-tier { max-width: 1000px; padding: 18px; }
+  .tier-pool { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; min-height: 96px; padding: 10px; margin-bottom: 14px; border: 2px dashed rgba(59,42,53,.3); }
+  .tile { position: relative; width: 84px; height: 84px; padding: 0; border: 3px solid #fff; background: #fff; cursor: grab; box-shadow: 2px 3px 0 var(--sh); touch-action: none; transition: transform .12s; }
+  .tile:hover { transform: translateY(-3px) rotate(-2deg); }
+  .tile img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+  .tile span { position: absolute; left: 0; right: 0; bottom: 0; padding: 2px 3px; font: 700 10.5px/1.1 Nunito, sans-serif; color: #fff; background: rgba(30,24,30,.62); }
+  .tile.sel { box-shadow: 0 0 0 3px #ef7f9b, 2px 3px 0 3px var(--sh); transform: translateY(-4px); }
+  .tile.lift { opacity: .3; } .tile.ghost { position: fixed; left: 0; top: 0; z-index: 9999; pointer-events: none; box-shadow: 6px 9px 0 var(--sh); }
+  .tier-board { display: grid; gap: 7px; text-align: left; }
+  .shelf { display: grid; grid-template-columns: 104px 1fr; min-height: 92px; background: rgba(255,250,240,.7); box-shadow: 2px 3px 0 var(--sh); cursor: pointer; }
+  .shelf > b { display: grid; place-items: center; padding: 6px; font: 13px var(--dymo); letter-spacing: .08em; text-transform: uppercase; text-align: center; color: #fff; background: var(--c); }
+  .shelf .row { display: flex; flex-wrap: wrap; gap: 5px; padding: 4px; align-content: flex-start; }
+  .tier-board.mini { gap: 4px; } .tier-board.mini .shelf { grid-template-columns: 76px 1fr; min-height: 46px; cursor: default; } .tier-board.mini .shelf > b { font-size: 10px; }
+  .tier-board.mini .row i { width: 40px; height: 40px; line-height: 0; } .tier-board.mini .row img { width: 100%; height: 100%; object-fit: cover; border: 2px solid #fff; }
+  .tier-board.mini > .qz-dymo { justify-self: center; margin-bottom: 4px; }
+  /* итоги новых форматов */
+  .qz-hero { display: grid; justify-items: center; align-content: start; gap: 4px; padding: 14px 14px 18px; background: #fffdf7; text-align: center; box-shadow: 6px 8px 0 var(--sh); rotate: -1deg; }
+  .qz-hero:nth-child(2) { rotate: 1.2deg; }
+  .qz-hero .qph { width: 100%; max-width: 300px; padding: 7px 7px 5px; background: #fff; box-shadow: 2px 3px 0 var(--sh); margin-bottom: 6px; }
+  .qz-hero small { font: 12px var(--dymo); letter-spacing: .1em; text-transform: uppercase; opacity: .6; } .qz-hero b { font: 700 36px/1 Caveat, cursive; } .qz-hero p { margin: 4px 0 0; line-height: 1.45; }
+  .qz-bars { display: grid; gap: 6px; max-width: 640px; margin: 8px auto 0; } .qz-bars .qz-h { justify-self: start; }
+  .qz-bars .bar { display: grid; grid-template-columns: 170px 1fr 44px; align-items: center; gap: 10px; font-weight: 700; font-size: 13.5px; }
+  .qz-bars .bar i { height: 12px; background: rgba(255,250,240,.7); box-shadow: inset 0 0 0 2px var(--ink); } .qz-bars .bar u { display: block; height: 100%; background: repeating-linear-gradient(-45deg, #ef7f9b 0 6px, #f4a3b5 6px 12px); }
+  .qz-bars .bar em { font-style: normal; font-weight: 800; text-align: right; }
+  .qz > .qz-fan, .qz-hero ~ .qz-fan { display: block; text-align: center; margin-top: 12px; }
+  .qz-top3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 760px; margin: 0 auto; }
+  .qz-top3 > div { position: relative; display: grid; gap: 4px; padding: 7px 7px 8px; background: #fff; box-shadow: 3px 4px 0 var(--sh); text-align: center; } .qz-top3 > div:nth-child(2) { rotate: 1.5deg; } .qz-top3 > div:nth-child(3) { rotate: -1deg; }
+  .qz-top3 em { position: absolute; top: -10px; left: -10px; z-index: 1; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: #e9a92f; color: #fff; font: 800 14px Nunito, sans-serif; font-style: normal; box-shadow: 0 0 0 2px #fff; }
+  .qz-top3 b { font: 700 24px/1 Caveat, cursive; }
+  .qz-row.hot { grid-template-columns: 52px 1fr; column-gap: 12px; align-items: center; } .qz-row.hot img { grid-row: 1 / 3; width: 52px; height: 52px; object-fit: cover; border: 2px solid #fff; box-shadow: 1px 2px 0 var(--sh); }
+  .qz-credits { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; margin-top: 12px; }
+  .qz-credits a { display: grid; grid-template-columns: 64px 1fr; gap: 10px; align-items: center; padding: 6px; background: #fffaf0; color: var(--ink); text-decoration: none; box-shadow: 2px 3px 0 var(--sh); }
+  .qz-credits img { width: 64px; height: 48px; object-fit: cover; } .qz-credits b { display: block; font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .qz-credits small { font-size: 11px; opacity: .7; }
+  @container (max-width: 640px) { .qz-intro, .qz-qrow.has { grid-template-columns: 1fr; } .qz-cup { gap: 18px; } .qz-top3 { gap: 8px; } .qz-bars .bar { grid-template-columns: 110px 1fr 40px; } }
   .sitem .sthumb { width: 104px; height: 104px; margin: -8px 0 -4px; object-fit: contain; }
   .sitem small { font-size: 12px; opacity: .6; min-height: 2.4em; }
   .sprice { font-weight: 800; color: var(--rose); }

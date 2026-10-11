@@ -3,13 +3,14 @@
 // qday/<дата>:<человек> = { d, q, a, at }. Подсчёты — quizlogic.js, база — quizdb.js, спека — docs/specs/2026-10-10-quiz-deep-design.md.
 // Ответ партнёра скрыт, пока не ответишь сам (только в интерфейсе: в облаке записи пары видны обоим).
 import * as store from './store.js';
-import { QUIZZES, TOPICS, QDAY } from './quizdb.js';
+import { QUIZZES, NEW, QDAY, RUBRICS, FORMATS } from './quizdb.js';
 import { whoRows, typeResult, knowScore, knowTitle, pickScore, listRows, eveningScore, length, dayStr, prevDay, qdayIndex, qdayStreak } from './quizlogic.js';
 import { toast } from './desktop.js';
 import { pop, chime, tap, unfold } from './sound.js';
 import { sticker, doodle } from './doodles.js';
+import { h, order, isNew, fmt, loadQuiz, credits, photo, fanNote, size, introView, runNew, resultNew, creditsView } from './quizplay.js';
 
-const h = (tag, props = {}, ...kids) => { const e = Object.assign(document.createElement(tag), props); e.append(...kids.flat(Infinity).filter((k) => k != null && k !== false)); return e; };
+const CATALOG = [...QUIZZES, ...NEW];
 // рисунок и краска каждого теста (вместо эмодзи)
 const ART = { 'who-chaos': ['chaos', '#a58bd1'], 'who-love': ['love', '#e0614f'], 'who-home': ['house', '#7fae6a'], 'who-food': ['pizza', '#e0614f'], 'who-trip': ['suitcase', '#3fa39a'],
   'type-dessert': ['cake', '#ef7f9b'], 'type-cat': ['cats', '#f08b46'], 'type-movie': ['film', '#e0614f'], 'type-weather': ['cloud', '#6fa8d6'], 'type-date': ['candle', '#a58bd1'],
@@ -28,8 +29,6 @@ const doneOf = (test, user) => (user ? store.get('quiz', `${test}:${user}`) : nu
 const asksToMe = () => store.all('quizask').filter((a) => a.to === meId() && !doneOf(a.test, meId()));
 const nameOf = (id) => (id === 'both' ? 'оба' : id === meId() ? store.me().name : id ? pName() : '—'); // в итогах — имена, не «ты»: иначе «ты говоришь «ты»» путает
 const plural = (n, f) => f[n % 10 === 1 && n % 100 !== 11 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2];
-// порядок вариантов в «какой ты» перемешан, но одинаково для обоих и при каждом открытии
-const order = (q, i) => q.a.map((_, k) => k).sort((x, y) => ((x * 7 + i * 3) % 5) - ((y * 7 + i * 3) % 5));
 const dayRec = (d, user) => (user ? store.get('qday', `${d}:${user}`) : null);
 const fmtDay = (d) => new Date(d + 'T00:00:00').toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
 const rv = (el, i) => { el.classList.add('rv'); el.style.setProperty('--i', i); return el; }; // раскрытие по очереди
@@ -47,10 +46,18 @@ function toPlans(texts) {
 }
 
 export function renderQuiz(el) {
-  let view = 'list', tab = 'all', topic = null, query = '', run = null, arch = false, dayFresh = false;
+  // фильтры каталога как у сайтов тестов: рубрика, формат, длина, порядок
+  let view = 'list', tab = 'all', rubric = null, form = '', len = '', sort = 'pop', query = '', run = null, arch = false, dayFresh = false;
   store.watch(el, ['quiz', 'quizask', 'qday'], () => { if (view !== 'run') draw(); });
+  credits().then(() => { if (view !== 'run') draw(); });
 
-  function draw() { el.replaceChildren(h('div', { className: 'qz' }, view === 'run' ? runView() : view === 'result' ? resultView(run.quiz) : listView())); }
+  function draw() {
+    const body = view === 'run' ? runView() : view === 'intro' ? [backHead(run.quiz), introView(run.quiz, () => { view = 'run'; draw(); })]
+      : view === 'result' ? resultView(run.quiz) : view === 'credits' ? [backHead({ title: 'Авторы фото' }), creditsView()] : listView();
+    el.replaceChildren(h('div', { className: 'qz' }, body));
+  }
+  const backHead = (q) => h('div', { className: 'qz-runhead' }, h('button', { className: 'qz-back', textContent: '← к тестам', onclick: () => { view = 'list'; draw(); } }),
+    q.id && !q.cover ? h('i', { className: 'pic', innerHTML: qart(q) }) : null, h('b', { textContent: q.title }), h('span'));
 
   // ---------- вопрос дня ----------
   function dayView() {
@@ -94,40 +101,57 @@ export function renderQuiz(el) {
   }
 
   // ---------- каталог и пройденные ----------
+  const LEN = { s: ['до 10', (n) => n <= 10], m: ['10–20', (n) => n > 10 && n <= 20], l: ['больше 20', (n) => n > 20] };
+  const nOf = (q) => q.n ?? length(q);
+  const SORT = { pop: ['популярные', (a, b) => (b.pop ?? 40) - (a.pop ?? 40)], new: ['новые', (a, b) => (b.added || '2026-10-07').localeCompare(a.added || '2026-10-07')],
+    todo: ['не пройденные', (a, b) => !!doneOf(a.id, meId()) - !!doneOf(b.id, meId()) || (b.pop ?? 40) - (a.pop ?? 40)] };
+  const sel = (val, opts, set) => h('select', { className: 'qz-sel', onchange: (e) => { set(e.target.value); draw(); } }, ...opts.map(([k, t]) => h('option', { value: k, textContent: t, selected: k === val })));
+  function randomTest() {
+    const pool = CATALOG.filter((q) => !doneOf(q.id, meId())), from = pool.length ? pool : CATALOG;
+    pop(); start(from[Math.floor(Math.random() * from.length)]);
+  }
   function listView() {
-    const me = meId(), done = QUIZZES.filter((q) => doneOf(q.id, me));
+    const me = meId(), done = CATALOG.filter((q) => doneOf(q.id, me));
     const tabs = h('div', { className: 'qz-tabs' }, ...[['all', 'каталог'], ['done', `пройденные · ${done.length}`]].map(([k, t]) =>
       h('button', { className: tab === k ? 'on' : '', textContent: t, onclick: () => { tab = k; draw(); } })));
     const search = h('input', { className: 'qz-search', placeholder: 'найти тест…', value: query, oninput: (e) => { query = e.target.value; drawGrid(); } });
-    const chips = h('div', { className: 'qz-chips' }, ...[[null, 'все'], ...Object.entries(TOPICS)].map(([k, t]) =>
-      h('button', { className: topic === k ? 'on' : '', textContent: t, onclick: () => { topic = k; draw(); } })));
-    const asks = asksToMe().map((a) => QUIZZES.find((q) => q.id === a.test)).filter(Boolean);
-    const wait = tab === 'all' && asks.length ? h('div', { className: 'qz-wait' }, h('b', { textContent: `${pName()} зовёт пройти:` }), ...asks.map((q) => h('button', { onclick: () => start(q) }, h('i', { innerHTML: qart(q) }), q.title))) : null;
+    const chips = h('div', { className: 'qz-chips' }, ...[[null, 'все'], ...Object.entries(RUBRICS)].map(([k, t]) =>
+      h('button', { className: rubric === k ? 'on' : '', textContent: t, onclick: () => { rubric = k; draw(); } })));
+    const filters = h('div', { className: 'qz-filters' },
+      sel(form, [['', 'все форматы'], ...Object.entries(FORMATS)], (v) => (form = v)),
+      sel(len, [['', 'любая длина'], ...Object.entries(LEN).map(([k, [t]]) => [k, t])], (v) => (len = v)),
+      sel(sort, Object.entries(SORT).map(([k, [t]]) => [k, t]), (v) => (sort = v)),
+      h('button', { className: 'qz-rand', textContent: 'случайный тест', onclick: randomTest }));
+    const asks = asksToMe().map((a) => CATALOG.find((q) => q.id === a.test)).filter(Boolean);
+    const wait = tab === 'all' && asks.length ? h('div', { className: 'qz-wait' }, h('b', { textContent: `${pName()} зовёт пройти:` }), ...asks.map((q) => h('button', { onclick: () => start(q) }, q.cover ? null : h('i', { innerHTML: qart(q) }), q.title))) : null;
     const grid = h('div', { className: 'qz-grid' });
     const drawGrid = () => {
       const s = query.trim().toLowerCase();
-      const list = (tab === 'done' ? done : QUIZZES).filter((q) => (!topic || q.topic === topic) && (!s || `${q.title} ${TOPICS[q.topic]} ${KIND[q.kind]}`.toLowerCase().includes(s)));
+      const list = (tab === 'done' ? done : CATALOG).filter((q) => (!rubric || q.rubric === rubric) && (!form || fmt(q) === form) && (!len || LEN[len][1](nOf(q)))
+        && (!s || `${q.title} ${RUBRICS[q.rubric]} ${FORMATS[fmt(q)]} ${KIND[q.kind] || ''} ${q.fan || ''}`.toLowerCase().includes(s))).sort(SORT[sort][1]);
       grid.replaceChildren(...(list.length ? list.map(card) : [h('p', { className: 'qz-empty', textContent: tab === 'done' ? 'Пока ничего не пройдено — выбери тест в каталоге' : 'Ничего не нашлось' })]));
     };
     drawGrid();
-    return [tab === 'all' ? dayView() : null, h('div', { className: 'qz-head' }, tabs, search), tab === 'all' ? chips : null, wait, grid];
+    return [tab === 'all' ? dayView() : null, h('div', { className: 'qz-head' }, tabs, search), tab === 'all' ? [chips, filters] : null, wait, grid,
+      h('button', { className: 'qz-credlink', textContent: 'авторы фото', onclick: () => { view = 'credits'; draw(); } })];
   }
 
   function card(q) {
     const me = meId(), p = store.partner(), mine = doneOf(q.id, me), theirs = doneOf(q.id, p?.id);
     const asked = p && store.get('quizask', `${q.id}:${p.id}`);
-    const canResult = mine && (q.kind === 'type' || theirs);
+    const canResult = mine && (q.kind === 'type' || isNew(q) || theirs);
     const fresh = stamped === q.id && mine; if (fresh) { stamped = null; setTimeout(tap, 240, .5); }
-    return h('div', { className: 'qz-card', style: `--c:${tone(q)}` },
-      QUIZZES.indexOf(q) % 4 === 0 ? h('i', { className: 'clip', innerHTML: doodle('clip', { style: 'sticker' }) }) : null,
-      h('span', { className: 'art', innerHTML: qart(q) }),
+    return h('div', { className: 'qz-card' + (q.cover ? ' photo' : ''), style: `--c:${tone(q)}` },
+      !q.cover && CATALOG.indexOf(q) % 4 === 0 ? h('i', { className: 'clip', innerHTML: doodle('clip', { style: 'sticker' }) }) : null,
+      q.cover ? photo(q.cover, 'cover') : h('span', { className: 'art', innerHTML: qart(q) }),
       mine ? h('i', { className: 'qz-stamp' + (fresh ? ' fresh' : ''), textContent: 'пройдено' }) : null,
       h('b', { textContent: q.title }),
-      h('small', { textContent: `${KIND[q.kind]} · ${TOPICS[q.topic]} · ${length(q)} ${UNIT[q.kind] || 'вопр.'}` }),
+      h('small', { textContent: `${FORMATS[fmt(q)]} · ${RUBRICS[q.rubric]} · ${q.cover ? size(q) : `${length(q)} ${UNIT[q.kind] || 'вопр.'}`}` }),
+      q.fan ? h('small', { className: 'qz-fan', textContent: 'фан-тест' }) : null,
       h('div', { className: 'qz-marks' }, h('span', { className: mine ? 'ok' : '', textContent: `ты ${mine ? '✓' : '—'}` }), p ? h('span', { className: theirs ? 'ok' : '', textContent: `${p.name} ${theirs ? '✓' : '…'}` }) : null),
       h('div', { className: 'qz-acts' },
         h('button', { className: 'qz-go', textContent: mine ? 'ещё раз' : 'пройти', onclick: () => start(q) }),
-        canResult ? h('button', { textContent: 'итоги', onclick: () => { run = { quiz: q }; view = 'result'; draw(); } }) : null,
+        canResult ? h('button', { textContent: 'итоги', onclick: () => openResult(q) }) : null,
         p && !theirs ? h('button', { textContent: asked ? 'позвали ✓' : 'позвать', title: `позвать: ${p.name}`, disabled: !!asked, onclick: () => ask(q) }) : null));
   }
 
@@ -138,18 +162,25 @@ export function renderQuiz(el) {
   }
 
   // ---------- прохождение ----------
-  function start(q) { run = { quiz: q, i: 0, answers: q.kind === 'list' ? q.items.map(() => 0) : [] }; view = 'run'; draw(); }
+  // новые тесты грузятся пакетом и начинаются с экрана старта
+  async function start(q) {
+    const full = await loadQuiz(q);
+    run = { quiz: full, i: 0, answers: full.kind === 'list' ? full.items.map(() => 0) : [] }; view = isNew(full) ? 'intro' : 'run'; draw();
+  }
+  async function openResult(q) { run = { quiz: await loadQuiz(q) }; view = 'result'; draw(); }
   function runView() {
     const q = run.quiz, n = q.kind === 'list' ? 1 : length(q), i = run.i;
     const head = h('div', { className: 'qz-runhead' },
       h('button', { className: 'qz-back', textContent: '← к тестам', onclick: () => { view = 'list'; draw(); } }),
-      h('i', { className: 'pic', innerHTML: qart(q) }), h('b', { textContent: q.title }),
-      h('span', { textContent: q.kind === 'list' ? `отмечено ${run.answers.filter(Boolean).length}` : `${i + 1} / ${n}` }));
-    const bar = q.kind === 'list' ? null : h('div', { className: 'qz-bar' }, h('i', { style: `width:${(i / n) * 100}%` }));
+      q.cover ? null : h('i', { className: 'pic', innerHTML: qart(q) }), h('b', { textContent: q.title }),
+      h('span', { textContent: q.kind === 'list' ? `отмечено ${run.answers.filter(Boolean).length}` : q.kind === 'tier' ? `разложено ${run.answers.filter((x) => x != null).length} из ${n}` : `${q.kind === 'cup' ? 'матч' : 'вопрос'} ${i + 1} / ${n}` }));
+    const bar = q.kind === 'list' || q.kind === 'tier' ? null : h('div', { className: 'qz-bar' }, h('i', { style: `width:${(i / n) * 100}%` }));
     const next = (ans) => { run.answers[i] = ans; tap(.25); if (i + 1 < n) { run.i++; draw(); } else finish(); };
-    const prev = i ? h('button', { className: 'qz-prev', textContent: '‹ назад', onclick: () => { run.i--; draw(); } }) : null;
+    const prev = h('div', { className: 'qz-steps' }, i && q.kind !== 'tier' ? h('button', { className: 'qz-prev', textContent: '‹ шаг назад', onclick: () => { run.i--; run.shown = -1; if (q.kind === 'cup') run.answers.length = run.i; draw(); } }) : null,
+      isNew(q) && (i || run.answers.some((x) => x != null)) ? h('button', { className: 'qz-prev', textContent: 'сброс', onclick: () => { run.i = 0; run.answers = []; run.shown = -1; run.sel = null; draw(); } }) : null);
     let body;
-    if (q.kind === 'who') {
+    if (isNew(q)) body = runNew(q, run, { next, finish, draw });
+    else if (q.kind === 'who') {
       body = [h('p', { className: 'qz-q', textContent: q.items[i] + '?' }),
         h('div', { className: 'qz-opts who' }, ...[['me', 'я'], ['you', pName()], ['both', 'оба']].map(([k, t]) => h('button', { className: run.answers[i] === k ? 'on' : '', textContent: t, onclick: () => next(k) })))];
     } else if (q.kind === 'type') {
@@ -174,7 +205,7 @@ export function renderQuiz(el) {
         h('button', { className: 'qz-go big', textContent: 'готово', onclick: done })];
     } else body = knowAsk(q.questions[i], i, next);
     const deal = run.dealt !== i; run.dealt = i; // въезд карточки — только на новый вопрос, не на каждый клик внутри
-    return [head, bar, h('div', { className: 'qz-ask' + (deal ? ' deal' : '') }, ...body), prev];
+    return [head, bar, h('div', { className: `qz-ask k-${q.kind}` + (isNew(q) ? ' nw' : '') + (deal ? ' deal' : '') }, ...body), prev];
   }
 
   // «знаешь»: про себя + догадка о партнёре; вариант, шкала или порядок
@@ -210,12 +241,13 @@ export function renderQuiz(el) {
   // ---------- итоги: раскрытие рядом ----------
   function resultView(q) {
     const me = meId(), p = store.partner(), A = doneOf(q.id, me), B = doneOf(q.id, p?.id), pn = p?.name || 'партнёр';
-    const head = h('div', { className: 'qz-runhead' }, h('button', { className: 'qz-back', textContent: '← к тестам', onclick: () => { view = 'list'; draw(); } }), h('i', { className: 'pic', innerHTML: qart(q) }), h('b', { textContent: q.title }), h('span'));
+    const head = backHead(q);
     const waitBox = () => h('div', { className: 'qz-waitbox' },
       h('p', { textContent: p ? `Твои ответы спрятаны в конверт. Итоги откроются, когда ${p.name} тоже пройдёт тест.` : 'Итоги откроются, когда в дом войдёт вторая половинка.' }),
       p && !store.get('quizask', `${q.id}:${p.id}`) ? h('button', { className: 'qz-go', textContent: 'позвать', onclick: () => ask(q) }) : p ? h('small', { textContent: 'приглашение отправлено ✓' }) : null);
     if (!A) return [head, h('p', { className: 'qz-empty', textContent: 'Сначала пройди тест сам(а).' })];
     const sum = (text, sub) => h('div', { className: 'qz-sum' }, h('b', { textContent: text }), sub ? h('small', { textContent: sub }) : null);
+    if (isNew(q)) return [head, resultNew(q, A, B, { pn, sum, waitBox })];
 
     if (q.kind === 'type') {
       const mine = q.results[typeResult(q, A.answers)], theirs = B && q.results[typeResult(q, B.answers)];
@@ -281,7 +313,7 @@ export function badge() {
 }
 store.on('quizask', (id) => {
   badge();
-  const a = store.get('quizask', id), q = a && QUIZZES.find((x) => x.id === a.test);
+  const a = store.get('quizask', id), q = a && CATALOG.find((x) => x.id === a.test);
   if (q && a.to === meId() && a.at > born) toast(`${pName()} зовёт пройти тест «${q.title}» — в ноутбуке, «Тесты»`, 6000);
 });
 store.on('qday', (id) => {
