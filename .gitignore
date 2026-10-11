@@ -8,3 +8,4 @@ shots
 tests/perf/.profile
 tests/perf/last*.json
 sonya-password.sql
+scripts/qimg/cand.json

@@ -196,6 +196,19 @@ export const QUIZZES = [
     { q: 'Что для меня важнее в отпуске?', rank: ['море', 'еда', 'прогулки по городу', 'красивый отель'] }] },
 ];
 
+// ---------- каталог как у сайтов тестов (спека docs/specs/2026-10-11-quiz-catalog-design.md) ----------
+export const RUBRICS = { cinema: 'кино и сериалы', anim: 'анимация и аниме', games: 'игры', nature: 'животные и природа', food: 'еда', travel: 'путешествия', soul: 'характер', pair: 'для пар' };
+export const FORMATS = { type: 'кто ты из', cup: 'турнир', tier: 'тирлист', trivia: 'викторина', pair: 'парные' };
+// старые тесты: «какой ты» — по теме, остальные парные
+for (const q of QUIZZES) q.rubric ||= q.kind === 'type' ? { food: 'food', fun: 'nature', movie: 'cinema', soul: 'soul', love: 'pair' }[q.topic] : 'pair';
+// новые: содержимое в quizpacks/<id>.js (грузится при открытии); n — число ответов (quizlogic length), pop — вес популярности по топу pikuco
+export const NEW = [
+  { id: 'hp', kind: 'type', rubric: 'cinema', fan: 'Гарри Поттер', title: 'Кто ты из «Гарри Поттера»', desc: 'Двенадцать вопросов о привычках, страхах и любимых уроках. В итоге — твой герой и насколько ты похож(а) на остальных.', n: 12, pop: 100, added: '2026-10-11', cover: 'hp-cover' },
+  { id: 'cup-dessert', kind: 'cup', rubric: 'food', title: 'Лучший десерт', desc: 'Шестнадцать десертов, пары на выбывание. Победит только один.', n: 15, pop: 70, added: '2026-10-11', cover: 'cd-cover' },
+  { id: 'tier-food', kind: 'tier', rubric: 'food', title: 'Тирлист еды', desc: 'Разложи двадцать блюд по полкам от «топ» до «мимо» и сравни с половинкой.', n: 20, pop: 75, added: '2026-10-11', cover: 'tf-cover' },
+  { id: 'trivia-movies', kind: 'trivia', rubric: 'cinema', title: 'Знаешь ли ты кино', desc: 'Десять вопросов о знаменитых фильмах. Кто из вас настоящий киноман?', n: 10, pop: 60, added: '2026-10-11', cover: 'tm-cover' },
+];
+
 // ---------- вопрос дня: один на двоих, номер — от даты (quizlogic qdayIndex) ----------
 export const QDAY = [
   ['Что лучше в дождливый вечер?', ['кино под пледом', 'гулять с зонтом']],
