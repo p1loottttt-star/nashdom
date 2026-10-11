@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3. Внутри мира</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<style>
+  /* 3. Внутри мира — как NookPhone в Animal Crossing и Unpacking: поверх комнаты почти ничего. Новости — ярлыки на самих вещах
+     (письмо — над запиской, погода у Сони — у окна, ход в игре — над ноутбуком), всё остальное — в телефоне в углу. */
+  :root { --f: 'Onest', system-ui, sans-serif; --hand: 'Caveat', cursive; --pink: #ff6f9c; }
+  * { box-sizing: border-box; } html, body { margin: 0; height: 100%; } body { font: 500 15px/1.35 var(--f); color: #fff; background: #120c14; overflow: hidden; -webkit-font-smoothing: antialiased; }
+  button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; padding: 0; }
+  .screen { position: fixed; inset: 0; display: none; } .screen.on { display: block; }
+  .bg { position: absolute; inset: 0; background: url(../ui2/room.png) center / cover; }
+
+  /* ярлык на вещи: точка на вещи, тонкая нить, табличка */
+  .tag { position: absolute; display: flex; flex-direction: column; align-items: center; translate: -50% -100%; animation: float 4s ease-in-out infinite; }
+  .tag .plate { display: flex; align-items: center; gap: 8px; padding: 7px 13px 7px 8px; border-radius: 14px; background: rgba(24,12,28,.66); backdrop-filter: blur(8px); box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 8px 20px -8px rgba(0,0,0,.6); white-space: nowrap; font-size: 13.5px; }
+  .tag .plate b { font-weight: 700; } .tag .plate .ic { width: 26px; height: 26px; } .tag .plate small { opacity: .7; margin-left: 2px; }
+  .tag .str { width: 1.5px; height: 26px; background: linear-gradient(rgba(255,255,255,.7), rgba(255,255,255,.15)); }
+  .tag .pin { width: 9px; height: 9px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px rgba(255,255,255,.25), 0 0 14px rgba(255,255,255,.8); }
+  .tag.hot .plate { background: rgba(255,92,140,.82); } .tag.hot .pin { background: var(--pink); box-shadow: 0 0 0 4px rgba(255,111,156,.35), 0 0 16px rgba(255,111,156,.9); }
+  .tag.soft .plate { background: rgba(24,12,28,.45); font-size: 12.5px; } .tag.soft .str { height: 16px; }
+  @keyframes float { 50% { translate: -50% calc(-100% - 4px); } }
+  .tag:nth-child(2n) { animation-delay: -1.3s; } .tag:nth-child(3n) { animation-delay: -2.2s; }
+
+  /* телефон в углу: выглядывает, на нём новости */
+  .peek { position: absolute; right: 34px; bottom: -70px; width: 132px; height: 230px; padding: 7px; border-radius: 30px; background: #2a2230; box-shadow: 0 -10px 30px -10px rgba(0,0,0,.6), inset 0 0 0 2px #463a4e; rotate: -8deg; transition: translate .3s cubic-bezier(.3,1.5,.5,1); }
+  .peek:hover { translate: 0 -24px; }
+  .peek .scr { height: 100%; border-radius: 24px; background: linear-gradient(160deg, #ffb3c9, #b9a5ff 70%); padding: 14px 10px; display: flex; flex-direction: column; gap: 6px; color: #2b1f2a; }
+  .peek .scr b { font-size: 22px; font-weight: 800; letter-spacing: -.02em; } .peek .scr .n { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 12px; background: rgba(255,255,255,.75); font-size: 11px; font-weight: 600; }
+  .peek .badge { position: absolute; left: -8px; top: -8px; width: 30px; height: 30px; border-radius: 50%; background: var(--pink); display: grid; place-items: center; font-weight: 800; font-size: 14px; box-shadow: 0 4px 10px rgba(255,111,156,.6); rotate: 8deg; }
+  .pen { position: absolute; left: 30px; bottom: 26px; display: flex; align-items: center; gap: 10px; padding: 10px 18px 10px 10px; border-radius: 6px 18px 18px 6px; background: #fff8ec; color: #3b2a35; font: 700 22px var(--hand); box-shadow: 0 10px 22px -8px rgba(0,0,0,.6); rotate: 2deg; }
+  .pen .ic { width: 38px; height: 38px; } .pen:hover { rotate: 0deg; }
+  .who { position: absolute; left: 30px; top: 24px; display: flex; align-items: center; gap: 10px; font-size: 14px; text-shadow: 0 1px 10px rgba(0,0,0,.5); }
+  .face { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 14px; border: 2px solid #fff; position: relative; text-shadow: none; }
+  .face + .face { margin-left: -10px; } .v { background: linear-gradient(135deg, #7aa7ff, #5b6fe8); } .s { background: linear-gradient(135deg, #ff9ec0, #f06292); }
+  .on-dot::after { content: ''; position: absolute; right: -2px; bottom: -1px; width: 10px; height: 10px; border-radius: 50%; background: #4ade80; border: 2px solid #fff; }
+
+  /* ---------- телефон открыт ---------- */
+  #phone .bg { filter: blur(6px) brightness(.6); transform: scale(1.04); }
+  .phone { position: absolute; right: 9%; top: 50%; translate: 0 -50%; width: 380px; height: min(780px, calc(100% - 40px)); padding: 12px; border-radius: 54px; background: #2a2230; box-shadow: 0 40px 80px -20px rgba(0,0,0,.8), inset 0 0 0 2px #4b3f54; rotate: -2deg; }
+  .scr2 { position: relative; height: 100%; border-radius: 44px; overflow: hidden; background: radial-gradient(120% 70% at 20% 0%, #ffc6d6, transparent 60%), radial-gradient(120% 80% at 100% 100%, #c3b4ff, transparent 60%), #f4e4ef; color: #2b1f2a; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+  .status { display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; padding: 2px 10px 0; } .status span:last-child { display: flex; gap: 6px; }
+  .wid { padding: 14px; border-radius: 26px; background: rgba(255,255,255,.72); box-shadow: 0 10px 24px -16px rgba(80,30,60,.5); }
+  .partner { display: flex; align-items: center; gap: 12px; } .partner .face { width: 54px; height: 54px; font-size: 20px; border-width: 3px; }
+  .partner b { display: block; font-size: 17px; font-weight: 800; } .partner small { color: #7b6672; font-size: 13px; } .partner button { margin-left: auto; padding: 10px 14px; border-radius: 14px; background: #2b1f2a; color: #fff; font-weight: 700; font-size: 13px; }
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .duo .wid { display: flex; flex-direction: column; gap: 4px; min-height: 120px; } .duo .k { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #9a7f8f; } .duo b { font-size: 16px; font-weight: 800; line-height: 1.15; } .duo .ic { width: 40px; height: 40px; margin-top: auto; align-self: flex-end; }
+  .duo .fire { display: flex; align-items: center; gap: 4px; color: #ff7a2e; font-weight: 800; font-size: 13px; }
+  .apps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px 8px; padding: 6px 2px; }
+  .app { display: grid; justify-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; } .app span.i { width: 62px; height: 62px; border-radius: 20px; padding: 9px; box-shadow: 0 8px 16px -10px rgba(80,30,60,.6), inset 0 1px 0 rgba(255,255,255,.6); position: relative; }
+  .app .b { position: absolute; right: -4px; top: -4px; min-width: 20px; height: 20px; border-radius: 10px; background: var(--pink); color: #fff; font-size: 11px; display: grid; place-items: center; padding: 0 5px; }
+  .dockp { margin-top: auto; display: flex; justify-content: space-around; padding: 10px; border-radius: 28px; background: rgba(255,255,255,.5); }
+  .dockp .app span.i { width: 54px; height: 54px; border-radius: 18px; }
+  .side { position: absolute; left: 7%; top: 50%; translate: 0 -50%; max-width: 420px; text-shadow: 0 2px 16px rgba(0,0,0,.5); }
+  .side h2 { margin: 0 0 10px; font: 700 54px/1 var(--hand); } .side p { margin: 0; font-size: 16px; opacity: .85; }
+
+  @media (max-width: 760px) {
+    .bg { background-image: url(../ui2/room-m.png); }
+    .tag .plate { font-size: 12px; padding: 6px 10px 6px 6px; } .tag .plate .ic { width: 22px; height: 22px; } .tag .plate small { display: none; }
+    .peek { right: 14px; width: 112px; height: 200px; } .pen { left: 14px; bottom: 18px; font-size: 19px; } .who { left: 14px; top: 14px; }
+    .phone { left: 50%; right: auto; translate: -50% -50%; width: calc(100% - 28px); height: calc(100% - 28px); rotate: 0deg; border-radius: 46px; } .side { display: none; } .scr2 { border-radius: 36px; }
+  }
+</style>
+</head>
+<body>
+<section class="screen" id="room">
+  <div class="bg"></div>
+  <div class="who"><span class="face v">В</span><span class="face s on-dot">С</span><span>Соня дома</span></div>
+  <div class="tags">
+    <div class="tag soft" style="left:12%;top:31%"><div class="plate"><span class="ic" data-d="cloud" data-c="#9cc4e8"></span><span>у Сони <b>+9°</b> и дождь</span></div><i class="str"></i><i class="pin"></i></div>
+    <div class="tag hot" style="left:29.5%;top:66.5%"><div class="plate"><span class="ic" data-d="love" data-c="#ffd1de"></span><span><b>Письмо от Сони</b><small>2 мин</small></span></div><i class="str"></i><i class="pin"></i></div>
+    <div class="tag" style="left:48%;top:43%"><div class="plate"><span class="ic" data-d="cats" data-c="#f08b46"></span><span><b>Ваш ход</b> в Котобое</span></div><i class="str"></i><i class="pin"></i></div>
+    <div class="tag soft" style="left:60.5%;top:18%"><div class="plate"><span class="ic" data-d="book" data-c="#a58bd1"></span><span>Альбомы <small>Соня добавила 4 фото</small></span></div><i class="str"></i><i class="pin"></i></div>
+    <div class="tag" style="left:62.5%;top:56%"><div class="plate"><span class="ic" data-d="quiz" data-c="#e9a92f"></span><span><b>Вопрос дня</b> · серия 12</span></div><i class="str"></i><i class="pin"></i></div>
+  </div>
+  <button class="pen"><span class="ic" data-d="draw" data-c="#ef7f9b"></span>написать записку</button>
+  <button class="peek"><span class="badge">3</span><div class="scr"><b>22:43</b><div class="n">✉ Соня: письмо</div><div class="n">🐱 твой ход</div></div></button>
+</section>
+
+<section class="screen" id="phone">
+  <div class="bg"></div>
+  <div class="side"><h2>всё остальное — в телефоне</h2><p>Как NookPhone: комната остаётся чистой, а приложения, сердечки и настройки лежат в кармане.</p></div>
+  <div class="phone"><div class="scr2">
+    <div class="status"><span>22:43</span><span><i class="ph-bold ph-heart"></i>1 240</span></div>
+    <div class="wid partner"><span class="face s on-dot">С</span><div><b>Соня дома</b><small>у неё 22:43 · дождь, +9°</small></div><button>Позвать</button></div>
+    <div class="duo">
+      <div class="wid"><span class="k">Вопрос дня</span><b>Какое свидание повторим?</b><span class="fire"><i class="ph-fill ph-fire"></i>12 дней</span></div>
+      <div class="wid"><span class="k">Ваш ход</span><b>Котобой</b><small style="color:#9a7f8f;font-size:12px">2 часа назад</small><span class="ic" data-d="cats" data-c="#f08b46"></span></div>
+    </div>
+    <div class="apps">
+      <button class="app"><span class="i" style="background:#ffd9e4" data-d="love" data-c="#ef7f9b"><span class="b">1</span></span>Письма</button>
+      <button class="app"><span class="i" style="background:#d9ecff" data-d="games" data-c="#3fa39a"></span>Игры</button>
+      <button class="app"><span class="i" style="background:#fff0c9" data-d="quiz" data-c="#e9a92f"></span>Тесты</button>
+      <button class="app"><span class="i" style="background:#ffdcd3" data-d="tube" data-c="#e0614f"></span>Кино</button>
+      <button class="app"><span class="i" style="background:#ece3ff" data-d="book" data-c="#a58bd1"></span>Альбомы</button>
+      <button class="app"><span class="i" style="background:#dff3e3" data-d="plans" data-c="#7fae6a"></span>Планы</button>
+      <button class="app"><span class="i" style="background:#ffe6d1" data-d="shop" data-c="#f08b46"></span>Магазин</button>
+      <button class="app"><span class="i" style="background:#e4ecff" data-d="gallery" data-c="#6fa8d6"></span>Галерея</button>
+    </div>
+    <div class="dockp"><button class="app"><span class="i" style="background:#fff" data-d="draw" data-c="#ef7f9b"></span></button><button class="app"><span class="i" style="background:#fff" data-d="sofa" data-c="#7fae6a"></span></button><button class="app"><span class="i" style="background:#fff" data-d="profile" data-c="#4b6fb5"></span></button><button class="app"><span class="i" style="background:#fff" data-d="note" data-c="#6fa8d6"></span></button></div>
+  </div></div>
+</section>
+<script type="module">
+  import { doodle } from '/doodles.js';
+  document.querySelectorAll('[data-d]').forEach((e) => { const kids = [...e.children]; e.innerHTML = doodle(e.dataset.d, { style: 'sticker', accent: e.dataset.c || '#ef7f9b' }); e.append(...kids); });
+  const show = () => { const id = (location.hash || '#room').slice(1); document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('on', s.id === id)); };
+  addEventListener('hashchange', show); show();
+</script>
+</body>
+</html>

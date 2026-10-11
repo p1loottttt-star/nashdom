@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2. Сегодня</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<style>
+  /* 2. Сегодня — как приложения для пар (Paired): главный экран — три дела дня и серия, а не список функций.
+     Ноутбук: комната слева, панель «Сегодня» справа. Телефон: комната сверху, лист снизу. Вкладки: Сегодня · Вместе · ＋ · Память · Мы. */
+  :root { --cream: #fbf6ef; --card: #ffffff; --ink: #2b1f2a; --ink2: #85727f; --line: #efe5da; --pink: #f2557f; --f: 'Onest', system-ui, sans-serif; --hand: 'Caveat', cursive; }
+  * { box-sizing: border-box; } html, body { margin: 0; height: 100%; } body { font: 500 15px/1.4 var(--f); color: var(--ink); background: #17101a; overflow: hidden; -webkit-font-smoothing: antialiased; }
+  button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; padding: 0; }
+  .screen { position: fixed; inset: 0; display: none; } .screen.on { display: block; }
+  .roomv { position: absolute; left: 0; top: 0; bottom: 0; right: 440px; background: url(../ui2/room.png) 42% center / cover; }
+  .pair { position: absolute; left: 24px; top: 22px; display: flex; align-items: center; gap: 12px; color: #fff; text-shadow: 0 1px 10px rgba(0,0,0,.4); }
+  .faces { display: flex; } .face { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: #fff; border: 2.5px solid #fff; position: relative; text-shadow: none; }
+  .face + .face { margin-left: -12px; } .v { background: linear-gradient(135deg, #7aa7ff, #5b6fe8); } .s { background: linear-gradient(135deg, #ff9ec0, #f06292); }
+  .on-dot::after { content: ''; position: absolute; right: -2px; bottom: 0; width: 12px; height: 12px; border-radius: 50%; background: #4ade80; border: 2px solid #fff; }
+  .pair b { display: block; font-size: 17px; font-weight: 700; } .pair small { font-size: 13px; opacity: .9; }
+  .roomhint { position: absolute; left: 24px; bottom: 22px; display: flex; gap: 8px; }
+  .chip { display: flex; align-items: center; gap: 7px; padding: 9px 14px; border-radius: 999px; background: rgba(255,255,255,.92); font-weight: 600; font-size: 14px; box-shadow: 0 6px 16px -6px rgba(0,0,0,.4); }
+  .chip i { font-size: 17px; color: var(--pink); }
+
+  .panel { position: absolute; right: 0; top: 0; bottom: 0; width: 440px; display: flex; flex-direction: column; background: var(--cream); box-shadow: -20px 0 50px -20px rgba(0,0,0,.5); }
+  .ph { flex: 1; overflow: auto; padding: 26px 24px 16px; }
+  .ph header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
+  .ph h1 { margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -.03em; } .ph header span { color: var(--ink2); font-size: 14px; }
+  .streak { display: flex; align-items: center; gap: 12px; margin: 14px 0 18px; padding: 12px 14px; border-radius: 18px; background: #fff1e6; }
+  .streak i { font-size: 28px; color: #ff8a3d; } .streak b { font-size: 16px; } .streak small { display: block; color: var(--ink2); font-size: 13px; }
+  .week { display: flex; gap: 5px; margin-left: auto; } .week span { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 10px; font-weight: 700; color: #fff; background: #ffb27a; } .week span.no { background: #f1e2d4; color: var(--ink2); }
+  .task { position: relative; display: flex; gap: 14px; padding: 16px; margin-bottom: 12px; border-radius: 22px; background: var(--card); box-shadow: 0 1px 0 var(--line), 0 10px 24px -18px rgba(70,30,50,.45); }
+  .task .art { flex: none; width: 64px; height: 64px; border-radius: 18px; padding: 6px; }
+  .task .k { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--ink2); } .task h3 { margin: 3px 0 4px; font-size: 18px; font-weight: 700; letter-spacing: -.01em; line-height: 1.2; }
+  .task p { margin: 0; color: var(--ink2); font-size: 14px; } .task .q { font: 700 22px/1.15 var(--hand); color: var(--ink); margin: 2px 0 8px; }
+  .task .acts { display: flex; gap: 8px; margin-top: 10px; } .btn { padding: 10px 16px; border-radius: 14px; font-weight: 700; font-size: 14px; background: var(--ink); color: #fff; } .btn.soft { background: #f4ebe2; color: var(--ink); }
+  .task .done { position: absolute; right: 14px; top: 14px; display: flex; } .task .done .face { width: 26px; height: 26px; font-size: 11px; border-width: 2px; }
+  .task.dim { opacity: .55; }
+  .sub { display: flex; justify-content: space-between; align-items: baseline; margin: 22px 0 10px; } .sub b { font-size: 17px; } .sub a { color: var(--pink); font-weight: 600; font-size: 14px; }
+  .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .mini { display: grid; justify-items: start; gap: 6px; padding: 12px; border-radius: 18px; } .mini .art { width: 46px; height: 46px; } .mini b { font-size: 14px; } .mini small { color: rgba(43,31,42,.65); font-size: 12px; }
+  .tabs { display: flex; align-items: center; justify-content: space-around; padding: 8px 10px 12px; border-top: 1px solid var(--line); background: #fffdf9; }
+  .tabs button { display: grid; justify-items: center; gap: 3px; width: 64px; font-size: 11.5px; font-weight: 600; color: var(--ink2); } .tabs button i { font-size: 24px; } .tabs .on { color: var(--ink); } .tabs .on i { color: var(--pink); }
+  .tabs .plus { width: 58px; height: 58px; margin-top: -26px; border-radius: 20px; background: var(--pink); color: #fff; font-size: 28px; display: grid; place-items: center; box-shadow: 0 10px 20px -8px rgba(242,85,127,.8); }
+
+  /* Память: полка альбомов + свежие фото и письма */
+  .shelf { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .book { aspect-ratio: .78; border-radius: 6px 12px 12px 6px; padding: 12px 10px; display: flex; flex-direction: column; justify-content: flex-end; color: #fff; font-weight: 700; font-size: 14px; line-height: 1.15; box-shadow: inset 6px 0 0 rgba(0,0,0,.12), 0 10px 18px -10px rgba(0,0,0,.5); background-size: cover; background-position: center; position: relative; overflow: hidden; }
+  .book::before { content: ''; position: absolute; inset: 0; background: linear-gradient(transparent 40%, rgba(0,0,0,.55)); } .book span { position: relative; } .book small { position: relative; font-weight: 500; opacity: .85; font-size: 12px; }
+  .book.new { background: #f4ebe2; color: var(--ink2); align-items: center; justify-content: center; box-shadow: none; border: 2px dashed #e2d3c4; } .book.new::before { display: none; } .book.new i { font-size: 26px; }
+  .strip { display: flex; gap: 8px; } .strip i { flex: 1; aspect-ratio: 1; border-radius: 12px; background: center / cover; }
+  .letter { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 18px; background: #fff; margin-bottom: 8px; } .letter .face { width: 36px; height: 36px; font-size: 13px; border-width: 2px; }
+  .letter b { font-size: 14px; } .letter p { margin: 0; color: var(--ink2); font-size: 13px; } .letter time { margin-left: auto; color: var(--ink2); font-size: 12px; white-space: nowrap; }
+
+  @media (max-width: 760px) {
+    .roomv { right: 0; bottom: auto; height: 46%; background-image: url(../ui2/room-m.png); background-position: center 55%; }
+    .pair { left: 14px; top: 14px; } .roomhint { display: none; }
+    .panel { left: 0; width: auto; top: 40%; border-radius: 28px 28px 0 0; box-shadow: 0 -10px 30px -10px rgba(0,0,0,.45); }
+    .panel::before { content: ''; position: absolute; left: 50%; top: 8px; translate: -50% 0; width: 40px; height: 5px; border-radius: 3px; background: #e2d3c4; }
+    .ph { padding: 22px 16px 10px; } .ph h1 { font-size: 26px; } .streak { margin: 10px 0 12px; } .week { display: none; }
+  }
+</style>
+</head>
+<body>
+<section class="screen" id="room">
+  <div class="roomv"></div>
+  <div class="pair"><div class="faces"><span class="face v">В</span><span class="face s on-dot">С</span></div><div><b>744 дня вместе</b><small>Соня дома · у неё дождь</small></div></div>
+  <div class="roomhint"><span class="chip"><i class="ph-bold ph-hand-pointing"></i>Нажми на вещь в комнате</span><span class="chip"><i class="ph-bold ph-armchair"></i>Расставить</span></div>
+  <aside class="panel">
+    <div class="ph">
+      <header><h1>Сегодня</h1><span>вс, 11 октября</span></header>
+      <div class="streak"><i class="ph-fill ph-fire"></i><div><b>12 дней подряд</b><small>Сделайте одно дело вдвоём — серия продолжится</small></div><div class="week"><span>пн</span><span>вт</span><span>ср</span><span>чт</span><span>пт</span><span>сб</span><span class="no">вс</span></div></div>
+      <article class="task"><span class="art" data-d="quiz" data-c="#e9a92f" style="background:#fff3d6"></span><div><span class="k">Вопрос дня</span><div class="q">Какое наше свидание ты бы повторил завтра?</div><div class="acts"><button class="btn">Ответить</button><button class="btn soft">Ответ Сони скрыт</button></div></div><span class="done"><span class="face s" title="Соня ответила">С</span></span></article>
+      <article class="task"><span class="art" data-d="cats" data-c="#f08b46" style="background:#ffe9d9"></span><div><span class="k">Ваш ход</span><h3>Котобой</h3><p>Соня спрятала котов 2 часа назад</p><div class="acts"><button class="btn">Ходить</button></div></div></article>
+      <article class="task"><span class="art" data-d="love" data-c="#ef7f9b" style="background:#ffe4ec"></span><div><span class="k">Новое письмо</span><h3>«Смотри, что я нашла про Прагу…»</h3><p>от Сони · 2 мин назад</p></div></article>
+      <div class="sub"><b>Вместе</b><a>все 14 →</a></div>
+      <div class="row">
+        <button class="mini" style="background:#ffe1d6"><span class="art" data-d="draw" data-c="#e0614f"></span><b>Рисуй</b><small>Соня онлайн</small></button>
+        <button class="mini" style="background:#dceefa"><span class="art" data-d="tube" data-c="#e0614f"></span><b>Кино</b><small>смотреть вдвоём</small></button>
+        <button class="mini" style="background:#e9f4df"><span class="art" data-d="quiz" data-c="#7fae6a"></span><b>Тесты</b><small>3 новых</small></button>
+      </div>
+    </div>
+    <nav class="tabs"><button class="on"><i class="ph-fill ph-sun-horizon"></i>Сегодня</button><button><i class="ph-bold ph-users-three"></i>Вместе</button><button class="plus"><i class="ph-bold ph-pencil-simple-line"></i></button><button><i class="ph-bold ph-images-square"></i>Память</button><button><i class="ph-bold ph-heart"></i>Мы</button></nav>
+  </aside>
+</section>
+
+<section class="screen" id="memory">
+  <div class="roomv"></div>
+  <div class="pair"><div class="faces"><span class="face v">В</span><span class="face s on-dot">С</span></div><div><b>744 дня вместе</b><small>Соня дома · у неё дождь</small></div></div>
+  <aside class="panel">
+    <div class="ph">
+      <header><h1>Память</h1><span>6 альбомов · 214 фото</span></header>
+      <div class="sub"><b>Альбомы</b><a>полка в комнате →</a></div>
+      <div class="shelf">
+        <button class="book" style="background-image:url(/quiz/cc-lisbon.webp)"><span>Первая поездка</span><small>6 страниц</small></button>
+        <button class="book" style="background-image:url(/quiz/cd-tiramisu.webp)"><span>Наши ужины</span><small>12 страниц</small></button>
+        <button class="book" style="background-image:url(/quiz/cg-corgi.webp)"><span>Мечта о собаке</span><small>3 страницы</small></button>
+        <button class="book" style="background-image:url(/quiz/cc-paris.webp)"><span>Париж 2025</span><small>8 страниц</small></button>
+        <button class="book" style="background-image:url(/quiz/cc-tokyo.webp)"><span>Планы на Японию</span><small>2 страницы</small></button>
+        <button class="book new"><i class="ph-bold ph-plus"></i>новый альбом</button>
+      </div>
+      <div class="sub"><b>Свежие фото</b><a>галерея →</a></div>
+      <div class="strip"><i style="background-image:url(/quiz/cc-prague.webp)"></i><i style="background-image:url(/quiz/cc-vienna.webp)"></i><i style="background-image:url(/quiz/cc-rome.webp)"></i><i style="background-image:url(/quiz/cc-venice.webp)"></i></div>
+      <div class="sub"><b>Письма</b><a>все 38 →</a></div>
+      <div class="letter"><span class="face s">С</span><div><b>Смотри, что я нашла про Прагу</b><p>Помнишь тот мост с замками…</p></div><time>2 мин</time></div>
+      <div class="letter"><span class="face v">В</span><div><b>Доброе утро, соня</b><p>Кофе уже на столе ☕</p></div><time>вчера</time></div>
+    </div>
+    <nav class="tabs"><button><i class="ph-bold ph-sun-horizon"></i>Сегодня</button><button><i class="ph-bold ph-users-three"></i>Вместе</button><button class="plus"><i class="ph-bold ph-pencil-simple-line"></i></button><button class="on"><i class="ph-fill ph-images-square"></i>Память</button><button><i class="ph-bold ph-heart"></i>Мы</button></nav>
+  </aside>
+</section>
+<script type="module">
+  import { doodle } from '/doodles.js';
+  document.querySelectorAll('[data-d]').forEach((e) => { e.innerHTML = doodle(e.dataset.d, { style: 'sticker', accent: e.dataset.c || '#ef7f9b' }); });
+  const show = () => { const id = (location.hash || '#room').slice(1); document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('on', s.id === id)); };
+  addEventListener('hashchange', show); show();
+</script>
+</body>
+</html>

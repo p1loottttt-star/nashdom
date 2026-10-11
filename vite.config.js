@@ -18,5 +18,5 @@ export default defineConfig({
   css: { postcss: {} },
   optimizeDeps: { exclude: ['@ffmpeg/ffmpeg'] }, // у ffmpeg.wasm свой воркер (new URL) — пребандлинг его ломает // не искать postcss-конфиг в родительской папке LeadGen
   define: { __ART__: JSON.stringify(ART), __EMOJI__: JSON.stringify(EMOJI), __VERSION__: JSON.stringify(`${sha} · ${new Date().toISOString().slice(0, 10)}`) },
-  build: { target: 'es2022', chunkSizeWarningLimit: 800, rollupOptions: { input: { main: 'index.html', lab: 'lab/index.html', uia: 'lab/ui2/a.html', uib: 'lab/ui2/b.html', uic: 'lab/ui2/c.html' } } },
+  build: { target: 'es2022', chunkSizeWarningLimit: 800, rollupOptions: { input: { main: 'index.html', lab: 'lab/index.html', uia: 'lab/ui2/a.html', uib: 'lab/ui2/b.html', uic: 'lab/ui2/c.html', glass: 'lab/ui3/glass.html', today: 'lab/ui3/today.html', world: 'lab/ui3/world.html' } } },
 });
