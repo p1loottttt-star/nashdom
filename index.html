@@ -239,8 +239,8 @@
   .page + .page { border-radius: 8px 2px 2px 8px; background: #fffaf3 linear-gradient(270deg, rgba(0,0,0,.06), transparent 8%); }
   .page.cover { background: var(--album) linear-gradient(135deg, rgba(255,255,255,.18), rgba(0,0,0,.12)); display: grid; place-items: center; align-content: center; gap: 6cqw; }
   .editing .page.active { outline: 3px dashed var(--album); outline-offset: -6px; }
-  .editing .page { width: min(44vw, calc((100vh - 300px) * .75)); }
-  #album.editing:has(.ab-sel:not([hidden])) .page { width: min(44vw, calc((100vh - 345px) * .75)); }
+  .editing .page { width: min(44vw, calc((100vh - 355px) * .75)); }
+  #album.editing:has(.ab-sel:not([hidden])) .page { width: min(44vw, calc((100vh - 400px) * .75)); }
   .cover-photo { width: 64cqw; aspect-ratio: 4 / 3; background: #fff; padding: 3cqw; box-shadow: 0 8px 20px rgba(0,0,0,.25); transform: rotate(-2deg); display: grid; place-items: center; font: 700 6cqw Caveat, cursive; color: #b9a7a0; text-align: center; }
   .cover-photo img { width: 100%; height: 100%; object-fit: cover; }
   .cover-title { font: 700 11cqw/1 Caveat, cursive; text-align: center; padding: 0 6cqw; }
@@ -336,6 +336,15 @@
   #album .ab-sel .tbtn, #album .atab .ab-font { border: 1px solid var(--line); background: #fff; border-radius: 9px; padding: 5px 9px; font-weight: 700; font-size: 14px; cursor: pointer; }
   #album .atab .ab-font { font-size: 19px; font-weight: 400; touch-action: none; }
   #album .atabs .grow { flex: 1; } #album .atabs [data-u] { font: 700 18px Nunito, sans-serif; padding: 0 10px; }
+  /* лента страниц и плашка присутствия (этап 3) */
+  #album .ab-strip { display: flex; gap: 7px; max-width: min(1100px, 100%); overflow-x: auto; padding: 4px 6px 6px; scrollbar-width: thin; touch-action: pan-x; }
+  #album .ab-strip[hidden] { display: none; }
+  #album .ab-th { flex: none; position: relative; width: 34px; height: 45px; padding: 0; border: 0; border-radius: 3px; background: var(--pg); box-shadow: 0 2px 5px rgba(0,0,0,.35); cursor: pointer; overflow: hidden; touch-action: pan-x; }
+  #album .ab-th i { position: absolute; background: #cdbfb3 center / cover; }
+  #album .ab-th b { position: absolute; right: 2px; bottom: 0; font: 700 9px Nunito, sans-serif; color: #fff; text-shadow: 0 0 2px #000; }
+  #album .ab-th.on { outline: 2px solid #ef6f8c; outline-offset: 1px; }
+  #album .ab-th.ab-lift { opacity: .45; } #album .ab-th.ab-drop { box-shadow: -4px 0 0 #ef6f8c, 0 2px 5px rgba(0,0,0,.35); }
+  .ab-here { position: absolute; z-index: 9; top: 1.5cqw; left: 50%; translate: -50% 0; padding: .6cqw 2.4cqw; border-radius: 999px; background: #ffd36b; color: #3b2a35; font: 700 3.6cqw Caveat, cursive; white-space: nowrap; box-shadow: 0 .4cqw 1cqw rgba(0,0,0,.25); pointer-events: none; }
   /* панель правки: вкладки */
   .album-tools { flex-direction: column; flex-wrap: nowrap !important; align-items: stretch; gap: 6px; min-width: 0; }
   #album .atabs, #album .atab, #album .ab-sel { min-width: 0; max-width: 100%; }
@@ -369,7 +378,7 @@
   .ab-leaf .ab-face { position: absolute; inset: 0; width: 100% !important; height: 100%; backface-visibility: hidden; }
   .ab-leaf .ab-face.ab-back { transform: rotateY(180deg); }
   .page.ab-blank { background: transparent !important; box-shadow: none; }
-  @media (max-width: 760px) { #album .album-tools { order: 3; } #album .album-nav { order: 2; } #album.editing .page { width: min(92vw, calc((100vh - 330px) * .75)); } #album.editing:has(.ab-sel:not([hidden])) .page { width: min(92vw, calc((100vh - 400px) * .75)); } #album .ab-thc { width: 96px; height: 54px; } #album .atabs { gap: 2px; overflow-x: auto; } #album .atabs > * { flex: none; } #album .atabs button { font-size: 17px; padding: 2px 6px; } #album .atabs [data-u] { padding: 0 6px; } }
+  @media (max-width: 760px) { #album .album-tools { order: 3; } #album .album-nav, #album .ab-strip { order: 2; } #album.editing .page { width: min(92vw, calc((100vh - 385px) * .75)); } #album.editing:has(.ab-sel:not([hidden])) .page { width: min(92vw, calc((100vh - 455px) * .75)); } #album .ab-thc { width: 96px; height: 54px; } #album .atabs { gap: 2px; overflow-x: auto; } #album .atabs > * { flex: none; } #album .atabs button { font-size: 17px; padding: 2px 6px; } #album .atabs [data-u] { padding: 0 6px; } }
 
 
   /* ---- пароль, фото на стене, листание стопки ---- */
@@ -1254,6 +1263,7 @@
     <div class="atab"></div>
   </div>
   <div class="spread"></div>
+  <div class="ab-strip" hidden></div>
   <div class="album-nav"><button data-a="prev">‹</button><span class="album-pos"></span><button data-a="next">›</button></div>
 </div>
 

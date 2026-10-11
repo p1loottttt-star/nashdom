@@ -11,7 +11,7 @@ import { pop } from './sound.js';
 import * as store from './store.js';
 import { LAYOUTS, THEMES, theme, accentOf } from './albumthemes.js';
 import { doodle } from './doodles.js';
-import { layoutById, blankPage, applyLayout, shuffle, putPhoto, migrate } from './albumlogic.js';
+import { layoutById, blankPage, applyLayout, shuffle, putPhoto, migrate, autofill, exifTime, orientOf } from './albumlogic.js';
 
 export const PALETTE = ['#e7849b', '#7fb3c8', '#8fb07a', '#e9b35f', '#a99ad6', '#f0a37a', '#6f7fb8', '#c8645f', '#5f9e8f', '#3b2a35'];
 const blank = (title, color, order) => ({ id: store.uid(), title, color, order, cover: null, theme: 'kraft' });
@@ -39,7 +39,7 @@ const h = (tag, props = {}, ...kids) => { const e = Object.assign(document.creat
 const el = document.getElementById('album');
 const $ = (sel) => el.querySelector(sel);
 let A = null, P = new Map(), spread = 0, editing = false, active = 1, tab = 'photos', onChange = null, onClose = null;
-let busy = null; // идёт перетаскивание/кадрирование/ввод — чужие правки этой страницы подождут
+let busy = null, galOpen = false; // идёт перетаскивание/кадрирование/ввод — чужие правки этой страницы подождут
 
 const TH = () => theme(A.theme);
 const view = () => [{ cover: true }, ...A.pageIds.map((id) => P.get(id)).filter(Boolean)];
@@ -53,7 +53,18 @@ const saveAlbum = () => later('album', () => { store.put('albums', A.id, A).catc
 const savePage = (pg) => { pg.by = store.me()?.id || ''; pg.at = Date.now(); later(pg.id, () => store.put('albumpage', pg.id, pg).catch(() => {})); };
 function flush() { for (const [k, t] of timers) { clearTimeout(t); if (k === 'album') store.put('albums', A.id, A).catch(() => {}); else if (P.get(k)) store.put('albumpage', k, P.get(k)).catch(() => {}); } timers.clear(); }
 const setPage = (pg) => { track(pg); P.set(pg.id, pg); savePage(pg); };
+// данные фото (дата, ориентация) — по короткому ключу: в локальном режиме ссылка на фото — сама картинка (data:), длиной в сотни КБ
+const mk = (ref) => { if (ref.length < 100) return ref; let x = 2166136261; for (let i = 0; i < ref.length; i += 7) x = Math.imul(x ^ ref.charCodeAt(i), 16777619); return 'h' + (x >>> 0).toString(36) + ref.length.toString(36); };
+const meta = (ref) => ((A.meta ||= {})[mk(ref)] ||= {});
 const remember = (photo) => { if (photo && !A.photos.includes(photo)) { A.photos.push(photo); saveAlbum(); } };
+// загрузка с устройства: дата съёмки из EXIF (до сжатия — потом её нет) и ориентация — для автозаполнения
+async function upload(f) {
+  const t = exifTime(await f.slice(0, 256 * 1024).arrayBuffer()) || f.lastModified || Date.now(), info = {};
+  const ref = await store.uploadPhoto(f, 1800, info);
+  Object.assign(meta(ref), { t, o: orientOf(info.w, info.h) });
+  remember(ref); saveAlbum();
+  return ref;
+}
 
 function render() {
   const t = TH();
@@ -71,13 +82,58 @@ function render() {
   $('.album-pos').textContent = `${spread + 1} / ${total}`;
   $('[data-a=prev]').disabled = spread === 0;
   $('[data-a=next]').disabled = spread >= total - 1;
-  renderSel();
+  renderSel(); renderStrip(); tellHere();
 }
+
+// ---------- лента миниатюр страниц: нажать — перейти, потянуть — переставить (на телефоне — подержать и потянуть) ----------
+function renderStrip() {
+  const strip = $('.ab-strip');
+  strip.hidden = !editing;
+  if (!editing) return;
+  strip.replaceChildren(...A.pageIds.map((id, i) => {
+    const pg = P.get(id), L = layoutById(pg?.layout), b = h('button', { type: 'button', className: 'ab-th th-' + A.theme + (active === i + 1 ? ' on' : ''), title: 'страница ' + (i + 1) });
+    b.dataset.i = i;
+    L?.slots.forEach((sl) => { const c = pg.slots[sl.id], k = h('i'); Object.assign(k.style, { left: sl.x + '%', top: sl.y + '%', width: sl.w + '%', height: sl.h + '%' }); if (c?.photo) k.style.backgroundImage = `url("${photoURL(c.photo)}")`; b.append(k); });
+    b.append(h('b', { textContent: i + 1 }));
+    b.onpointerdown = (e) => reorder(e, b, i);
+    return b;
+  }));
+  strip.querySelector('.on')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+}
+function reorder(e, b, i) {
+  const sx = e.clientX, sy = e.clientY, touch = e.pointerType === 'touch';
+  let on = false, to = i, hold = touch ? setTimeout(() => { on = true; b.classList.add('ab-lift'); }, 350) : 0;
+  const move = (m) => {
+    if (!on) { if (Math.hypot(m.clientX - sx, m.clientY - sy) > 8) { if (touch) return end(m, true); on = true; b.classList.add('ab-lift'); } else return; }
+    m.preventDefault();
+    const t = document.elementFromPoint(m.clientX, m.clientY)?.closest('.ab-th');
+    $('.ab-strip').querySelectorAll('.ab-drop').forEach((x) => x.classList.remove('ab-drop'));
+    if (t) { to = +t.dataset.i; t.classList.add('ab-drop'); }
+  };
+  const end = (m, cancel) => {
+    clearTimeout(hold); removeEventListener('pointermove', move); removeEventListener('pointerup', end); removeEventListener('pointercancel', end);
+    b.classList.remove('ab-lift');
+    if (cancel || m.type === 'pointercancel') return;
+    if (!on) { active = i + 1; spread = Math.floor(active / perView()); return render(); }
+    if (to === i) return render();
+    const ids = [...A.pageIds], [id] = ids.splice(i, 1); ids.splice(to, 0, id);
+    A.pageIds = ids; saveAlbum(); active = to + 1; spread = Math.floor(active / perView()); render();
+  };
+  addEventListener('pointermove', move, { passive: false }); addEventListener('pointerup', end); addEventListener('pointercancel', end);
+}
+
+// ---------- кто где: я сообщаю свою страницу, на странице партнёра — плашка ----------
+let told = '';
+function tellHere() {
+  const st = el.hidden ? {} : { app: 'album', ab: A.id, ...(editing && activePage() ? { pg: activePage().id } : {}) }, k = JSON.stringify(st);
+  if (k !== told) { told = k; store.live.track(st); }
+}
+const partnerPage = () => { const p = store.partner(), st = p && store.live.presence()[p.id]; return st?.app === 'album' && st.ab === A.id ? st.pg : null; };
 
 function pageEl(pg, vi) {
   const page = h('div', { className: 'page' + (pg.cover ? ' cover' : '') + (editing && vi === active ? ' active' : '') });
   page.dataset.vi = vi;
-  page.onpointerdown = (e) => { if (editing && active !== vi) { active = vi; el.querySelectorAll('.page').forEach((p) => p.classList.toggle('active', p === page)); if (tab === 'layouts') renderTools(); } if (e.target === page) select(null); };
+  page.onpointerdown = (e) => { if (editing && active !== vi) { active = vi; el.querySelectorAll('.page').forEach((p) => p.classList.toggle('active', p === page)); if (tab === 'layouts') renderTools(); renderStrip(); tellHere(); } if (e.target === page) select(null); };
   if (pg.cover) {
     page.style.color = lightText(A.color) ? '#fff' : '#3b2a35';
     const frame = h('div', { className: 'cover-photo' });
@@ -87,6 +143,7 @@ function pageEl(pg, vi) {
     return page;
   }
   page.dataset.page = pg.id;
+  if (editing && partnerPage() === pg.id) page.append(h('div', { className: 'ab-here', textContent: `${store.partner()?.name || 'партнёр'} сейчас на этой странице` }));
   const L = layoutById(pg.layout);
   L?.slots.forEach((s) => page.append(slotEl(pg, s)));
   if (L?.cap) page.append(capEl(pg, L.cap));
@@ -120,7 +177,7 @@ function pickFor(pg, slot) {
   const inp = h('input', { type: 'file', accept: 'image/*' });
   inp.onchange = async () => {
     const f = inp.files[0]; if (!f) return;
-    const ref = await store.uploadPhoto(f); remember(ref);
+    const ref = await upload(f);
     const cur = P.get(pg.id); setPage({ ...cur, slots: { ...cur.slots, [slot]: { photo: ref } } }); render();
   };
   inp.click();
@@ -358,12 +415,22 @@ function renderTools() {
   if (tab === 'photos') {
     const used = new Set([...P.values()].flatMap((pg) => [...Object.values(pg.slots).map((c) => c?.photo), ...pg.items.map((it) => it.photo)]));
     const up = h('label', { className: 'tbtn', textContent: '＋ фото' }, h('input', { type: 'file', accept: 'image/*', multiple: true, onchange: (e) => { addPhotos([...e.target.files]); e.target.value = ''; } }));
+    const unused = A.photos.filter((r) => !used.has(r));
+    const fromGal = h('button', { type: 'button', className: 'tbtn' + (galOpen ? ' on' : ''), textContent: galOpen ? '← фото альбома' : '🖼 из галереи', onclick: () => { galOpen = !galOpen; renderTools(); } });
+    const auto = h('button', { type: 'button', className: 'tbtn', textContent: `✨ разложить по страницам${unused.length ? ` (${unused.length})` : ''}`, disabled: !unused.length, title: 'неразложенные фото — по новым страницам по дате съёмки', onclick: () => autoLay(unused) });
+    if (galOpen) { // фото из галереи ноутбука: нажал — фото в лотке альбома (и в пустой рамке)
+      const gal = store.all('photos').filter((p) => p.url && !A.photos.includes(p.url)).sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+      const thumbs = gal.map((p) => h('button', { type: 'button', className: 'ab-tray', title: 'добавить в альбом', onclick: () => { meta(p.url).t = Date.parse(p.date) || Date.now(); remember(p.url); fillFirst(p.url, false); render(); } }, h('img', { src: photoURL(p.url), alt: '', draggable: false })));
+      return box.replaceChildren(fromGal, ...thumbs, h('span', { className: 'ab-note', textContent: gal.length ? 'нажми на фото — оно в альбоме' : 'в галерее нет новых фото' }));
+    }
     const thumbs = A.photos.map((ref) => {
-      const t = h('button', { type: 'button', className: 'ab-tray' + (used.has(ref) ? ' ab-used' : ''), title: 'перетащи в рамку или нажми — в свободную рамку' }, h('img', { src: photoURL(ref), alt: '', draggable: false }));
+      const img = h('img', { src: photoURL(ref), alt: '', draggable: false });
+      img.onload = () => { const m = meta(ref); if (!m.o) { m.o = orientOf(img.naturalWidth, img.naturalHeight); saveAlbum(); } }; // ориентация фото из галереи
+      const t = h('button', { type: 'button', className: 'ab-tray' + (used.has(ref) ? ' ab-used' : ''), title: 'перетащи в рамку или нажми — в свободную рамку' }, img);
       t.onpointerdown = (e) => dragPhoto(e, ref, null, () => fillFirst(ref));
       return t;
     });
-    box.replaceChildren(up, ...thumbs, h('span', { className: 'ab-note', textContent: A.photos.length ? 'перетащи фото в рамку · нажми на фото в рамке — подвинуть внутри' : 'загрузи фото — они встанут в пустые рамки страницы' }));
+    box.replaceChildren(up, fromGal, auto, ...thumbs, h('span', { className: 'ab-note', textContent: A.photos.length ? 'перетащи фото в рамку · нажми на фото в рамке — подвинуть внутри' : 'загрузи фото — они встанут в пустые рамки страницы' }));
   } else if (tab === 'layouts') {
     const pg = activePage();
     const lays = LAYOUTS.map((L) => {
@@ -389,7 +456,7 @@ function renderTools() {
     title.oninput = () => { A.title = title.value.slice(0, 40) || 'Без названия'; $('.album-name').textContent = A.title; el.querySelectorAll('.cover-title').forEach((n) => (n.textContent = A.title)); saveAlbum(); };
     const color = h('input', { type: 'color', name: 'color', value: A.color, ariaLabel: 'Цвет обложки' });
     color.oninput = () => { A.color = color.value; saveAlbum(); render(); };
-    const cover = h('label', { className: 'tbtn', textContent: '🖼 фото на обложку' }, h('input', { type: 'file', accept: 'image/*', onchange: async (e) => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; A.cover = await store.uploadPhoto(f); remember(A.cover); saveAlbum(); render(); } }));
+    const cover = h('label', { className: 'tbtn', textContent: '🖼 фото на обложку' }, h('input', { type: 'file', accept: 'image/*', onchange: async (e) => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; A.cover = await upload(f); render(); } }));
     box.replaceChildren(...themes, title, h('span', { className: 'swatches' }, ...PALETTE.map((c) => h('button', { type: 'button', className: 'sw', style: `background:${c}`, title: c, onclick: () => { A.color = c; saveAlbum(); render(); } }))), color, cover,
       h('button', { type: 'button', className: 'tbtn danger', textContent: 'удалить альбом', onclick: delAlbum }));
   }
@@ -397,7 +464,7 @@ function renderTools() {
 
 async function addPhotos(files) {
   for (const f of files) {
-    const ref = await store.uploadPhoto(f); remember(ref);
+    const ref = await upload(f);
     if (!fillFirst(ref, false)) continue;
   }
   render();
@@ -409,6 +476,15 @@ function fillFirst(ref, redraw = true) {
   setPage({ ...pg, slots: { ...pg.slots, [s.id]: { photo: ref } } });
   if (redraw) render();
   return true;
+}
+// автозаполнение: пустые страницы в конце убираем, неразложенные фото — по новым страницам по дате
+function autoLay(refs) {
+  const empty = (pg) => !Object.values(pg.slots).some((c) => c?.photo) && !pg.items.length && !pg.caption;
+  while (A.pageIds.length > 1 && empty(P.get(A.pageIds.at(-1)))) { const id = A.pageIds.pop(); P.delete(id); store.del('albumpage', id).catch(() => {}); }
+  const from = A.pageIds.length;
+  const pages = autofill(refs.map((ref) => ({ ref, t: meta(ref).t, o: meta(ref).o || 's' })), from);
+  for (const p of pages) { const pg = { id: store.uid(), album: A.id, items: [], ...p }; P.set(pg.id, pg); store.put('albumpage', pg.id, pg).catch(() => {}); A.pageIds.push(pg.id); }
+  saveAlbum(); active = from + 1; spread = Math.floor(active / perView()); render();
 }
 function addPage() {
   const pg = { id: store.uid(), ...blankPage(A.id, A.pageIds.length) };
@@ -482,13 +558,15 @@ addEventListener('resize', () => { if (!el.hidden && !busy) render(); });
 // правки партнёра: страница и альбом подтягиваются сразу, кроме страницы, которую я сейчас трогаю
 store.on('albumpage', (id, v) => {
   if (el.hidden || !A || (v && v.album !== A.id) || (!v && !P.has(id)) || busy === id) return;
-  if (v) { P.set(id, { id, ...v }); if (!A.pageIds.includes(id)) A.pageIds = [...A.pageIds, id]; } else P.delete(id);
-  if (!busy) render();
+  if (v) { P.set(id, { id, ...v }); if (!A.pageIds.includes(id)) A.pageIds = [...A.pageIds, id]; } else { P.delete(id); A.pageIds = A.pageIds.filter((x) => x !== id); }
+  if (!busy && !typing()) render();
 });
+const typing = () => { const a = document.activeElement; return !!a && el.contains(a) && (a.isContentEditable || a.tagName === 'INPUT'); }; // печатает — не перерисовываем
+store.live.onPresence(() => { if (!el.hidden && A && editing && !busy && !typing()) render(); });
 store.on('albums', (id, v) => {
   if (el.hidden || !A || id !== A.id || !v) return;
   A = { ...A, ...v, id, pageIds: [...new Set([...(v.pageIds || []), ...A.pageIds.filter((p) => P.has(p) && !(v.pageIds || []).includes(p))])] };
-  if (!busy) render();
+  if (!busy && !typing()) render();
 });
 
 export async function openAlbum(album, opts = {}) {
@@ -498,7 +576,9 @@ export async function openAlbum(album, opts = {}) {
   if (m.pages.length) { await Promise.all(m.pages.map((pg) => store.put('albumpage', pg.id, pg))); A = m.album; await store.put('albums', A.id, A); }
   A.photos ||= [];
   P = new Map();
-  for (const id of A.pageIds) { const pg = store.get('albumpage', id); P.set(id, pg ? { id, ...pg } : { id, ...blankPage(A.id, P.size) }); }
+  for (const id of A.pageIds) { const pg = store.get('albumpage', id); if (pg) P.set(id, { id, ...pg }); } // нет записи — страницу удалили
+  A.pageIds = A.pageIds.filter((id) => P.has(id));
+  if (!A.pageIds.length) { const pg = { id: store.uid(), ...blankPage(A.id) }; P.set(pg.id, pg); store.put('albumpage', pg.id, pg).catch(() => {}); A.pageIds = [pg.id]; }
   // страницы, добавленные партнёром одновременно со мной (в pageIds не попали), — в конец
   for (const pg of store.all('albumpage')) if (pg.album === A.id && !P.has(pg.id)) { P.set(pg.id, pg); A.pageIds.push(pg.id); }
   el.hidden = false; pop();
@@ -506,7 +586,7 @@ export async function openAlbum(album, opts = {}) {
   render();
 }
 function closeAlbum() {
-  flush();
+  flush(); told = ''; store.live.track({});
   onChange?.(A.deleted ? null : A);
   el.classList.remove('on');
   setTimeout(() => { el.hidden = true; onClose?.(); }, 350);

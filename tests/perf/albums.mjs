@@ -69,6 +69,22 @@ for (const t of ['travel', 'film', 'water']) { await tab(A, 'theme'); await A.cl
 await tab(A, 'theme'); await A.click('.ab-thc.th-kraft'); await A.waitForTimeout(300);
 console.log({ decor: { items0, guide, itemsU, itemsU2, itemsR } });
 
+// этап 3: автораскладка неразложенных фото, перестановка страниц лентой
+await tab(A, 'photos'); await A.setInputFiles('.atab input[type=file]', pics.slice(4, 6)); await A.waitForTimeout(1200);
+const before = await A.locator('.ab-th').count();
+await A.click('.atab .tbtn >> text=разложить'); await A.waitForTimeout(500);
+const after = await A.locator('.ab-th').count(); await shot(A, '6e-autofill');
+const th = await A.locator('.ab-th').nth(0).boundingBox(), th2 = await A.locator('.ab-th').nth(after - 1).boundingBox();
+const firstId = await A.evaluate(() => document.querySelector('.page[data-vi="1"]')?.dataset.page);
+await A.mouse.move(th.x + 10, th.y + 10); await A.mouse.down(); await A.mouse.move(th2.x + 10, th2.y + 10, { steps: 8 }); await A.mouse.up(); await A.waitForTimeout(300);
+await A.locator('.ab-th').nth(0).click(); await A.waitForTimeout(300);
+const firstId2 = await A.evaluate(() => document.querySelector('.page[data-vi="1"]')?.dataset.page);
+console.log({ strip: { before, after, moved: firstId !== firstId2 } });
+// вернуть первую страницу на место, чтобы проверки подписей ниже были те же
+const th3 = await A.locator('.ab-th').nth(after - 1).boundingBox(), th0 = await A.locator('.ab-th').nth(0).boundingBox();
+await A.mouse.move(th3.x + 10, th3.y + 10); await A.mouse.down(); await A.mouse.move(th0.x + 5, th0.y + 10, { steps: 8 }); await A.mouse.up(); await A.waitForTimeout(300);
+await A.locator('.ab-th').nth(0).click(); await A.waitForTimeout(300);
+
 // Соня в это же время правит третью страницу
 const B = await open('&as=b');
 await openFirst(B); await edit(B);
@@ -76,6 +92,9 @@ await B.click('#album [data-a=next]'); await B.waitForTimeout(300);
 const bcap = B.locator('.page[data-vi="2"] .ab-cap');
 if (await bcap.count()) { await bcap.click(); await B.keyboard.type('от Сони'); await B.keyboard.press('Enter'); }
 await B.waitForTimeout(800);
+await A.locator('.ab-th').nth(1).click(); await A.waitForTimeout(500);
+const here = await A.evaluate(() => document.querySelector('.ab-here')?.textContent || ''); await shot(A, '6f-here');
+console.log({ here }); await A.locator('.ab-th').nth(0).click(); await A.waitForTimeout(400);
 // Ваня тем временем меняет подпись первой страницы
 await A.click('.page[data-vi="1"] .ab-cap'); await A.keyboard.press('End'); await A.keyboard.type('!'); await A.keyboard.press('Enter'); await A.waitForTimeout(800);
 await A.click('#album [data-a=edit]'); await A.click('#album [data-a=close]'); await B.click('#album [data-a=close]'); await A.waitForTimeout(800);

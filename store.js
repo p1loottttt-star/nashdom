@@ -89,8 +89,9 @@ export const onFail = (cb) => sub('fail', cb);
 export const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
 // фото: уменьшаем в браузере (JPEG), потом в хранилище
-export async function uploadPhoto(file, max = 1800) {
+export async function uploadPhoto(file, max = 1800, info = null) {
   const bmp = await createImageBitmap(file);
+  if (info) Object.assign(info, { w: bmp.width, h: bmp.height }); // размеры — кому нужна ориентация (альбомы)
   const k = Math.min(1, max / Math.max(bmp.width, bmp.height));
   const c = Object.assign(document.createElement('canvas'), { width: Math.round(bmp.width * k), height: Math.round(bmp.height * k) });
   const x = c.getContext('2d');

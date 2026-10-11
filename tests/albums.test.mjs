@@ -54,3 +54,35 @@ assert.equal(r.get('A').slots.a.photo, 'x', 'на то же место — бе�
 r = putPhoto(pages, { page: 'A', slot: 'a' }, 'new');
 assert.equal(r.get('A').slots.a.photo, 'new');
 console.log('albums ok');
+
+// автозаполнение: по дате, новый день — новая страница, ориентация совпадает со слотами, подпись — дата
+import { autofill, orient, exifTime } from '../albumlogic.js';
+const day = (d, h = 12) => new Date(2026, 6, d, h).getTime();
+const ph = [['a', day(12, 10), 'h'], ['b', day(12, 11), 'v'], ['c', day(12, 12), 'h'], ['d', day(13), 'v'], ['e', day(13, 13), 'h'], ['f', day(14), 's'], ['g', day(12, 9), 'v']].map(([ref, t, o]) => ({ ref, t, o }));
+const auto = autofill(ph);
+const flat = auto.flatMap((p) => { const L = LAYOUTS.find((l) => l.id === p.layout); return L.slots.map((s) => p.slots[s.id]?.photo).filter(Boolean); });
+assert.deepEqual([...flat].sort(), ['a', 'b', 'c', 'd', 'e', 'f', 'g'], 'все фото разложены по разу');
+assert.ok(auto[0].caption === '12 июля', 'подпись — дата первой фотографии: ' + auto[0].caption);
+for (const p of auto) { const L = LAYOUTS.find((l) => l.id === p.layout), days = new Set(L.slots.map((s) => p.slots[s.id]?.photo).filter(Boolean).map((r) => new Date(ph.find((x) => x.ref === r).t).getDate())); assert.equal(days.size, 1, 'на странице один день'); }
+const p0 = auto[0], L0 = LAYOUTS.find((l) => l.id === p0.layout);
+for (const p of auto) { // совпадений ориентации столько, сколько вообще возможно в этой раскладке
+  const L = LAYOUTS.find((l) => l.id === p.layout), pairs = L.slots.map((s) => [orient(s), ph.find((x) => x.ref === p.slots[s.id]?.photo)?.o]);
+  const got = pairs.filter(([so, o]) => so === o && o !== 's').length, max = ['h', 'v'].reduce((m, o) => m + Math.min(pairs.filter(([so]) => so === o).length, pairs.filter(([, po]) => po === o).length), 0);
+  assert.equal(got, max, `ориентация в ${p.layout}`);
+}
+// EXIF: собранный руками JPEG с DateTimeOriginal (big-endian)
+const exifJpeg = () => {
+  const date = '2026:07:12 18:30:05\0', b = [];
+  const u16 = (n) => b.push(n >> 8, n & 255), u32 = (n) => { u16(n >>> 16); u16(n & 65535); };
+  u16(0xffd8); u16(0xffe1); const lenAt = b.length; u16(0); b.push(...'Exif'.split('').map((c) => c.charCodeAt(0)), 0, 0);
+  const t0 = b.length; b.push(0x4d, 0x4d); u16(42); u32(8); // TIFF, IFD0 по смещению 8
+  u16(1); u16(0x8769); u16(4); u32(1); u32(26); u32(0); // IFD0: ссылка на Exif IFD (8+2+12+4 = 26)
+  u16(1); u16(0x9003); u16(2); u32(20); u32(44); u32(0); // Exif IFD: DateTimeOriginal → строка по смещению 44
+  b.push(...date.split('').map((c) => c.charCodeAt(0)));
+  const len = b.length - lenAt; b[lenAt] = len >> 8; b[lenAt + 1] = len & 255; u16(0xffd9);
+  assert.equal(b.length - t0 > 44, true);
+  return new Uint8Array(b).buffer;
+};
+assert.equal(exifTime(exifJpeg()), new Date(2026, 6, 12, 18, 30, 5).getTime(), 'дата из EXIF');
+assert.equal(exifTime(new Uint8Array([0x89, 0x50, 0x4e, 0x47]).buffer), null, 'не JPEG — нет даты');
+console.log('albums autofill ok');
