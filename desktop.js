@@ -118,6 +118,7 @@ function dress() {
   x.putImageData(img, 0, 0);
   desk.style.setProperty('--grain', `url(${c.toDataURL()})`);
   wall(load('wall', 'linen'));
+  placeIcons();
 }
 
 // обои: готовые (data-wall в CSS) или своё фото. ponytail: фото хранится на этом устройстве (localStorage, ~0,5 МБ); в облако — когда попросят
@@ -140,7 +141,8 @@ function wallPicker(btn) {
   const cur = load('wall', 'linen');
   const box = h('div', { className: 'wallpick' }, h('b', { textContent: 'Обои' }),
     h('div', { className: 'wp-row' }, ...WALLS.map(([k, t]) => h('button', { className: 'wp' + (cur === k ? ' on' : ''), title: t, onclick: () => { save('wall', k); wall(k); box.remove(); } }, h('i'), h('span', { textContent: t })))),
-    h('button', { className: 'wp-photo', textContent: load('wallphoto', null) ? 'другое фото…' : 'своё фото…', onclick: () => file.click() }), file);
+    h('button', { className: 'wp-photo', textContent: load('wallphoto', null) ? 'другое фото…' : 'своё фото…', onclick: () => file.click() }), file,
+    ...(iconPos ? [h('button', { className: 'wp-photo', textContent: 'значки — как было', onclick: () => { resetIcons(); box.remove(); } })] : []));
   box.querySelectorAll('.wp i').forEach((i, n) => (i.dataset.wall = WALLS[n][0]));
   desk.append(box);
   setTimeout(() => addEventListener('pointerdown', function off(e) { if (!box.contains(e.target) && e.target !== btn) { box.remove(); removeEventListener('pointerdown', off); } }));
@@ -153,7 +155,50 @@ function openApp(name) {
   if (first) bounce(name);
 }
 
-desk.addEventListener('click', (e) => { const b = e.target.closest('[data-app]'); if (b) openApp(b.dataset.app); });
+desk.addEventListener('click', (e) => { const b = e.target.closest('[data-app]'); if (b && !dragged) openApp(b.dataset.app); dragged = false; });
+
+// ---- значки на столе: тащи куда хочешь (мышь — сразу, палец — подержать 0,35 с); места — на этом устройстве, в долях экрана ----
+const icons = desk.querySelector('.icons');
+let iconPos = load('icons', null), dragged = false;
+const ICON = { w: 96, h: 96, top: 40, bottom: 110 }; // значок и поля: под строкой меню и над доком
+function placeIcons() {
+  icons.classList.toggle('free', !!iconPos);
+  for (const b of icons.querySelectorAll('.icon')) {
+    const p = iconPos?.[b.dataset.app];
+    b.style.left = p ? Math.min(innerWidth - ICON.w, Math.max(0, p[0] * innerWidth)) + 'px' : '';
+    b.style.top = p ? Math.min(innerHeight - ICON.bottom - ICON.h, Math.max(ICON.top, p[1] * innerHeight)) + 'px' : '';
+  }
+}
+function freeze() { // первый перенос: все значки остаются где стояли в сетке, дальше — свободно
+  if (iconPos) return;
+  iconPos = {};
+  for (const b of icons.querySelectorAll('.icon')) { const r = b.getBoundingClientRect(); iconPos[b.dataset.app] = [r.left / innerWidth, r.top / innerHeight]; }
+  placeIcons();
+}
+icons.addEventListener('pointerdown', (e) => {
+  const b = e.target.closest('.icon'); if (!b || e.button > 0) return;
+  const sx = e.clientX, sy = e.clientY, touch = e.pointerType === 'touch';
+  let on = false, ox = 0, oy = 0;
+  const start = () => { freeze(); on = true; const r = b.getBoundingClientRect(); ox = sx - r.left; oy = sy - r.top; b.classList.add('lift'); };
+  const hold = touch ? setTimeout(start, 350) : 0;
+  const move = (m) => {
+    if (!on) { if (Math.hypot(m.clientX - sx, m.clientY - sy) < 6) return; if (touch) return end(); start(); }
+    m.preventDefault();
+    b.style.left = Math.min(innerWidth - ICON.w, Math.max(0, m.clientX - ox)) + 'px';
+    b.style.top = Math.min(innerHeight - ICON.bottom - ICON.h, Math.max(ICON.top, m.clientY - oy)) + 'px';
+  };
+  function end() {
+    clearTimeout(hold); removeEventListener('pointermove', move); removeEventListener('pointerup', end); removeEventListener('pointercancel', end);
+    if (!on) return;
+    b.classList.remove('lift'); dragged = true; setTimeout(() => (dragged = false), 0); // клик после переноса не открывает приложение
+    const g = 8, x = Math.round(parseFloat(b.style.left) / g) * g, y = Math.round(parseFloat(b.style.top) / g) * g; // лёгкая сетка 8 px — ровнее, но где хочешь
+    iconPos[b.dataset.app] = [x / innerWidth, y / innerHeight]; save('icons', iconPos); placeIcons();
+  }
+  addEventListener('pointermove', move, { passive: false }); addEventListener('pointerup', end); addEventListener('pointercancel', end);
+});
+icons.addEventListener('contextmenu', (e) => { if (e.target.closest('.icon')) e.preventDefault(); }); // долгое нажатие на телефоне — не меню
+export function resetIcons() { iconPos = null; save('icons', null); placeIcons(); }
+addEventListener('resize', () => { if (!desk.hidden) placeIcons(); });
 document.getElementById('power').onclick = () => closeDesktop();
 addEventListener('keydown', (e) => { if (e.key === 'Escape' && !desk.hidden) closeDesktop(); });
 
