@@ -19,6 +19,7 @@ import { prepareCatGeometry } from './catmesh.js';
 import { listAlbums, createAlbum, openAlbum } from './albums.js';
 import { createPad, paperImage, PAPER } from './pad.js';
 import * as sfx from './sound.js';
+import { SWEEP, shot, zone as binZone } from './binthrow.js';
 import { onRadio } from './lofi.js';
 import { startEmoji } from './emoji.js';
 import { inject as analytics } from '@vercel/analytics';
@@ -1214,42 +1215,27 @@ async function throwNew(note) {
   tip('оттяни комок вниз и отпусти — бросок!');
 }
 
-// к мусорке: оттяжка — дальность (точно в корзину около 0,7), в сторону — отклонение; виден только начальный кусок дуги
-function binTarget(pull, side) {
-  const from = holdPos(), dir = V(BIN.x - from.x, 0, BIN.z - from.z), len = dir.length(); dir.normalize();
-  const k = len * (0.35 + pull * 0.93), lat = V(-dir.z, 0, dir.x).multiplyScalar(side * 0.6);
-  return V(from.x + dir.x * k + lat.x, BIN.h + R * 0.85, from.z + dir.z * k + lat.z); // дуга проходит через плоскость края корзины
-}
 function updateAim() {
   const { p, hold, pull, side } = aim, b = camBasis();
   p.mesh.position.copy(hold).addScaledVector(b.up, -pull * 0.05).addScaledVector(b.fwd, -pull * 0.06).addScaledVector(b.right, side * 0.04);
   const show = pull > 0.06;
   dots.visible = ring.visible = show;
   if (!show) return;
-  const from = p.mesh.position, to = aim.bin ? binTarget(pull, side) : aimTarget(pull, side), T = flightTime(pull) + (aim.bin ? 0.25 : 0), v = flightVel(from, to, T);
-  const a = dotGeo.attributes.position, shown = aim.bin ? 6 : 18; // к мусорке — только начало дуги: попадание не гарантировано
+  const from = p.mesh.position, to = aimTarget(pull, side), T = flightTime(pull), v = flightVel(from, to, T);
+  const a = dotGeo.attributes.position;
   for (let i = 0; i < 18; i++) {
-    const t = (T * (Math.min(i, shown - 1) + 1)) / 19;
+    const t = (T * (i + 1)) / 19;
     a.setXYZ(i, from.x + v.x * t, from.y + v.y * t + 0.5 * G * t * t, from.z + v.z * t);
   }
   a.needsUpdate = true;
   ring.position.set(to.x, to.y - R * 0.85 + 0.004, to.z);
-  ring.visible = !aim.bin;
 }
 
 function launch() {
-  const { p, pull, side, bin: toBin } = aim; aim = null;
+  if (aim.bin) { const a = aim; aim = null; return launchBin(a); }
+  const { p, pull, side } = aim; aim = null;
   dots.visible = ring.visible = false;
   body.classList.remove('aim', 'drag');
-  if (toBin) { // рука дрожит сильнее, плюс сквозняк — каждый бросок немного свой
-    const to = binTarget(pull, side), wind = (rnd() - 0.5) * 0.22;
-    to.x += (rnd() - 0.5) * 0.16 + wind; to.z += (rnd() - 0.5) * 0.16;
-    const v = flightVel(p.mesh.position, to, flightTime(pull) + 0.25).multiplyScalar(0.94 + rnd() * 0.12); // к мусорке — дуга выше, как бросок в кольцо
-    fly = { p, v, spin: V(rnd() - 0.5, rnd() - 0.5, rnd() - 0.5).normalize(), w: 8 + rnd() * 6, t: 0, catHit: false, bin: true };
-    state = 'fly'; setBusy(true); sfx.whoosh();
-    tween(500, (k) => { noteLight.intensity = 0.5 * (1 - k); });
-    return;
-  }
   const base = aimTarget(pull, side);
   const to = onDesk(base.x + (rnd() - 0.5) * 0.2, base.z + (rnd() - 0.5) * 0.14); // рука дрогнула — место случайное
   to.y = surfaceAt(to.x, to.z) + R * 0.85;
@@ -1278,7 +1264,9 @@ function stepFly(dt) {
   const f = fly, m = f.p.mesh, pos = m.position, v = f.v, r = R * 0.85, prevY = pos.y;
   f.t += dt;
   v.y += G * dt;
+  if (f.bin && pos.y > r + 0.01) v.addScaledVector(f.wind, dt); // ветер — пока комок в воздухе
   pos.addScaledVector(v, dt);
+  if (f.bin && (f.k = (f.k || 0) + 1) % 2 === 0 && ghostN < 90) ghostGeo.attributes.position.setXYZ(ghostN++, pos.x, pos.y, pos.z);
   if (f.bin && binStep(f, pos, v, prevY)) return;
   // бортики стола: над столом и низко — отскок внутрь
   const over = pos.z < DESK.z1 && pos.y < TOP + 0.25 && (!f.bin || inRect(DESK, pos.x, pos.z));
@@ -1311,6 +1299,7 @@ function binStep(f, pos, v, prevY) {
   if (pos.x < -1.45) { pos.x = -1.45; v.x = Math.abs(v.x) * 0.4; }
   const dx = pos.x - BIN.x, dz = pos.z - BIN.z, d = Math.hypot(dx, dz), r = R * 0.85;
   if (prevY - r >= BIN.h && pos.y - r < BIN.h && v.y < 0) {
+    f.cross ||= { along: dx * f.d0[0] + dz * f.d0[1], lat: dx * f.right[0] + dz * f.right[1] }; // где впервые прошёл край — для подсказки
     if (d < BIN.r - r * 0.6) { binIn(f); return true; } // чисто в корзину
     if (d < BIN.r + r) { // о край: отскок наружу или внутрь
       sfx.tap(0.5); const n = d > 1e-4 ? [dx / d, dz / d] : [1, 0], inward = rnd() < 0.45;
@@ -1331,10 +1320,10 @@ function binIn(f) {
   const p = f.p; fly = null; state = 'busy'; // полёт кончился, пока комок падает на дно
   sfx.thud(0.25);
   const m = p.mesh, p0 = m.position.clone();
-  tween(350, (k) => { m.position.set(p0.x + (BIN.x - p0.x) * k, BIN.h * (1 - k) + 0.05 * k, p0.z + (BIN.z - p0.z) * k); }).then(() => toTrash(p, true));
+  tween(350, (k) => { m.position.set(p0.x + (BIN.x - p0.x) * k, BIN.h * (1 - k) + 0.05 * k, p0.z + (BIN.z - p0.z) * k); }).then(() => toTrash(p, true, f.cross));
 }
 // мимо: комок полежал и сам перепрыгнул в корзину (без баллов)
-async function hopToBin(p) {
+async function hopToBin(p, msg, float = 'мимо') {
   state = 'busy'; await tween(450, () => {});
   const m = p.mesh, p0 = m.position.clone();
   sfx.whoosh();
@@ -1343,44 +1332,127 @@ async function hopToBin(p) {
     m.position.set(p0.x + (BIN.x - p0.x) * e, p0.y + (0.05 - p0.y) * e + Math.sin(e * Math.PI) * (BIN.h + 0.25), p0.z + (BIN.z - p0.z) * e);
     m.rotateY(0.2);
   });
-  toTrash(p, false);
+  toTrash(p, false, msg, float);
 }
-function toTrash(p, hit) {
+// подсказка после промаха: где комок прошёл плоскость края относительно корзины
+function missHint(c) {
+  if (!c) return 'не долетел — сильнее';
+  if (Math.hypot(c.along, c.lat) < BIN.r + R) return 'о край — чуть-чуть!';
+  if (Math.abs(c.along) > Math.abs(c.lat)) return c.along > 0 ? 'перелёт — чуть слабее' : 'недолёт — чуть сильнее';
+  return c.lat > 0 ? 'ушёл вправо — бери левее' : 'ушёл влево — бери правее';
+}
+let streak = 0; // попадания подряд
+async function toTrash(p, hit, info, float = 'мимо') {
+  state = 'busy'; setBusy(true);
   scene.remove(p.mesh); p.mesh.geometry.dispose(); p.mesh.material.dispose?.();
   papers.splice(papers.indexOf(p), 1);
   const ci = clickables.indexOf(p.mesh); if (ci >= 0) clickables.splice(ci, 1);
   store.put('trash', p.key, { at: Date.now() }).catch(console.warn);
-  if (hit) { store.award('trash', p.key); floatAt(bin, '+3 ♥'); sfx.chime(); tip('в яблочко!'); }
-  else { floatAt(bin, 'мимо'); tip('мимо — но записка всё равно в мусорке'); }
-  setTimeout(() => tip(), 2200);
-  state = idle(); setBusy(false);
+  let msg = info;
+  if (hit) {
+    store.award('trash', p.key); streak++;
+    const perfect = info && Math.hypot(info.along, info.lat) < BIN_TOL * 0.35;
+    floatAt(bin, perfect ? 'идеально! +3 ♥' : '+3 ♥'); sfx.chime(); if (perfect) setTimeout(() => sfx.pop(), 200);
+    msg = (perfect ? 'идеально!' : 'в яблочко!') + (streak > 1 ? ` серия ${streak} подряд` : '');
+  } else { streak = 0; if (float) floatAt(bin, float); }
+  // камера возвращается домой, когда надпись над корзиной успела всплыть
+  await tween(700, () => {});
+  const c0 = cam.pos.clone(), l0 = cam.look.clone();
+  await tween(900, (k) => { const e = ease(k); cam.pos.lerpVectors(c0, HOME.pos, e); cam.look.lerpVectors(l0, HOME.look, e); });
+  state = idle(); setBusy(false); tip(msg);
+  setTimeout(() => { if (tipEl.textContent === msg) tip(); }, 2600);
 }
-// из открытой записки: комок в руку и прицел на мусорку
+
+// ---------- бросок в мусорку: камера к корзине, стрелка направления качается, шкала силы бегает; пробел/клик/тап фиксирует ----------
+const BINVIEW = { pos: V(0.45, 1.75, 1.0), look: V(1.0, 0.05, -1.05) }; // левее декоративной корзинки в углу — на линии броска только мусорка
+const RIM = BIN.h + R * 0.85, BIN_TOL = BIN.r - R * 0.85 * 0.6; // как в binStep: центр комка над краем, «чисто в корзину»
+const arrowShape = (m) => { // стрелка вдоль +y (после поворота — вдоль −z); m — запас под обводку
+  const s = new THREE.Shape(), w = 0.026 + m, hw = 0.085 + m * 1.6, y0 = 0.3 - m, y1 = 0.92, y2 = 1.18 + m * 1.8;
+  s.moveTo(-w, y0); s.lineTo(w, y0); s.lineTo(w, y1); s.lineTo(hw, y1); s.lineTo(0, y2); s.lineTo(-hw, y1); s.lineTo(-w, y1); s.closePath();
+  return new THREE.ShapeGeometry(s).rotateX(-Math.PI / 2);
+};
+const binArrow = new THREE.Group(); binArrow.visible = false; scene.add(binArrow);
+[[0.014, '#3b2a35', 0.03], [0, '#ff8fab', 0.034]].forEach(([m, c, y], i) => {
+  const mesh = new THREE.Mesh(arrowShape(m), new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.92, depthWrite: false }));
+  mesh.position.y = y; mesh.renderOrder = 2 + i; mesh.userData.noAO = mesh.userData.noOutline = true; binArrow.add(mesh);
+});
+// цель на полу вокруг мусорки: пульсирует, пока целишься (декоративная корзинка в углу крупнее — путают)
+const binMark = new THREE.Mesh(new THREE.RingGeometry(BIN.r + 0.03, BIN.r + 0.06, 40).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#ff8fab', transparent: true, opacity: 0.9, depthWrite: false }));
+binMark.position.set(BIN.x, 0.006, BIN.z); binMark.visible = false; binMark.userData.noAO = true; scene.add(binMark);
+// призрак прошлого броска — чтобы следующий был осознанным
+const ghostGeo = new THREE.BufferGeometry();
+ghostGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(90 * 3), 3));
+const ghost = new THREE.Points(ghostGeo, new THREE.PointsMaterial({ size: 0.022, map: softDot, color: '#ffffff', transparent: true, opacity: 0.4, depthWrite: false }));
+ghost.visible = false; ghost.frustumCulled = false; scene.add(ghost);
+let ghostN = 0;
+const binPow = document.getElementById('binPow'), binWind = document.getElementById('binWind');
+
+function startBinAim(p) {
+  const hold = holdPos(), lvl = [0, 1, 1, 2, 2, 3][Math.floor(rnd() * 6)], sgn = rnd() < 0.5 ? -1 : 1;
+  const s = shot(hold, BIN, 0, 0, RIM), z = binZone(s.len, BIN_TOL);
+  aim = { p, hold, bin: true, phase: 'dir', t0: performance.now(), per: 2000 * (0.9 + rnd() * 0.2), theta: 0, pw: 0, wind: sgn * lvl * 0.22, right: s.right };
+  binArrow.position.set(hold.x, 0, hold.z); binArrow.scale.setScalar(s.len * 0.5); binArrow.visible = binMark.visible = true;
+  ghostGeo.setDrawRange(0, ghostN); ghostGeo.attributes.position.needsUpdate = true; ghost.visible = ghostN > 1;
+  for (const k of ['lo', 'hi', 'glo', 'ghi']) binPow.style.setProperty('--' + k, z[k].toFixed(3));
+  binPow.style.setProperty('--p', 0);
+  binWind.textContent = !lvl ? 'штиль' : sgn < 0 ? '←'.repeat(lvl) + ' ветер' : 'ветер ' + '→'.repeat(lvl);
+  state = 'aim'; setBusy(false); body.classList.add('aim', 'binaim'); body.classList.remove('binpow');
+  tip('пробел или тап — стоп стрелке');
+}
+function binAimFrame(now) {
+  const a = aim, t = (now - a.t0) / a.per;
+  if (a.phase === 'dir') a.theta = SWEEP * Math.sin(t * 2 * Math.PI); // у краёв медленнее — видно и можно поймать
+  else { const u = (t * 2) % 2; a.pw = u < 1 ? u : 2 - u; binPow.style.setProperty('--p', a.pw.toFixed(3)); }
+  const r = a.right, c = Math.cos(a.theta), s = Math.sin(a.theta), dx = r[1] * c + r[0] * s, dz = -r[0] * c + r[1] * s;
+  binArrow.rotation.y = Math.atan2(-dx, -dz);
+  binMark.material.opacity = 0.55 + 0.4 * Math.sin(now / 180); binMark.scale.setScalar(1 + 0.08 * Math.sin(now / 180));
+}
+function binPress() {
+  const a = aim;
+  sfx.click();
+  if (a.phase === 'pow') return launch();
+  a.phase = 'pow'; a.t0 = performance.now(); a.per = 1500 * (0.92 + rnd() * 0.16);
+  body.classList.add('binpow'); tip('ещё раз — сила: лови зелёное');
+}
+function endBinAim() { binArrow.visible = binMark.visible = ghost.visible = false; body.classList.remove('aim', 'drag', 'binaim', 'binpow'); }
+function cancelBin() { const p = aim.p; aim = null; endBinAim(); hopToBin(p, 'записка в мусорке — без броска', ''); }
+function launchBin(a) {
+  const { p } = a, s = shot(p.mesh.position, BIN, a.theta, a.pw, RIM);
+  endBinAim(); ghostN = 0;
+  fly = { p, v: V(...s.v), spin: V(rnd() - 0.5, rnd() - 0.5, rnd() - 0.5).normalize(), w: 8 + rnd() * 6, t: 0, catHit: false, bin: true,
+    wind: V(s.right[0] * a.wind, 0, s.right[1] * a.wind), d0: [s.right[1], -s.right[0]], right: s.right, cross: null };
+  state = 'fly'; setBusy(true); sfx.whoosh();
+}
+// у края корзины — замедление, чтобы было видно «попал / о край»
+const nearRim = (f) => { const m = f.p.mesh.position; return f.v.y < 0 && m.y < RIM + 0.3 && m.y > BIN.h * 0.5 && Math.hypot(m.x - BIN.x, m.z - BIN.z) < BIN.r + 0.2; };
+addEventListener('keydown', (e) => {
+  if (state !== 'aim' || !aim?.bin) return;
+  if (e.code === 'Space' || e.key === 'Enter') { e.preventDefault(); if (!e.repeat) binPress(); }
+  else if (e.key === 'Escape') cancelBin();
+});
+
+// из открытой записки: комок в руку, камера поворачивает к мусорке
 async function trashNote() {
   if (state !== 'note' || !openPaper) return;
   const p = openPaper; openPaper = null; state = 'busy'; noteNav.hidden = true; trashBtn.hidden = true;
   const ci = clickables.indexOf(p.mesh); if (ci >= 0) clickables.splice(ci, 1);
-  // из приближения — камера заодно отъезжает домой: мусорку видно только оттуда
-  const home = !!zone, c0 = cam.pos.clone(), l0 = cam.look.clone();
-  if (home) { zone = null; zonesys.zoomed(false); }
-  const from = p.mesh.position.clone();
+  if (zone) { zone = null; zonesys.zoomed(false); }
+  const c0 = cam.pos.clone(), l0 = cam.look.clone(), from = p.mesh.position.clone();
   sfx.crumple(0.9); p.mesh.scale.z = 1;
-  await tween(900, (k) => {
+  await tween(1100, (k) => {
     const e = ease(k);
-    if (home) { cam.pos.lerpVectors(c0, HOME.pos, e); cam.look.lerpVectors(l0, HOME.look, e); }
+    cam.pos.lerpVectors(c0, BINVIEW.pos, e); cam.look.lerpVectors(l0, BINVIEW.look, e);
     p.setT(1 - e); p.mesh.position.lerpVectors(from, holdPos(), e); noteLight.intensity = 0.9 * (1 - e);
   });
-  const hold = holdPos();
-  aim = { p, hold, pull: 0, side: 0, drag: null, bin: true };
-  state = 'aim'; setBusy(false); body.classList.add('aim');
-  tip('оттяни комок вниз и прицелься в мусорку под столом — попадёшь: +3 ♥');
+  p.mesh.position.copy(holdPos());
+  startBinAim(p);
 }
 const trashBtn = document.getElementById('trashBtn');
 trashBtn.onclick = (e) => { e.stopPropagation(); trashNote(); };
 
 function settle() {
-  const p = fly.p, wasBin = fly.bin; fly = null;
-  if (wasBin) return hopToBin(p);
+  const p = fly.p, f = fly; fly = null;
+  if (f.bin) return hopToBin(p, missHint(f.cross));
   p.slot = p.mesh.position.clone(); p.rest = p.mesh.rotation.clone();
   p.note.pos = p.slot.toArray(); p.note.rot = [p.rest.x, p.rest.y, p.rest.z];
   if (p.note.id) store.put('notes', p.note.id, p.note).catch(console.warn); // стартовые записки (seed) не сохраняем
@@ -1484,6 +1556,7 @@ const canvas = renderer.domElement;
 let lastPick = 0;
 canvas.addEventListener('pointerdown', (e) => {
   if (state !== 'aim') return;
+  if (aim.bin) return binPress(); // в мусорку — клик/тап где угодно, как пробел
   aim.drag = { x: e.clientX, y: e.clientY };
   sfx.crumple(0.2);
   canvas.setPointerCapture(e.pointerId);
@@ -1641,7 +1714,8 @@ const loop = (now) => {
     cam.pos.lerp(V(HOME.pos.x, HOME.pos.y + 0.15, HOME.pos.z + 0.35), 0.06);
     cam.look.lerp(cam.pos.clone().add(dir), 0.06);
   }
-  if (state === 'fly') { stepFly(dt / 2); if (fly) stepFly(dt / 2); }
+  if (state === 'aim' && aim.bin) binAimFrame(now);
+  if (state === 'fly') { const h = (fly.bin && nearRim(fly) ? 0.4 : 1) * dt / 2; stepFly(h); if (fly) stepFly(h); }
   camera.position.copy(cam.pos);
   camera.lookAt(cam.look);
 
@@ -1719,5 +1793,5 @@ renderer.setAnimationLoop(loop);
 requestAnimationFrame(() => requestAnimationFrame(() => { performance.mark('lr:shown'); veil.classList.add('off'); setTimeout(() => veil.remove(), 600); }));
 
 // ?debug — ручки для проверки (камера, коты, время)
-if (new URLSearchParams(location.search).has('debug')) window.__room = { cam, camera, laptop, clickables, HOME, catsys, decor, papers, zonesys, step: (ms = 500, dt = 16) => { for (let t = performance.now(), e = t + ms; t < e; t += dt) loop(t); }, // скрытая панель: rAF стоит — шагаем вручную
+if (new URLSearchParams(location.search).has('debug')) window.__room = { cam, camera, laptop, clickables, HOME, catsys, decor, papers, zonesys, aim: () => aim, step: (ms = 500, dt = 16) => { for (let t = performance.now(), e = t + ms; t < e; t += dt) loop(t); }, // скрытая панель: rAF стоит — шагаем вручную
   zoomTo: (id) => zoomTo(zonesys.byId(id)), unzoom, get state() { return state; }, applyTime, tick: (s = 5) => weatherFrame(0.016, s), scene, THREE, renderer, sun, post, get tier() { return tier; }, get pr() { return pr; }, get FX() { return FX; }, bolt: () => { flash = 1; sfx.thunder(0.8); }, set flash(v) { flash = v; } };

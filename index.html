@@ -288,6 +288,20 @@
   .wbox .ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
   .wbox .status { display: block; min-height: 18px; font-size: 13px; opacity: .7; margin-top: 6px; }
   #trashBtn { position: fixed; right: 26px; bottom: 26px; z-index: 5; padding: 8px 16px; font: 700 22px/1 Caveat, cursive; color: var(--ink); background: var(--paper); border: 2px solid var(--ink); border-radius: 14px 6px 12px 5px / 5px 12px 6px 14px; box-shadow: 0 4px 0 rgba(59,42,53,.35); cursor: pointer; rotate: -2deg; }
+  /* бросок в мусорку: шкала силы — бумажная полоска на скотче, ветер — табличка сверху */
+  body.binaim #scene { cursor: pointer; }
+  #binPow, #binWind { display: none; position: fixed; z-index: 5; pointer-events: none; }
+  body.binaim #binPow, body.binaim #binWind { display: block; }
+  #binPow { right: max(16px, 7vw); top: 50%; translate: 0 -50%; width: 44px; height: min(44vh, 330px); background: var(--paper) repeating-linear-gradient(0deg, transparent 0 19px, rgba(59,42,53,.12) 19px 20px); border: 2px solid var(--ink); border-radius: 10px 4px 9px 5px / 5px 9px 4px 10px; box-shadow: 0 5px 0 rgba(59,42,53,.35); rotate: 2deg; opacity: .5; transition: opacity .25s; }
+  body.binpow #binPow { opacity: 1; }
+  #binPow::before { content: ''; position: absolute; left: 50%; top: -13px; width: 58px; height: 20px; translate: -50% 0; rotate: -7deg; background: rgba(255,214,160,.8); }
+  #binPow .zone, #binPow .gold { position: absolute; left: 5px; right: 5px; border-radius: 3px; }
+  #binPow .zone { bottom: calc(var(--lo) * 100%); height: calc((var(--hi) - var(--lo)) * 100%); background: #a8dc9c; }
+  #binPow .gold { bottom: calc(var(--glo) * 100%); height: calc((var(--ghi) - var(--glo)) * 100%); background: #ffd36b; }
+  #binPow .thumb { position: absolute; left: -9px; right: -9px; bottom: 0; translate: 0 calc(var(--p, 0) * min(44vh, 330px) * -1); will-change: translate; height: 4px; margin-bottom: -2px; background: var(--ink); border-radius: 2px; }
+  #binPow .thumb::before { content: '♥'; position: absolute; left: -24px; top: 50%; translate: 0 -52%; font-size: 30px; line-height: 1; color: var(--rose); text-shadow: 0 2px 0 var(--ink); }
+  #binPow b { position: absolute; left: 50%; bottom: -36px; translate: -50% 0; font: 700 24px/1 Caveat, cursive; color: #ffe7d6; text-shadow: 0 2px 10px rgba(0,0,0,.5); }
+  #binWind { left: 50%; top: 20px; translate: -50% 0; padding: 6px 18px; font: 700 26px/1 Caveat, cursive; color: var(--ink); background: var(--paper); border: 2px solid var(--ink); border-radius: 12px 5px 11px 6px / 6px 11px 5px 12px; box-shadow: 0 4px 0 rgba(59,42,53,.35); rotate: -1.5deg; white-space: nowrap; }
   #trashBtn:active { translate: 0 3px; box-shadow: 0 1px 0 rgba(59,42,53,.35); } #trashBtn[hidden] { display: none; }
   #noteNav { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; z-index: 5; }
   #noteNav[hidden] { display: none; }
@@ -1099,6 +1113,8 @@
 <div class="booklabel" id="booklabel" hidden></div>
 
 <button id="trashBtn" hidden title="скомкать и выбросить в мусорку">🗑 в мусорку</button>
+<div id="binPow" aria-hidden="true"><i class="zone"></i><i class="gold"></i><i class="thumb"></i><b>сила</b></div>
+<div id="binWind" aria-live="polite"></div>
 <div id="noteNav" hidden><button class="prev" aria-label="Предыдущая">‹</button><span></span><button class="next" aria-label="Следующая">›</button></div>
 
 <div id="gate" hidden></div>
