@@ -14,7 +14,7 @@ const shot = (p, n) => p.screenshot({ path: `${OUT}/alb-${W}-${n}.png` });
 async function open(q) {
   const p = await ctx.newPage();
   p.on('pageerror', (e) => errs.push(q + ' ' + e.message)); p.on('console', (m) => m.type() === 'error' && errs.push(q + ' console: ' + m.text()));
-  await p.goto(`http://localhost:${PORT}/?debug&local${q}`);
+  await p.goto(`${/^http/.test(PORT) ? PORT : `http://localhost:${PORT}`}/?debug&local${q}`);
   await p.waitForFunction(() => window.__room, null, { timeout: 60000 }); await p.waitForTimeout(2500);
   await p.evaluate(() => document.querySelectorAll('.rsetup').forEach((e) => e.remove()));
   return p;
