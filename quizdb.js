@@ -198,7 +198,7 @@ export const QUIZZES = [
 
 // ---------- каталог как у сайтов тестов (спека docs/specs/2026-10-11-quiz-catalog-design.md) ----------
 export const RUBRICS = { cinema: 'кино и сериалы', anim: 'анимация и аниме', games: 'игры', nature: 'животные и природа', food: 'еда', travel: 'путешествия', soul: 'характер', pair: 'для пар' };
-export const FORMATS = { type: 'кто ты из', cup: 'турнир', tier: 'тирлист', trivia: 'викторина', pair: 'парные' };
+export const FORMATS = { type: 'кто ты · какой ты', cup: 'турнир', tier: 'тирлист', trivia: 'викторина', pair: 'парные' };
 // старые тесты: «какой ты» — по теме, остальные парные
 for (const q of QUIZZES) q.rubric ||= q.kind === 'type' ? { food: 'food', fun: 'nature', movie: 'cinema', soul: 'soul', love: 'pair' }[q.topic] : 'pair';
 // новые: содержимое в quizpacks/<id>.js (грузится при открытии); n — число ответов (quizlogic length), pop — вес популярности по топу pikuco

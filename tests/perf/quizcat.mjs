@@ -1,5 +1,5 @@
 // Сквозная проверка каталога «Тестов» двумя вкладками (?local и ?local&as=b): фильтры, старт, «кто ты из», турнир, тирлист, викторина, итоги одного и пары.
-// node tests/perf/quizcat.mjs <папка для снимков> [порт=8126]
+// node tests/perf/quizcat.mjs <папка для снимков> [порт=8126 или адрес https://…]
 import { chromium } from 'playwright-core';
 const [OUT, PORT = 8126] = process.argv.slice(2);
 const b = await chromium.launch({ channel: 'chrome', headless: true });
@@ -7,8 +7,11 @@ const ctx = await b.newContext({ viewport: { width: 1440, height: 900 } });
 const errs = [];
 const open = async (q) => {
   const p = await ctx.newPage(); p.on('pageerror', (e) => errs.push(q + ' ' + e.message)); p.on('console', (m) => m.type() === 'error' && errs.push(q + ' console: ' + m.text()));
-  await p.goto(`http://localhost:${PORT}/?local${q}`); await p.waitForFunction(() => document.querySelector('#desktop'), null, { timeout: 60000 }); await p.waitForTimeout(3500);
-  await p.evaluate(() => { document.querySelectorAll('.rsetup').forEach((e) => e.remove()); return import('/desktop.js').then((m) => m.openDesktop('quiz')); });
+  await p.goto(`${/^http/.test(PORT) ? PORT : `http://localhost:${PORT}`}/?debug&local${q}`); await p.waitForFunction(() => document.querySelector('#desktop'), null, { timeout: 60000 }); await p.waitForTimeout(3500);
+  await p.evaluate(() => document.querySelectorAll('.rsetup').forEach((e) => e.remove()));
+  // ноутбук — кликом, как человек (в сборке модули с хешами, import('/desktop.js') не найдётся); нужен ?debug для __room
+  const xy = await p.evaluate(() => { const R = window.__room, v = new R.THREE.Vector3(); R.laptop.updateWorldMatrix(true, false); new R.THREE.Box3().setFromObject(R.laptop).getCenter(v); v.project(R.camera); const r = R.renderer.domElement.getBoundingClientRect(); return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height }; });
+  await p.mouse.click(xy.x, xy.y); await p.waitForSelector('#desktop.on', { timeout: 15000 }); await p.waitForTimeout(800); await p.click('.icon[data-app=quiz]');
   await p.waitForSelector('.qz-day'); await p.evaluate(() => document.querySelector('.win.app-quiz .lt.g').click()); await p.waitForTimeout(600); return p;
 };
 const shot = (p, n) => p.screenshot({ path: `${OUT}/c-${n}.png` });
