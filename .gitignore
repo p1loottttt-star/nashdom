@@ -9,3 +9,4 @@ tests/perf/.profile
 tests/perf/last*.json
 sonya-password.sql
 scripts/qimg/cand.json
+scripts/qimg/cand-*.json

@@ -3,8 +3,8 @@ export default {
   imgs: {
     'fr-cover': 'coffee cups', 'fr-q-evening': 'coffee shop', 'fr-q-words': 'sofa cushions', 'fr-q-nerves': 'crumpled paper',
     'fr-q-job': 'office desk', 'fr-q-date': 'candle dinner', 'fr-q-fridge': 'open refrigerator', 'fr-q-power': 'puzzle pieces',
-    'fr-q-gift': 'gift box', 'fr-q-love': 'red roses', 'fr-q-home': 'apartment window', 'fr-q-cook': 'cooking pot', 'fr-q-rain': 'rainy window',
-    'fr-r-rachel': 'clothing rack', 'fr-r-monica': 'kitchen', 'fr-r-phoebe': 'acoustic guitar', 'fr-r-joey': 'pizza',
+    'fr-q-gift': 'wrapped presents', 'fr-q-love': 'red roses', 'fr-q-home': 'apartment window', 'fr-q-cook': 'cooking pot', 'fr-q-rain': 'rainy window',
+    'fr-r-rachel': 'boutique', 'fr-r-monica': 'kitchen', 'fr-r-phoebe': 'acoustic guitar', 'fr-r-joey': 'pizza',
     'fr-r-chandler': 'armchair', 'fr-r-ross': 'dinosaur skeleton', 'fr-r-gunther': 'espresso machine', 'fr-r-janice': 'leopard print',
     'fr-r-richard': 'lake house',
   },

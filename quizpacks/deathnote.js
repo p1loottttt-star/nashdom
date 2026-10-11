@@ -1,10 +1,10 @@
 // Фан-тест «Кто ты из «Тетради смерти»». Тексты свои, про характер; фото — мир героев (ключи → запрос Openverse).
 export default {
   imgs: {
-    'dn-cover': 'red apple', 'dn-q-evening': 'city night', 'dn-q-puzzle': 'chess board', 'dn-q-snack': 'dessert table',
-    'dn-q-justice': 'balance scale', 'dn-q-words': 'old letters', 'dn-q-office': 'office chair', 'dn-q-rival': 'chess pieces',
-    'dn-q-worst': 'empty street', 'dn-q-pet': 'sleeping cat', 'dn-q-secret': 'locked box', 'dn-q-style': 'clothes hanger', 'dn-q-plan': 'scattered papers',
-    'dn-r-light': 'black notebook', 'dn-r-l': 'sugar cubes', 'dn-r-misa': 'black lace', 'dn-r-ryuk': 'apples',
+    'dn-cover': 'red apple', 'dn-q-evening': 'city night', 'dn-q-puzzle': 'chess board', 'dn-q-snack': 'cake slice',
+    'dn-q-justice': 'balance scale', 'dn-q-words': 'wax seal', 'dn-q-office': 'office chair', 'dn-q-rival': 'chess pieces',
+    'dn-q-worst': 'empty street', 'dn-q-pet': 'sleeping cat', 'dn-q-secret': 'padlock', 'dn-q-style': 'clothes hanger', 'dn-q-plan': 'scattered papers',
+    'dn-r-light': 'black notebook', 'dn-r-l': 'sugar cubes', 'dn-r-misa': 'black roses', 'dn-r-ryuk': 'apples',
     'dn-r-near': 'jigsaw puzzle', 'dn-r-mello': 'chocolate bar', 'dn-r-matsuda': 'donuts', 'dn-r-soichiro': 'reading glasses', 'dn-r-rem': 'white feathers',
   },
   results: {

@@ -1,8 +1,8 @@
 // Турнир «Лучшее место для свидания»: 16 мест на выбывание.
 export default {
   imgs: {
-    'ct-cover': 'candles dinner table', 'ct-picnic': 'picnic in park', 'ct-roof': 'rooftop city evening', 'ct-rink': 'ice skating rink', 'ct-cinema': 'cinema hall',
-    'ct-cafe': 'cozy cafe', 'ct-museum': 'art museum hall', 'ct-beach': 'beach sunset', 'ct-mountains': 'mountain hiking trail',
+    'ct-cover': 'candles dinner table', 'ct-picnic': 'picnic blanket', 'ct-roof': 'rooftop city evening', 'ct-rink': 'ice skating rink', 'ct-cinema': 'cinema hall',
+    'ct-cafe': 'cozy cafe', 'ct-museum': 'art gallery', 'ct-beach': 'beach sunset', 'ct-mountains': 'alps',
     'ct-planetarium': 'planetarium dome', 'ct-nightcity': 'city lights night', 'ct-wheel': 'ferris wheel', 'ct-concert': 'concert stage lights',
     'ct-forest': 'forest path', 'ct-lake': 'lake rowing boat', 'ct-library': 'library bookshelves', 'ct-cooking': 'cooking class kitchen',
   },

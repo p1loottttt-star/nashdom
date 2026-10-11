@@ -8,7 +8,7 @@ import { whoRows, typeResult, knowScore, knowTitle, pickScore, listRows, evening
 import { toast } from './desktop.js';
 import { pop, chime, tap, unfold } from './sound.js';
 import { sticker, doodle } from './doodles.js';
-import { h, order, isNew, fmt, loadQuiz, credits, photo, fanNote, size, introView, runNew, resultNew, creditsView } from './quizplay.js';
+import { h, order, isNew, fmt, loadQuiz, credits, ready, photo, fanNote, size, introView, runNew, resultNew, creditsView } from './quizplay.js';
 
 const CATALOG = [...QUIZZES, ...NEW];
 // рисунок и краска каждого теста (вместо эмодзи)
@@ -107,11 +107,11 @@ export function renderQuiz(el) {
     todo: ['не пройденные', (a, b) => !!doneOf(a.id, meId()) - !!doneOf(b.id, meId()) || (b.pop ?? 40) - (a.pop ?? 40)] };
   const sel = (val, opts, set) => h('select', { className: 'qz-sel', onchange: (e) => { set(e.target.value); draw(); } }, ...opts.map(([k, t]) => h('option', { value: k, textContent: t, selected: k === val })));
   function randomTest() {
-    const pool = CATALOG.filter((q) => !doneOf(q.id, meId())), from = pool.length ? pool : CATALOG;
+    const all = CATALOG.filter(ready), pool = all.filter((q) => !doneOf(q.id, meId())), from = pool.length ? pool : all;
     pop(); start(from[Math.floor(Math.random() * from.length)]);
   }
   function listView() {
-    const me = meId(), done = CATALOG.filter((q) => doneOf(q.id, me));
+    const me = meId(), done = CATALOG.filter((q) => ready(q) && doneOf(q.id, me));
     const tabs = h('div', { className: 'qz-tabs' }, ...[['all', 'каталог'], ['done', `пройденные · ${done.length}`]].map(([k, t]) =>
       h('button', { className: tab === k ? 'on' : '', textContent: t, onclick: () => { tab = k; draw(); } })));
     const search = h('input', { className: 'qz-search', placeholder: 'найти тест…', value: query, oninput: (e) => { query = e.target.value; drawGrid(); } });
@@ -127,7 +127,7 @@ export function renderQuiz(el) {
     const grid = h('div', { className: 'qz-grid' });
     const drawGrid = () => {
       const s = query.trim().toLowerCase();
-      const list = (tab === 'done' ? done : CATALOG).filter((q) => (!rubric || q.rubric === rubric) && (!form || fmt(q) === form) && (!len || LEN[len][1](nOf(q)))
+      const list = (tab === 'done' ? done : CATALOG.filter(ready)).filter((q) => (!rubric || q.rubric === rubric) && (!form || fmt(q) === form) && (!len || LEN[len][1](nOf(q)))
         && (!s || `${q.title} ${RUBRICS[q.rubric]} ${FORMATS[fmt(q)]} ${KIND[q.kind] || ''} ${q.fan || ''}`.toLowerCase().includes(s))).sort(SORT[sort][1]);
       grid.replaceChildren(...(list.length ? list.map(card) : [h('p', { className: 'qz-empty', textContent: tab === 'done' ? 'Пока ничего не пройдено — выбери тест в каталоге' : 'Ничего не нашлось' })]));
     };

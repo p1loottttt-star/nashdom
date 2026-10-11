@@ -6,9 +6,11 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
 
 const root = new URL('..', import.meta.url), at = (p) => new URL(p, root);
-const CAND = at('scripts/qimg/cand.json'), PICKS = at('scripts/qimg/picks.json'), CREDITS = at('public/quiz/credits.json');
+const CAND = at('scripts/qimg/cand.json'), candOf = (id) => at(`scripts/qimg/cand-${id}.json`), PICKS = at('scripts/qimg/picks.json'), CREDITS = at('public/quiz/credits.json');
 const load = (u, d) => (existsSync(u) ? JSON.parse(readFileSync(u, 'utf8')) : d);
 const save = (u, v) => writeFileSync(u, JSON.stringify(v, null, 1));
+// все кандидаты: общий файл (старые) + по файлу на тест
+const allCand = () => Object.assign(load(CAND, {}), ...readdirSync(at('scripts/qimg/')).filter((f) => /^cand-.+\.json$/.test(f)).map((f) => load(at('scripts/qimg/' + f), {})));
 mkdirSync(at('scripts/qimg'), { recursive: true }); mkdirSync(at('public/quiz'), { recursive: true }); mkdirSync(at('shots/qimg'), { recursive: true });
 const UA = { 'User-Agent': 'NashDomQuiz/1.0 (personal project; p1loottttt-star on GitHub)' };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -28,7 +30,7 @@ async function commons(q, cat = ' incategory:Quality_images') {
   const u = 'https://commons.wikimedia.org/w/api.php?' + new URLSearchParams({ action: 'query', format: 'json', generator: 'search', gsrnamespace: '6', gsrsearch: q + ' filetype:bitmap' + cat, gsrlimit: '14', prop: 'imageinfo', iiprop: 'url|size|extmetadata|mime', iiurlwidth: '1024' });
   let j;
   for (let t = 0; !j; t++) { const r = await fetch(u, { headers: UA }); if (r.ok) j = await r.json(); else { if (t > 4) return []; console.warn('Commons', r.status, '— жду'); await sleep(15000 * (t + 1)); } }
-  await sleep(1500);
+  await sleep(900);
   return Object.values(j.query?.pages || {}).sort((a, b) => a.index - b.index).map((p) => p.imageinfo?.[0]).filter((ii) => ii && /jpeg|png/.test(ii.mime) && ii.width >= 640 && ii.height >= 400)
     .map((ii) => { const m = ii.extmetadata || {}; return { src: ii.thumburl, page: ii.descriptionurl, by: strip(m.Artist?.value) || 'неизвестен', lic: strip(m.LicenseShortName?.value), lic_url: m.LicenseUrl?.value || '', title: strip(m.ObjectName?.value) || '' }; })
     .filter((c) => FREE.test(c.lic) || /^public domain/i.test(c.lic));
@@ -43,7 +45,7 @@ async function openverse(q) {
 }
 
 async function search(ids) {
-  const cand = load(CAND, {}), picks = load(PICKS, {});
+  const cand = allCand(), picks = load(PICKS, {});
   const b = await chromium.launch({ channel: 'chrome', headless: true });
   for (const { id, imgs } of await packs(ids)) {
     const keys = Object.keys(imgs).filter((k) => !existsSync(at(`public/quiz/${k}.webp`)) && picks[k] == null);
@@ -53,7 +55,7 @@ async function search(ids) {
         if (all.length < 6) all.push(...(await openverse(imgs[k])));
         if (all.length < 9) all.push(...(await commons(imgs[k], '')));
         cand[k] = { q: imgs[k], list: all.filter((c, i) => all.findIndex((d) => d.src === c.src) === i).slice(0, 12) }; }
-      console.log(k, cand[k].list.length); save(CAND, cand);
+      console.log(k, cand[k].list.length); save(candOf(id), Object.fromEntries(Object.keys(imgs).filter((x) => cand[x]).map((x) => [x, cand[x]])));
     }
     for (let s = 0; s * 6 < keys.length; s++) {
       const rows = keys.slice(s * 6, s * 6 + 6).map((k) => `<div class=r><b>${k}<br><small>${imgs[k]}</small></b>${cand[k].list.map((c, n) => `<i><img src="${c.src}"><u>${n}</u></i>`).join('')}</div>`).join('');
@@ -67,7 +69,7 @@ async function search(ids) {
 }
 
 async function fetchPicked() {
-  const cand = load(CAND, {}), picks = load(PICKS, {}), credits = load(CREDITS, {});
+  const cand = allCand(), picks = load(PICKS, {}), credits = load(CREDITS, {});
   const b = await chromium.launch({ channel: 'chrome', headless: true }), p = await b.newPage();
   for (const [k, n] of Object.entries(picks)) {
     const c = cand[k]?.list[n]; if (!c) { console.warn('нет кандидата', k, n); continue; }

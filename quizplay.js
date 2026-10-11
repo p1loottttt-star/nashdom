@@ -20,6 +20,8 @@ export async function loadQuiz(meta) {
   return { ...meta, ...pack };
 }
 let CR = null, crp = null;
+// новый тест виден в каталоге, когда его фото собраны (обложка есть в credits.json) — пакеты можно выкатывать по готовности
+export const ready = (q) => !isNew(q) || !!CR?.[q.cover];
 export const credits = () => (crp ||= fetch('/quiz/credits.json').then((r) => r.json()).then((j) => (CR = j)).catch(() => (CR = {})));
 const short = (s) => (s.length > 42 ? s.slice(0, 40) + '…' : s);
 export function photo(key, cls = '') {

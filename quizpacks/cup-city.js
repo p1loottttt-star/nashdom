@@ -3,7 +3,7 @@ export default {
   imgs: {
     'cc-cover': 'city rooftops sunset', 'cc-paris': 'paris street', 'cc-venice': 'venice canal', 'cc-rome': 'rome colosseum', 'cc-barcelona': 'barcelona sagrada familia',
     'cc-prague': 'prague old town', 'cc-amsterdam': 'amsterdam canal', 'cc-london': 'london big ben', 'cc-istanbul': 'istanbul bosphorus',
-    'cc-newyork': 'new york skyline', 'cc-tokyo': 'tokyo street night', 'cc-lisbon': 'lisbon tram', 'cc-vienna': 'vienna old town',
+    'cc-newyork': 'new york skyline', 'cc-tokyo': 'tokyo street night', 'cc-lisbon': 'lisbon tram', 'cc-vienna': 'schonbrunn palace',
     'cc-budapest': 'budapest parliament', 'cc-florence': 'florence duomo', 'cc-dubrovnik': 'dubrovnik old town', 'cc-spb': 'saint petersburg canal',
   },
   items: [

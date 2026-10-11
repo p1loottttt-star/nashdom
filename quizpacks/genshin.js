@@ -1,9 +1,9 @@
 // Фан-тест «Кто ты из Genshin Impact». Тексты свои, герои только словами; фото — мир героев (ключи → запрос Openverse).
 export default {
   imgs: {
-    'gs-cover': 'mountain valley', 'gs-q-day': 'mountain meadow', 'gs-q-words': 'handwritten letter', 'gs-q-drink': 'tea cups',
-    'gs-q-argue': 'stone bridge', 'gs-q-work': 'wooden desk', 'gs-q-tired': 'hammock', 'gs-q-gift': 'gift box',
-    'gs-q-fear': 'dark forest', 'gs-q-time': 'sunset sky', 'gs-q-trip': 'travel backpack', 'gs-q-rules': 'stone gate', 'gs-q-home': 'old town',
+    'gs-cover': 'mountain valley', 'gs-q-day': 'mountain meadow', 'gs-q-words': 'envelope', 'gs-q-drink': 'tea cups',
+    'gs-q-argue': 'stone bridge', 'gs-q-work': 'antique desk', 'gs-q-tired': 'hammock', 'gs-q-gift': 'present box',
+    'gs-q-fear': 'foggy forest', 'gs-q-time': 'sunset sky', 'gs-q-trip': 'travel backpack', 'gs-q-rules': 'stone gate', 'gs-q-home': 'old town',
     'gs-r-hutao': 'plum blossom', 'gs-r-zhongli': 'oolong tea', 'gs-r-venti': 'windmill', 'gs-r-ganyu': 'white lilies',
     'gs-r-raiden': 'dango', 'gs-r-kazuha': 'maple leaves', 'gs-r-nahida': 'rainforest', 'gs-r-furina': 'theater stage',
     'gs-r-keqing': 'city night', 'gs-r-xiao': 'misty mountains', 'gs-r-diluc': 'vineyard', 'gs-r-klee': 'fireworks',

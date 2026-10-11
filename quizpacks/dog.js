@@ -1,8 +1,8 @@
 // Тест «На какую породу собак ты похож(а)». Фото результата — сама порода (ключи → запрос Openverse).
 export default {
   imgs: {
-    'dg-cover': 'dogs playing meadow', 'dg-q-evening': 'fireplace blanket', 'dg-q-party': 'party table snacks', 'dg-q-annoy': 'rainy window',
-    'dg-q-trip': 'mountain lake', 'dg-q-friends': 'dog park', 'dg-q-work': 'desk notebook coffee', 'dg-q-love': 'dog paw',
+    'dg-cover': 'dogs playing meadow', 'dg-q-evening': 'cozy fireplace', 'dg-q-party': 'party table snacks', 'dg-q-annoy': 'rainy window',
+    'dg-q-trip': 'mountain lake', 'dg-q-friends': 'dogs playing', 'dg-q-work': 'desk notebook coffee', 'dg-q-love': 'dog paw',
     'dg-q-lost': 'footprints snow', 'dg-q-power': 'tennis ball', 'dg-q-style': 'dog collar', 'dg-q-argue': 'dog barking',
     'dg-r-golden': 'golden retriever', 'dg-r-corgi': 'pembroke welsh corgi', 'dg-r-husky': 'siberian husky', 'dg-r-dachshund': 'dachshund',
     'dg-r-border': 'border collie', 'dg-r-pug': 'pug', 'dg-r-doberman': 'dobermann', 'dg-r-beagle': 'beagle',

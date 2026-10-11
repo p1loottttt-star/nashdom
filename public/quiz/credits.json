@@ -1,4 +1,123 @@
 {
+ "cc-amsterdam": {
+  "by": "Dietmar Rabich",
+  "src": "https://commons.wikimedia.org/wiki/File:Amsterdam_(NL),_Rokin_--_2015_--_7238.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Amsterdam (NL), Rokin -- 2015 -- 7238"
+ },
+ "cc-barcelona": {
+  "by": "Bernard Gagnon",
+  "src": "https://commons.wikimedia.org/wiki/File:Sagrada_Familia_03.jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "Sagrada Familia 03"
+ },
+ "cc-budapest": {
+  "by": "Godot13",
+  "src": "https://commons.wikimedia.org/wiki/File:HUN-2015-Budapest-Hungarian_Parliament_(Budapest)_2015-02.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "HUN-2015-Budapest-Hungarian Parliament (Budapest) 2015-02"
+ },
+ "cc-cover": {
+  "by": "Roger Kidd",
+  "src": "https://commons.wikimedia.org/wiki/File:Sunset_over_Penn_rooftops,_Wolverhampton_-_geograph.org.uk_-_3774137.jpg",
+  "lic": "CC BY-SA 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/2.0",
+  "title": "Sunset over Penn rooftops, Wolverhampton - geograph.org.uk - 3774137"
+ },
+ "cc-dubrovnik": {
+  "by": "Diego Delso",
+  "src": "https://commons.wikimedia.org/wiki/File:Casco_viejo_de_Dubrovnik,_Croacia,_2014-04-14,_DD_04.JPG",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "Casco viejo de Dubrovnik, Croacia, 2014-04-14, DD 04"
+ },
+ "cc-florence": {
+  "by": "Dllu",
+  "src": "https://commons.wikimedia.org/wiki/File:Florence_Cathedral_seen_from_Piazzale_Michelangelo_night_dllu.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Florence Cathedral seen from Piazzale Michelangelo night dllu"
+ },
+ "cc-istanbul": {
+  "by": "Alexxx1979",
+  "src": "https://commons.wikimedia.org/wiki/File:Istanbul_Bosphorus_Dolmabah%C3%A7e_Mosque_IMG_7904_1920.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Istanbul Bosphorus Dolmabahçe Mosque IMG 7904 1920"
+ },
+ "cc-lisbon": {
+  "by": "Berthold Werner",
+  "src": "https://commons.wikimedia.org/wiki/File:Lisbon_BW_2018-10-03_13-25-22.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Lisbon BW 2018-10-03 13-25-22"
+ },
+ "cc-london": {
+  "by": "Christian David",
+  "src": "https://commons.wikimedia.org/wiki/File:Elizabeth_Tower_seen_from_Great_George_Street,_London.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Elizabeth Tower seen from Great George Street, London"
+ },
+ "cc-newyork": {
+  "by": "Jakub Hałun",
+  "src": "https://commons.wikimedia.org/wiki/File:Manhattan_skyline_from_Upper_New_York_Bay,_20231001_1041_0889.jpg",
+  "lic": "CC BY 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by/4.0",
+  "title": "Manhattan skyline from Upper New York Bay, 20231001 1041 0889"
+ },
+ "cc-paris": {
+  "by": "Benh LIEU SONG",
+  "src": "https://commons.wikimedia.org/wiki/File:Paris_Night.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Paris Night"
+ },
+ "cc-prague": {
+  "by": "Uoaei1",
+  "src": "https://commons.wikimedia.org/wiki/File:Praha_Panorama_from_Pet%C5%99%C3%ADn_20170430.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Praha Panorama from Petřín 20170430"
+ },
+ "cc-rome": {
+  "by": "Diliff",
+  "src": "https://commons.wikimedia.org/wiki/File:Colosseum_in_Rome,_Italy_-_April_2007.jpg",
+  "lic": "CC BY-SA 2.5",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/2.5",
+  "title": "Colosseum in Rome, Italy - April 2007"
+ },
+ "cc-spb": {
+  "by": "AndreyWi",
+  "src": "https://commons.wikimedia.org/wiki/File:%D0%A1%D0%BE%D0%B1%D0%BE%D1%80_%D0%92%D0%BE%D1%81%D0%BA%D1%80%D0%B5%D1%81%D0%B5%D0%BD%D0%B8%D1%8F_%D0%A5%D1%80%D0%B8%D1%81%D1%82%D0%BE%D0%B2%D0%B0_1.jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "Собор Воскресения Христова 1"
+ },
+ "cc-tokyo": {
+  "by": "David Kernan",
+  "src": "https://commons.wikimedia.org/wiki/File:Tokyo_Tower,_Minato_City.jpg",
+  "lic": "CC BY 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by/4.0",
+  "title": "Tokyo Tower, Minato City"
+ },
+ "cc-venice": {
+  "by": "This Photo was taken by Wolfgang Moroder. Feel free to use my photos, but please mention me as the author and send me a message. This image is not in the public domain. Please respect the copyright protection. It may only be used according to the rules mentioned here. This specifically excludes use in social media, if applicable terms of the licenses listed here not appropriate. Please do not upload an updated image here without consultation with the Author. The author would like to make corrections only at his own source. This ensures that the changes are preserved.Please if you think that any changes should be required, please inform the author.Otherwise you can upload a new image with a new name. Please use one of the templates derivative or extract.",
+  "src": "https://commons.wikimedia.org/wiki/File:Canal_Grande_Chiesa_della_Salute_e_Dogana_dal_ponte_dell_Accademia.jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "Canal Grande Chiesa della Salute e Dogana dal ponte dell Accademia"
+ },
+ "cc-vienna": {
+  "by": "Thomas Wolf, www.foto-tw.de",
+  "src": "https://commons.wikimedia.org/wiki/File:Schloss_Sch%C3%B6nbrunn_Wien_2014_(Zuschnitt_1).jpg",
+  "lic": "CC BY-SA 3.0 de",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+  "title": "Schloss Schönbrunn Wien 2014 (Zuschnitt 1)"
+ },
  "cd-baklava": {
   "by": "Sakaman",
   "src": "https://commons.wikimedia.org/wiki/File:Baklava(1).png",
@@ -117,6 +236,1581 @@
   "lic": "CC BY 2.0",
   "lic_url": "https://creativecommons.org/licenses/by/2.0/",
   "title": "Belgian Waffle"
+ },
+ "cg-beagle": {
+  "by": "Slyronit",
+  "src": "https://commons.wikimedia.org/wiki/File:Beagle_puppy_on_sofa.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Beagle puppy on sofa"
+ },
+ "cg-bernese": {
+  "by": "FriendlyToaster",
+  "src": "https://commons.wikimedia.org/wiki/File:2-BerneseMountainDogInGrass.jpg",
+  "lic": "CC BY 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by/4.0",
+  "title": "2-BerneseMountainDogInGrass"
+ },
+ "cg-collie": {
+  "by": "неизвестен",
+  "src": "https://www.rawpixel.com/image/6040717/photo-image-public-domain-border-dog",
+  "lic": "CC0",
+  "lic_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "title": "Border collie dog park"
+ },
+ "cg-corgi": {
+  "by": "Magen Peters",
+  "src": "https://commons.wikimedia.org/wiki/File:Corgi_puppy_and_adult.jpg",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0",
+  "title": "Corgi puppy and adult"
+ },
+ "cg-cover": {
+  "by": "westkeasman69",
+  "src": "https://www.flickr.com/photos/49353456@N03/5025650088",
+  "lic": "CC BY-SA 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+  "title": "shih-poo puppies playing with border collie"
+ },
+ "cg-dachshund": {
+  "by": "Bartłomiej Derski",
+  "src": "https://commons.wikimedia.org/wiki/File:Jamnik_Dachshund_puppies.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Jamnik Dachshund puppies"
+ },
+ "cg-dalmatian": {
+  "by": "Lucasbosch",
+  "src": "https://commons.wikimedia.org/wiki/File:Dalmatian_fetching_a_stick.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Dalmatian fetching a stick"
+ },
+ "cg-frenchie": {
+  "by": "TunedAutomotive",
+  "src": "https://commons.wikimedia.org/wiki/File:French_Bulldog_Male.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "French Bulldog Male"
+ },
+ "cg-golden": {
+  "by": "MichaelMcPhee",
+  "src": "https://commons.wikimedia.org/wiki/File:Callie_the_golden_retriever_puppy.jpg",
+  "lic": "CC BY 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by/3.0",
+  "title": "Callie the golden retriever puppy"
+ },
+ "cg-husky": {
+  "by": "Jeffrey Beall",
+  "src": "https://www.flickr.com/photos/31437555@N00/8835448225",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "Siberian Husky Puppies 2013-05-25"
+ },
+ "cg-labrador": {
+  "by": "tyleruk2000",
+  "src": "https://www.flickr.com/photos/41163853@N08/5909715577",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "Labrador-Puppy"
+ },
+ "cg-pomeranian": {
+  "by": "Kardashianpoms",
+  "src": "https://commons.wikimedia.org/wiki/File:PomeranianKardashianpoms.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "PomeranianKardashianpoms"
+ },
+ "cg-poodle": {
+  "by": "This Photo was taken by Timothy A. Gonsalves. Feel free to use my photos, but please mention me as the author. I would much appreciate if you send me an email tagooty@yahoo.com or write on my talk page, for my information. Please contact me before commercial use. Please do not upload an edited image here without consulting me. I would like to make corrections only at my own source to ensure that the changes improve the image and are preserved.Otherwise you may upload an edited image with a new name. Please use one of the templates derivative or extract.",
+  "src": "https://commons.wikimedia.org/wiki/File:Tapsi_Portrait_Balamuri_Coorg_Feb24_D72_25969.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Tapsi Portrait Balamuri Coorg Feb24 D72 25969"
+ },
+ "cg-pug": {
+  "by": "Augustus Binu : flickr",
+  "src": "https://commons.wikimedia.org/wiki/File:Pug_-_1_year_Old.jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "Pug - 1 year Old"
+ },
+ "cg-samoyed": {
+  "by": "Dllu",
+  "src": "https://commons.wikimedia.org/wiki/File:Samoyed_dog_two_year_old_female_dllu.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Samoyed dog two year old female dllu"
+ },
+ "cg-shiba": {
+  "by": "Roberto Vasarri",
+  "src": "https://commons.wikimedia.org/wiki/File:Shiba_inu_taiki.jpg",
+  "lic": "Public domain",
+  "lic_url": "",
+  "title": "Shiba inu taiki"
+ },
+ "cg-yorkie": {
+  "by": "неизвестен",
+  "src": "https://www.rawpixel.com/image/5901790/photo-image-background-public-domain-black",
+  "lic": "CC0",
+  "lic_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "title": "Free yorkshire terrier dog image"
+ },
+ "co-cover": {
+  "by": "Dietmar Rabich",
+  "src": "https://commons.wikimedia.org/wiki/File:Buntstifte_--_2021_--_9156.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Buntstifte -- 2021 -- 9156"
+ },
+ "co-q-advice": {
+  "by": "waferboard",
+  "src": "https://www.flickr.com/photos/60944931@N00/7417277874",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "two friends"
+ },
+ "co-q-company": {
+  "by": "PersonalCreations.com",
+  "src": "https://www.flickr.com/photos/127294011@N07/19924590745",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "wine glasses on a box cutting board with cheese fruit and bread chalkboard and personalized pillows on a picnic blanket"
+ },
+ "co-q-energy": {
+  "by": "CLAUDIA DEA",
+  "src": "https://commons.wikimedia.org/wiki/File:Sunbeams_through_the_forest.jpg",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0",
+  "title": "Sunbeams through the forest"
+ },
+ "co-q-fear": {
+  "by": "jesus-leon.es",
+  "src": "https://www.flickr.com/photos/13003532@N07/9081859121",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "dark stairs"
+ },
+ "co-q-flaw": {
+  "by": "photosteve101",
+  "src": "https://www.flickr.com/photos/42931449@N07/5263540555",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "overcoming writer's block - crumpled paper on wooden floor - crushed paper"
+ },
+ "co-q-food": {
+  "by": "Wilfredor",
+  "src": "https://commons.wikimedia.org/wiki/File:Municipal_Market_of_S%C3%A3o_Paulo_city.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Municipal Market of São Paulo city"
+ },
+ "co-q-home": {
+  "by": "Photograph: Radomianin",
+  "src": "https://commons.wikimedia.org/wiki/File:Wooden_house_(window_shutters),_Riga.jpg",
+  "lic": "Public domain",
+  "lic_url": "",
+  "title": "Wooden house (window shutters), Riga"
+ },
+ "co-q-love": {
+  "by": "zappowbang",
+  "src": "https://www.flickr.com/photos/72794895@N00/2049368918",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "seal"
+ },
+ "co-q-meeting": {
+  "by": "Matti Blume",
+  "src": "https://commons.wikimedia.org/wiki/File:VDL,_Busworld_Europe_2025,_Brussels_(20251002-P1051717).jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.en",
+  "title": "VDL, Busworld Europe 2025, Brussels (20251002-P1051717)"
+ },
+ "co-q-morning": {
+  "by": "nikko23_99",
+  "src": "https://commons.wikimedia.org/wiki/File:Breakfast_Balcony_-_panoramio.jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "Breakfast Balcony - panoramio"
+ },
+ "co-q-pet": {
+  "by": "Prosthetic Head",
+  "src": "https://commons.wikimedia.org/wiki/File:Ginger_Kitten.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Ginger Kitten"
+ },
+ "co-q-rest": {
+  "by": "slgckgc",
+  "src": "https://www.flickr.com/photos/14771153@N04/7433810112",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "Got Hammock?"
+ },
+ "co-r-black": {
+  "by": "Diego Delso",
+  "src": "https://commons.wikimedia.org/wiki/File:Punaluu_Black_Sand_Beach,_Hawaii,_USA8.jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "Punaluu Black Sand Beach, Hawaii, USA8"
+ },
+ "co-r-blue": {
+  "by": "Vyacheslav Argenberg",
+  "src": "https://commons.wikimedia.org/wiki/File:Andaman_Sea,_Andaman_Islands.jpg",
+  "lic": "CC BY 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by/4.0",
+  "title": "Andaman Sea, Andaman Islands"
+ },
+ "co-r-green": {
+  "by": "Rocky Masum",
+  "src": "https://commons.wikimedia.org/wiki/File:Fern_leaf_December.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Fern leaf December"
+ },
+ "co-r-orange": {
+  "by": "Evan-Amos",
+  "src": "https://commons.wikimedia.org/wiki/File:Orange-Fruit-Pieces.jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "Orange-Fruit-Pieces"
+ },
+ "co-r-pink": {
+  "by": "Jebulon",
+  "src": "https://commons.wikimedia.org/wiki/File:Pivoine_Japanese_peony_Jdp.jpg",
+  "lic": "CC0",
+  "lic_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "title": "Pivoine Japanese peony Jdp"
+ },
+ "co-r-purple": {
+  "by": "Nevalenx",
+  "src": "https://www.flickr.com/photos/69711165@N00/4824672191",
+  "lic": "CC BY-SA 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+  "title": "Lavender field"
+ },
+ "co-r-red": {
+  "by": "Dietmar Rabich",
+  "src": "https://commons.wikimedia.org/wiki/File:D%C3%BClmen,_Fr%C3%B6belstra%C3%9Fe,_Mohn_am_Feldrand_--_2021_--_9174.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Dülmen, Fröbelstraße, Mohn am Feldrand -- 2021 -- 9174"
+ },
+ "co-r-yellow": {
+  "by": "Basotxerri",
+  "src": "https://commons.wikimedia.org/wiki/File:Arkaia_-_Girasoles_-BT-_04.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Arkaia - Girasoles -BT- 04"
+ },
+ "cq-china": {
+  "by": "joyosity",
+  "src": "https://commons.wikimedia.org/wiki/File:Peking_duck_wrap_1.jpg",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0",
+  "title": "Peking duck wrap 1"
+ },
+ "cq-cover": {
+  "by": "Wilfredor",
+  "src": "https://commons.wikimedia.org/wiki/File:Spices_of_Sa%C3%BAde_flea_market,_S%C3%A3o_Paulo,_Brazil.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Spices of Saúde flea market, São Paulo, Brazil"
+ },
+ "cq-france": {
+  "by": "jeffreyw",
+  "src": "https://commons.wikimedia.org/wiki/File:Mmm...onion_soup_(5344349906).jpg",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0",
+  "title": "Mmm...onion soup (5344349906)"
+ },
+ "cq-georgia": {
+  "by": "Maksym Kozlenko",
+  "src": "https://commons.wikimedia.org/wiki/File:2019-07-17_Khachapuri_(Adjaruli)_served_at_Georgian_Restaurant_in_Kyiv.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "2019-07-17 Khachapuri (Adjaruli) served at Georgian Restaurant in Kyiv"
+ },
+ "cq-greece": {
+  "by": "https://www.flickr.com/photos/zone41/",
+  "src": "https://commons.wikimedia.org/wiki/File:Greek_Salad_Choriatiki.jpg",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0",
+  "title": "Greek Salad Choriatiki"
+ },
+ "cq-india": {
+  "by": "Joshua Rappeneker",
+  "src": "https://www.flickr.com/photos/41894167210@N01/416383475",
+  "lic": "CC BY-SA 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+  "title": "Butter Chicken and Naan"
+ },
+ "cq-italy": {
+  "by": "Ozchin",
+  "src": "https://www.flickr.com/photos/95268887@N00/281406925",
+  "lic": "CC BY-SA 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+  "title": "Brandi Pizza Margherita"
+ },
+ "cq-japan": {
+  "by": "quinn.anya",
+  "src": "https://www.flickr.com/photos/53326337@N00/3432689142",
+  "lic": "CC BY-SA 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+  "title": "Sushi platter"
+ },
+ "cq-korea": {
+  "by": "abex (a flickr user)",
+  "src": "https://commons.wikimedia.org/wiki/File:Korean.food-Bibimbap-02.jpg",
+  "lic": "CC BY-SA 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/2.0",
+  "title": "Korean.food-Bibimbap-02"
+ },
+ "cq-lebanon": {
+  "by": "Paul Goyette",
+  "src": "https://commons.wikimedia.org/wiki/File:Hummus_from_The_Nile.jpg",
+  "lic": "CC BY-SA 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/2.0",
+  "title": "Hummus from The Nile"
+ },
+ "cq-mexico": {
+  "by": "Larry Miller",
+  "src": "https://commons.wikimedia.org/wiki/File:001_Tacos_de_carnitas,_carne_asada_y_al_pastor.jpg",
+  "lic": "CC BY-SA 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/2.0",
+  "title": "001 Tacos de carnitas, carne asada y al pastor"
+ },
+ "cq-moldova": {
+  "by": "Nicubunu",
+  "src": "https://commons.wikimedia.org/wiki/File:Sarmale_with_mamalig%C4%83.jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "Sarmale with mamaligă"
+ },
+ "cq-spain": {
+  "by": "Carlos Delgado",
+  "src": "https://commons.wikimedia.org/wiki/File:Concurso_Internacional_de_Paella_de_Sueca_2016_-_53.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Concurso Internacional de Paella de Sueca 2016 - 53"
+ },
+ "cq-thai": {
+  "by": "Takeaway",
+  "src": "https://commons.wikimedia.org/wiki/File:Phat_Thai_kung_Chang_Khien_street_stall.jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "Phat Thai kung Chang Khien street stall"
+ },
+ "cq-turkey": {
+  "by": "Kevin Hutchinson",
+  "src": "https://www.flickr.com/photos/36374942@N00/430460987",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "Turkish Kebab!!! So tasty!!!"
+ },
+ "cq-usa": {
+  "by": "Evan-Amos",
+  "src": "https://commons.wikimedia.org/wiki/File:McDonald%27s_Quarter_Pounder_with_Cheese,_United_States.jpg",
+  "lic": "CC0",
+  "lic_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "title": "McDonald's Quarter Pounder with Cheese, United States"
+ },
+ "cq-vietnam": {
+  "by": "Wesoree",
+  "src": "https://commons.wikimedia.org/wiki/File:Nam_pho_bowl.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Nam pho bowl"
+ },
+ "ct-beach": {
+  "by": "Liridon",
+  "src": "https://commons.wikimedia.org/wiki/File:Sunset_at_Livadhi_Beach,_Himare_-_2020_July_(2).jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Sunset at Livadhi Beach, Himare - 2020 July (2)"
+ },
+ "ct-cafe": {
+  "by": "The DLC",
+  "src": "https://www.flickr.com/photos/23083686@N00/4191781490",
+  "lic": "CC BY-SA 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+  "title": "Cozy's Cafe"
+ },
+ "ct-cinema": {
+  "by": "Tuxyso",
+  "src": "https://commons.wikimedia.org/wiki/File:Lichtburg-Essen-Kinosaal-2025.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Lichtburg-Essen-Kinosaal-2025"
+ },
+ "ct-concert": {
+  "by": "PinkBeachPlanet",
+  "src": "https://commons.wikimedia.org/wiki/File:Beach-Please-2022-crowd-stage-lights-night-performance.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Beach-Please-2022-crowd-stage-lights-night-performance"
+ },
+ "ct-cooking": {
+  "by": "ReneS",
+  "src": "https://www.flickr.com/photos/63504485@N00/150745097",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "Cooking in a Pan"
+ },
+ "ct-cover": {
+  "by": "extranoise",
+  "src": "https://www.flickr.com/photos/10508943@N00/306970309",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "candle light dinner"
+ },
+ "ct-forest": {
+  "by": "Pudelek (Marcin Szala)",
+  "src": "https://commons.wikimedia.org/wiki/File:Slezsk%C3%A9_Beskydy_-_Ryt%C3%AD%C5%99sk%C3%A1_stezka_(cesta_N%C3%BDdek_-_Velk%C3%A1_%C4%8Cantoryje).JPG",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Slezské Beskydy - Rytířská stezka (cesta Nýdek - Velká Čantoryje)"
+ },
+ "ct-lake": {
+  "by": "Julian Herzog (Website)",
+  "src": "https://commons.wikimedia.org/wiki/File:Derwent_Water_Landing_Stage_Keswick_2022.jpg",
+  "lic": "CC BY 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by/4.0",
+  "title": "Derwent Water Landing Stage Keswick 2022"
+ },
+ "ct-library": {
+  "by": "Steffen Schmitz (more photos)",
+  "src": "https://commons.wikimedia.org/wiki/File:Weimar,_Herzogin_Anna_Amalia_Bibliothek,_2019-09_CN-03.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Weimar, Herzogin Anna Amalia Bibliothek, 2019-09 CN-03"
+ },
+ "ct-mountains": {
+  "by": "Johann Jaritz",
+  "src": "https://commons.wikimedia.org/wiki/File:Ferlach_Bodental_Bodenbauer_mit_Vertatscha_24102017_5697.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Ferlach Bodental Bodenbauer mit Vertatscha 24102017 5697"
+ },
+ "ct-museum": {
+  "by": "Dietmar Rabich",
+  "src": "https://commons.wikimedia.org/wiki/File:Sydney_(AU),_Art_Gallery_of_New_South_Wales_--_2019_--_3103.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Sydney (AU), Art Gallery of New South Wales -- 2019 -- 3103"
+ },
+ "ct-nightcity": {
+  "by": "Dietmar Rabich",
+  "src": "https://commons.wikimedia.org/wiki/File:Melbourne_(AU),_Melbourne_City_Centre_--_2019_--_1493-7.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Melbourne (AU), Melbourne City Centre -- 2019 -- 1493-7"
+ },
+ "ct-picnic": {
+  "by": "PersonalCreations.com",
+  "src": "https://www.flickr.com/photos/127294011@N07/19924590745",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "wine glasses on a box cutting board with cheese fruit and bread chalkboard and personalized pillows on a picnic blanket"
+ },
+ "ct-planetarium": {
+  "by": "Jochen Teufel",
+  "src": "https://commons.wikimedia.org/wiki/File:Zeiss-Gro%C3%9Fplanetarium_Berlin_(2009).jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "Zeiss-Großplanetarium Berlin (2009)"
+ },
+ "ct-rink": {
+  "by": "C messier",
+  "src": "https://commons.wikimedia.org/wiki/File:Rijksmuseum_winter_7441.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Rijksmuseum winter 7441"
+ },
+ "ct-roof": {
+  "by": "jurvetson",
+  "src": "https://www.flickr.com/photos/44124348109@N01/2171155280",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "One Night in Bangkok"
+ },
+ "ct-wheel": {
+  "by": "Dietmar Rabich",
+  "src": "https://commons.wikimedia.org/wiki/File:M%C3%BCnster,_Schlossplatz,_Fr%C3%BChjahrssend_--_2019_--_4150.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Münster, Schlossplatz, Frühjahrssend -- 2019 -- 4150"
+ },
+ "dg-cover": {
+  "by": "Artem Beliaikin",
+  "src": "https://www.flickr.com/photos/157635012@N07/45182118181",
+  "lic": "CC0",
+  "lic_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "title": "stocks-3705"
+ },
+ "dg-q-annoy": {
+  "by": "Nadeerpunchavayal",
+  "src": "https://commons.wikimedia.org/wiki/File:Rainy_walpaper.png",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Rainy walpaper"
+ },
+ "dg-q-argue": {
+  "by": "U.S. Air Force Photo by Josh Plueger",
+  "src": "https://commons.wikimedia.org/wiki/File:Military_dog_barking_(cropped).JPG",
+  "lic": "Public domain",
+  "lic_url": "",
+  "title": "Military dog barking (cropped)"
+ },
+ "dg-q-evening": {
+  "by": "Lindsey Turner",
+  "src": "https://commons.wikimedia.org/wiki/File:Cozy_Christmas_Fireplace_with_stockings.jpg",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0",
+  "title": "Cozy Christmas Fireplace with stockings"
+ },
+ "dg-q-friends": {
+  "by": "Kreuzschnabel",
+  "src": "https://commons.wikimedia.org/wiki/File:Dogs-friendly-wrestling.jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "Dogs-friendly-wrestling"
+ },
+ "dg-q-lost": {
+  "by": "Reinhold Möller Ermell",
+  "src": "https://commons.wikimedia.org/wiki/File:Neub%C3%BCrg_Fu%C3%9Fabdr%C3%BCcke_Schnee-20190204-RM-155708.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Neubürg Fußabdrücke Schnee-20190204-RM-155708"
+ },
+ "dg-q-love": {
+  "by": "oinonio",
+  "src": "https://www.flickr.com/photos/98063230@N00/6836930851",
+  "lic": "CC BY-SA 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+  "title": "Dog paw, detail"
+ },
+ "dg-q-party": {
+  "by": "Accretion Disc",
+  "src": "https://www.flickr.com/photos/23642145@N00/11109679933",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "Potluck Snacks"
+ },
+ "dg-q-power": {
+  "by": "Evan-Amos",
+  "src": "https://commons.wikimedia.org/wiki/File:Dunkin-Donuts-Chocolate-Glazed.jpg",
+  "lic": "Public domain",
+  "lic_url": "",
+  "title": "Dunkin-Donuts-Chocolate-Glazed"
+ },
+ "dg-q-style": {
+  "by": "Trougnouf (Benoit Brummer), Les cuirs d'Agathe",
+  "src": "https://commons.wikimedia.org/wiki/File:Leather_dog_collar_made_by_Les_cuirs_d%27Agathe_(DSC07529).jpg",
+  "lic": "CC BY 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by/4.0",
+  "title": "Leather dog collar made by Les cuirs d'Agathe (DSC07529)"
+ },
+ "dg-q-trip": {
+  "by": "Chensiyuan",
+  "src": "https://commons.wikimedia.org/wiki/File:1_lake_louise_pano_2019.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "1 lake louise pano 2019"
+ },
+ "dg-q-work": {
+  "by": "waferboard",
+  "src": "https://www.flickr.com/photos/60944931@N00/6783298985",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "notebook"
+ },
+ "dg-r-beagle": {
+  "by": "PumpkinSky",
+  "src": "https://commons.wikimedia.org/wiki/File:Bronco_the_Beagle.JPG",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Bronco the Beagle"
+ },
+ "dg-r-border": {
+  "by": "Janesalway",
+  "src": "https://commons.wikimedia.org/wiki/File:Male_Border_Collie_Standing.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Male Border Collie Standing"
+ },
+ "dg-r-corgi": {
+  "by": "Bernard Spragg",
+  "src": "https://www.flickr.com/photos/88123769@N02/9288847355",
+  "lic": "CC0",
+  "lic_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "title": "Pembroke Welsh Corgi."
+ },
+ "dg-r-dachshund": {
+  "by": "Another one of my pictures: This photograph was taken by Medium69 (William Crochot) and released under the license stated below. You are free to use it for any purpose as long as you credit the author (William Crochot), the Source (Wikimedia Commons) and the license (CC-BY-SA 4.0) in close relation to the image. Please do not upload an updated image here without consultation with the Author. The author would like to make corrections only at his own source RAW. This ensures that the changes are preserved.Please if you think that any changes should be required, please inform the author.Otherwise you can upload a new image with a new name. Please use one of the templates derivative or extract.",
+  "src": "https://commons.wikimedia.org/wiki/File:Teckel_-_39.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Teckel - 39"
+ },
+ "dg-r-doberman": {
+  "by": "JoSaba11",
+  "src": "https://commons.wikimedia.org/wiki/File:DobermannSparte5.jpg",
+  "lic": "CC0",
+  "lic_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "title": "DobermannSparte5"
+ },
+ "dg-r-golden": {
+  "by": "MichaelMcPhee",
+  "src": "https://commons.wikimedia.org/wiki/File:Callie_the_golden_retriever_puppy.jpg",
+  "lic": "CC BY 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by/3.0",
+  "title": "Callie the golden retriever puppy"
+ },
+ "dg-r-husky": {
+  "by": "MrPanyGoff",
+  "src": "https://commons.wikimedia.org/wiki/File:Juvenile_Siberian_Husky.jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "Juvenile Siberian Husky"
+ },
+ "dg-r-pug": {
+  "by": "0¢",
+  "src": "https://www.flickr.com/photos/74620329@N03/6724682087",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "Pug"
+ },
+ "dn-cover": {
+  "by": "George Chernilevsky",
+  "src": "https://commons.wikimedia.org/wiki/File:Apples_in_basket_2018_G1.jpg",
+  "lic": "Public domain",
+  "lic_url": "",
+  "title": "Apples in basket 2018 G1"
+ },
+ "dn-q-evening": {
+  "by": "Wilfredor",
+  "src": "https://commons.wikimedia.org/wiki/File:Qu%C3%A9bec_city_at_night,_view_from_L%C3%A9vis_city.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Québec city at night, view from Lévis city"
+ },
+ "dn-q-justice": {
+  "by": "Nikodem Nijaki",
+  "src": "https://commons.wikimedia.org/wiki/File:Balance_scale_IMGP9755.jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "Balance scale IMGP9755"
+ },
+ "dn-q-office": {
+  "by": "Photograph: Frank C. Müller, Baden-Baden",
+  "src": "https://commons.wikimedia.org/wiki/File:Buerostuhl_(fcm).jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Buerostuhl (fcm)"
+ },
+ "dn-q-pet": {
+  "by": "Alvesgaspar",
+  "src": "https://commons.wikimedia.org/wiki/File:Kali_July_2026-5_filtered.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Kali July 2026-5 filtered"
+ },
+ "dn-q-plan": {
+  "by": "cogdogblog",
+  "src": "https://www.flickr.com/photos/37996646802@N01/265279980",
+  "lic": "CC0",
+  "lic_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "title": "What Can We Do With Flickr?"
+ },
+ "dn-q-puzzle": {
+  "by": "Wilfredor",
+  "src": "https://commons.wikimedia.org/wiki/File:Chess_game_Staunton_No._6_perfil_view_8.jpg",
+  "lic": "CC0",
+  "lic_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "title": "Chess game Staunton No. 6 perfil view 8"
+ },
+ "dn-q-rival": {
+  "by": "Dietmar Rabich",
+  "src": "https://commons.wikimedia.org/wiki/File:Schachfiguren,_Ausrei%C3%9Fer_--_2021_--_9665.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Schachfiguren, Ausreißer -- 2021 -- 9665"
+ },
+ "dn-q-secret": {
+  "by": "Trougnouf",
+  "src": "https://commons.wikimedia.org/wiki/File:Solex_99_30_padlock_with_keys_(DSCF2659).jpg",
+  "lic": "CC BY 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by/4.0",
+  "title": "Solex 99 30 padlock with keys (DSCF2659)"
+ },
+ "dn-q-snack": {
+  "by": "Ermell",
+  "src": "https://commons.wikimedia.org/wiki/File:Wax-_cake_model_Japan1550.jpg",
+  "lic": "CC0",
+  "lic_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "title": "Wax- cake model Japan1550"
+ },
+ "dn-q-style": {
+  "by": "Photograph by Mike Peel (www.mikepeel.net).",
+  "src": "https://commons.wikimedia.org/wiki/File:Wooden_coat_hangers.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Wooden coat hangers"
+ },
+ "dn-q-words": {
+  "by": "Jan Mehlich (Lestat)",
+  "src": "https://commons.wikimedia.org/wiki/File:Majestic_Seal_of_the_Realm_of_Wladislaus_II_of_Poland_(16th_century_copy).jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+  "title": "Majestic Seal of the Realm of Wladislaus II of Poland (16th century copy)"
+ },
+ "dn-q-worst": {
+  "by": "Basile Morin",
+  "src": "https://commons.wikimedia.org/wiki/File:Yasaka-dori_early_morning_with_street_lanterns_and_the_Tower_of_Yasaka_(Hokan-ji_Temple),_Kyoto,_Japan.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Yasaka-dori early morning with street lanterns and the Tower of Yasaka (Hokan-ji Temple), Kyoto, Japan"
+ },
+ "dn-r-l": {
+  "by": "Dietmar Rabich",
+  "src": "https://commons.wikimedia.org/wiki/File:W%C3%BCrfelzucker_--_2018_--_3564.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Würfelzucker -- 2018 -- 3564"
+ },
+ "dn-r-light": {
+  "by": "Porapak Apichodilok",
+  "src": "https://stocksnap.io/photo/black-notebook-35DZYNX6SG",
+  "lic": "CC0",
+  "lic_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "title": "Black Notebook"
+ },
+ "dn-r-matsuda": {
+  "by": "Evan-Amos",
+  "src": "https://commons.wikimedia.org/wiki/File:Dunkin-Donuts-Chocolate-Sprinkled.jpg",
+  "lic": "Public domain",
+  "lic_url": "",
+  "title": "Dunkin-Donuts-Chocolate-Sprinkled"
+ },
+ "dn-r-mello": {
+  "by": "Evan-Amos",
+  "src": "https://commons.wikimedia.org/wiki/File:3-Musketeers-Broken.jpg",
+  "lic": "Public domain",
+  "lic_url": "",
+  "title": "3-Musketeers-Broken"
+ },
+ "dn-r-misa": {
+  "by": "Dietmar Rabich",
+  "src": "https://commons.wikimedia.org/wiki/File:D%C3%BClmen,_Hausd%C3%BClmen,_Bl%C3%BCten_der_D%C3%BClmener_Rose_--_2020_--_6538_(bw).jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Dülmen, Hausdülmen, Blüten der Dülmener Rose -- 2020 -- 6538 (bw)"
+ },
+ "dn-r-near": {
+  "by": "kallerna",
+  "src": "https://commons.wikimedia.org/wiki/File:Jigsaw_puzzle_solving_2.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Jigsaw puzzle solving 2"
+ },
+ "dn-r-rem": {
+  "by": "This Photo was taken by Timothy A. Gonsalves. Feel free to use my photos, but please mention me as the author. I would much appreciate if you send me an email tagooty@yahoo.com or write on my talk page, for my information. Please contact me before commercial use. Please do not upload an edited image here without consulting me. I would like to make corrections only at my own source to ensure that the changes improve the image and are preserved.Otherwise you may upload an edited image with a new name. Please use one of the templates derivative or extract.",
+  "src": "https://commons.wikimedia.org/wiki/File:Water_Bird_Feather_Harangi_Coorg_Apr24_A7C_10812.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Water Bird Feather Harangi Coorg Apr24 A7C 10812"
+ },
+ "dn-r-ryuk": {
+  "by": "Toby Hudson",
+  "src": "https://commons.wikimedia.org/wiki/File:PinkLadyApples.JPG",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "PinkLadyApples"
+ },
+ "dn-r-soichiro": {
+  "by": "Dori",
+  "src": "https://commons.wikimedia.org/wiki/File:Reading_glasses.jpg",
+  "lic": "Public domain",
+  "lic_url": "",
+  "title": "Reading glasses"
+ },
+ "dn2-cover": {
+  "by": "Jebulon",
+  "src": "https://commons.wikimedia.org/wiki/File:Allosaurus_fragilis_moulage_MNHN_paleontologie_1.JPG",
+  "lic": "Public domain",
+  "lic_url": "",
+  "title": "Allosaurus fragilis moulage MNHN paleontologie 1"
+ },
+ "dn2-q-company": {
+  "by": "Dietmar Rabich",
+  "src": "https://commons.wikimedia.org/wiki/File:D%C3%BClmen,_Merfeld,_Wildpferdebahn_--_2015_--_6774.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Dülmen, Merfeld, Wildpferdebahn -- 2015 -- 6774"
+ },
+ "dn2-q-conflict": {
+  "by": "NadezhdaKhaustova",
+  "src": "https://commons.wikimedia.org/wiki/File:%D0%9B%D0%B8%D1%81%D0%B0-%D0%BE%D0%B3%D0%BD%D0%B5%D0%B2%D0%BA%D0%B0_%D0%BD%D0%B0_%D1%84%D0%BE%D0%BD%D0%B5_%D0%92%D0%B8%D0%BB%D1%8E%D1%87%D0%B8%D0%BD%D1%81%D0%BA%D0%BE%D0%B3%D0%BE_%D0%B2%D1%83%D0%BB%D0%BA%D0%B0%D0%BD%D0%B0.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Лиса-огневка на фоне Вилючинского вулкана"
+ },
+ "dn2-q-dacha": {
+  "by": "Basile Morin",
+  "src": "https://commons.wikimedia.org/wiki/File:Repurposed_pirogue_as_kitchen_garden.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Repurposed pirogue as kitchen garden"
+ },
+ "dn2-q-fear": {
+  "by": "KQuhen",
+  "src": "https://commons.wikimedia.org/wiki/File:Batu_Caves_Dark_Cave_Interior_2015.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Batu Caves Dark Cave Interior 2015"
+ },
+ "dn2-q-flirt": {
+  "by": "Giles Laurent",
+  "src": "https://commons.wikimedia.org/wiki/File:093_Wild_Mute_swan_at_Lake_Geneva_during_sunset_Photo_by_Giles_Laurent.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "093 Wild Mute swan at Lake Geneva during sunset Photo by Giles Laurent"
+ },
+ "dn2-q-food": {
+  "by": "WikiForAfrica",
+  "src": "https://commons.wikimedia.org/wiki/File:Charcoal_Steak.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Charcoal Steak"
+ },
+ "dn2-q-learn": {
+  "by": "Photographed at the Royal Society, London, with the kind permission of the Royal Society Library, as part of WikiProject Royal Society. Photograph by Mike Peel (www.mikepeel.net).",
+  "src": "https://commons.wikimedia.org/wiki/File:Royal_Society_-_Journal_Books_of_the_Royal_Society_4.jpg",
+  "lic": "Public domain",
+  "lic_url": "",
+  "title": "Royal Society - Journal Books of the Royal Society 4"
+ },
+ "dn2-q-morning": {
+  "by": "resilientjake",
+  "src": "https://www.flickr.com/photos/63961068@N00/334591006",
+  "lic": "CC BY-SA 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+  "title": "Sunrise Fern"
+ },
+ "dn2-q-power": {
+  "by": "Dietmar Rabich",
+  "src": "https://commons.wikimedia.org/wiki/File:Yosemite_National_Park_(CA,_USA),_Mariposa_Grove_of_Giant_Sequoias,_Grizzly_Giant_--_2022_--_2752.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Yosemite National Park (CA, USA), Mariposa Grove of Giant Sequoias, Grizzly Giant -- 2022 -- 2752"
+ },
+ "dn2-q-style": {
+  "by": "Herbythyme",
+  "src": "https://commons.wikimedia.org/wiki/File:Old_friends.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Old friends"
+ },
+ "dn2-q-trip": {
+  "by": "Godot13",
+  "src": "https://commons.wikimedia.org/wiki/File:ISR-2013-Makhtesh_Ramon-Slot_Canyon_01.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "ISR-2013-Makhtesh Ramon-Slot Canyon 01"
+ },
+ "dn2-q-words": {
+  "by": "Masur",
+  "src": "https://commons.wikimedia.org/wiki/File:Perisphinctes_ammonite.jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+  "title": "Perisphinctes ammonite"
+ },
+ "dn2-r-ankylo": {
+  "by": "Gary Lee Todd, Ph.D.",
+  "src": "https://www.flickr.com/photos/101561334@N08/31478253461",
+  "lic": "CC0",
+  "lic_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "title": "Ankylosaurus Skeleton"
+ },
+ "dn2-r-brachio": {
+  "by": "Aleksomber",
+  "src": "https://commons.wikimedia.org/wiki/File:Ord_brachiosaurus.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Ord brachiosaurus"
+ },
+ "dn2-r-para": {
+  "by": "W.carter",
+  "src": "https://commons.wikimedia.org/wiki/File:Beech_and_ferns_in_Gullmarsskogen.jpg",
+  "lic": "CC0",
+  "lic_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "title": "Beech and ferns in Gullmarsskogen"
+ },
+ "dn2-r-raptor": {
+  "by": "Gary Lee Todd, Ph.D.",
+  "src": "http://www.flickr.com/photos/101561334@N08/48106998226",
+  "lic": "Public domain",
+  "lic_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+  "title": "Velociraptor Skeleton"
+ },
+ "dn2-r-spino": {
+  "by": "Kingshuk Mondal",
+  "src": "https://commons.wikimedia.org/wiki/File:Sundarban_Mudflats_during_low_tide,_Sundarban_Tiger_Reserve,_West_Bengal,_India_02.jpg",
+  "lic": "CC BY 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by/4.0",
+  "title": "Sundarban Mudflats during low tide, Sundarban Tiger Reserve, West Bengal, India 02"
+ },
+ "dn2-r-stego": {
+  "by": "Gary Lee Todd, Ph.D.",
+  "src": "https://www.flickr.com/photos/101561334@N08/33520471151",
+  "lic": "CC0",
+  "lic_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "title": "Stegosaurus Skeleton"
+ },
+ "dn2-r-trex": {
+  "by": "jurvetson",
+  "src": "https://www.flickr.com/photos/44124348109@N01/11847683823",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "The biggest and most complete male T-Rex ever found"
+ },
+ "dn2-r-trice": {
+  "by": "skpy",
+  "src": "https://www.flickr.com/photos/42774892@N00/452219078",
+  "lic": "CC BY-SA 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+  "title": "Triceratops skull"
+ },
+ "el-cover": {
+  "by": "Ximonic (Simo Räsänen)",
+  "src": "https://commons.wikimedia.org/wiki/File:Aurora_borealis_above_Lyngenfjorden,_2012_March.jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "Aurora borealis above Lyngenfjorden, 2012 March"
+ },
+ "el-q-anger": {
+  "by": "Vyacheslav Argenberg",
+  "src": "https://commons.wikimedia.org/wiki/File:Clouds,_cloudscape_over_Lombok_Strait,_Bali_Sea,_Gili_Islands,_West_Nusa_Tenggara,_Indonesia.jpg",
+  "lic": "CC BY 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by/4.0",
+  "title": "Clouds, cloudscape over Lombok Strait, Bali Sea, Gili Islands, West Nusa Tenggara, Indonesia"
+ },
+ "el-q-choice": {
+  "by": "Jebulon",
+  "src": "https://commons.wikimedia.org/wiki/File:Sestertius_Hadrianus_Roma_Victory_Cornucopia.jpg",
+  "lic": "CC0",
+  "lic_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "title": "Sestertius Hadrianus Roma Victory Cornucopia"
+ },
+ "el-q-flaw": {
+  "by": "Titus Tscharntke",
+  "src": "https://commons.wikimedia.org/wiki/File:Cracked_stones_pattern.jpg",
+  "lic": "Public domain",
+  "lic_url": "",
+  "title": "Cracked stones pattern"
+ },
+ "el-q-friend": {
+  "by": "Laurel Fan",
+  "src": "https://www.flickr.com/photos/18295242@N00/46005560",
+  "lic": "CC BY-SA 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+  "title": "Tea"
+ },
+ "el-q-home": {
+  "by": "George Chernilevsky",
+  "src": "https://commons.wikimedia.org/wiki/File:Flexopecten_ponticus_2008_G1.jpg",
+  "lic": "Public domain",
+  "lic_url": "",
+  "title": "Flexopecten ponticus 2008 G1"
+ },
+ "el-q-love": {
+  "by": "Petar Milošević",
+  "src": "https://commons.wikimedia.org/wiki/File:Candle_(Slava_celebration).jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Candle (Slava celebration)"
+ },
+ "el-q-morning": {
+  "by": "Dietmar Rabich",
+  "src": "https://commons.wikimedia.org/wiki/File:K%C3%BChlungsborn,_Konzertgarten_Ost,_Fenster_im_Sonnenuntergang_--_2024_--_2015.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Kühlungsborn, Konzertgarten Ost, Fenster im Sonnenuntergang -- 2024 -- 2015"
+ },
+ "el-q-party": {
+  "by": "Dietmar Rabich",
+  "src": "https://commons.wikimedia.org/wiki/File:M%C3%BCnster,_Send,_Riesenrad_--_2024_--_6503.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Münster, Send, Riesenrad -- 2024 -- 6503"
+ },
+ "el-q-place": {
+  "by": "Vyacheslav Argenberg",
+  "src": "https://commons.wikimedia.org/wiki/File:Mountain_lake,_Mylgval_mountain_cirque,_Western_Caucasus.jpg",
+  "lic": "CC BY 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by/4.0",
+  "title": "Mountain lake, Mylgval mountain cirque, Western Caucasus"
+ },
+ "el-q-rest": {
+  "by": "Basile Morin",
+  "src": "https://commons.wikimedia.org/wiki/File:Bathtub_of_Khan_Pool_Suite_in_Amantaka_luxury_Resort_%26_Hotel_in_Luang_Prabang_Laos.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Bathtub of Khan Pool Suite in Amantaka luxury Resort & Hotel in Luang Prabang Laos"
+ },
+ "el-q-season": {
+  "by": "Sumitsurai",
+  "src": "https://commons.wikimedia.org/wiki/File:Autumn_Leaves_-_Caversham_Court_-_Reading.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Autumn Leaves - Caversham Court - Reading"
+ },
+ "el-r-air": {
+  "by": "ADARSHluck",
+  "src": "https://commons.wikimedia.org/wiki/File:Cirrus_uncinus_clouds_in_the_morning_sky.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Cirrus uncinus clouds in the morning sky"
+ },
+ "el-r-earth": {
+  "by": "Dietmar Rabich",
+  "src": "https://commons.wikimedia.org/wiki/File:Fanal_(Madeira,_Portugal),_Lorbeerwald_--_2025_--_1546.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Fanal (Madeira, Portugal), Lorbeerwald -- 2025 -- 1546"
+ },
+ "el-r-fire": {
+  "by": "Roi Boshi",
+  "src": "https://commons.wikimedia.org/wiki/File:Lag_Ba%27Omer_bonfire_Tel_Aviv_Israel.jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "Lag Ba'Omer bonfire Tel Aviv Israel"
+ },
+ "el-r-ice": {
+  "by": "Giles Laurent",
+  "src": "https://commons.wikimedia.org/wiki/File:033_Freshly_rotated_iceberg_at_J%C3%B6kuls%C3%A1rl%C3%B3n_(Iceland)_Photo_by_Giles_Laurent.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "033 Freshly rotated iceberg at Jökulsárlón (Iceland) Photo by Giles Laurent"
+ },
+ "el-r-storm": {
+  "by": "Thennicke",
+  "src": "https://commons.wikimedia.org/wiki/File:CC_lightning,_Albury_NSW.JPG",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "CC lightning, Albury NSW"
+ },
+ "el-r-water": {
+  "by": "Alvesgaspar (talk)",
+  "src": "https://commons.wikimedia.org/wiki/File:Waves_July_2009-1.jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "Waves July 2009-1"
+ },
+ "fr-cover": {
+  "by": "Peachyeung316",
+  "src": "https://commons.wikimedia.org/wiki/File:A_cup_of_coffee_in_Mohk.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "A cup of coffee in Mohk"
+ },
+ "fr-q-cook": {
+  "by": "Matti Blume",
+  "src": "https://commons.wikimedia.org/wiki/File:Pot_(IMG_0261).jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.en",
+  "title": "Pot (IMG 0261)"
+ },
+ "fr-q-date": {
+  "by": "Petar Milošević",
+  "src": "https://commons.wikimedia.org/wiki/File:%D0%91%D0%BE%D0%B6%D0%B8%D1%9B%D0%BD%D0%B0_%D0%B2%D0%B5%D1%87%D0%B5%D1%80%D0%B0_(traditional_Christmas_dinner;_Folklore_of_Serbia).jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Божићна вечера (traditional Christmas dinner; Folklore of Serbia)"
+ },
+ "fr-q-evening": {
+  "by": "Friedrich Haag",
+  "src": "https://commons.wikimedia.org/wiki/File:Man_in_a_street_-_caf%C3%A9_in_Palma.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Man in a street - café in Palma"
+ },
+ "fr-q-fridge": {
+  "by": "W.carter",
+  "src": "https://commons.wikimedia.org/wiki/File:Open_refrigerator_with_food_at_night.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Open refrigerator with food at night"
+ },
+ "fr-q-gift": {
+  "by": "ProFlowers.com",
+  "src": "https://www.flickr.com/photos/127365614@N08/15850978619",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "Polka dot delight gift wrapped present with pine clippings a sharpie pen twine and a bow on a white table"
+ },
+ "fr-q-home": {
+  "by": "August Geyler",
+  "src": "https://commons.wikimedia.org/wiki/File:Mehrfamilienhaus_Theodor-Neubauer-Stra%C3%9Fe_62-66.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Mehrfamilienhaus Theodor-Neubauer-Straße 62-66"
+ },
+ "fr-q-job": {
+  "by": "Ermell",
+  "src": "https://commons.wikimedia.org/wiki/File:Nabburg_Freilandmuseum_G%C3%BCterhalle_Amtsstube-20190823-RM-151643.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Nabburg Freilandmuseum Güterhalle Amtsstube-20190823-RM-151643"
+ },
+ "fr-q-love": {
+  "by": "This Photo was taken by Timothy A. Gonsalves. Feel free to use my photos, but please mention me as the author. I would much appreciate if you send me an email tagooty@yahoo.com or write on my talk page, for my information. Please contact me before commercial use. Please do not upload an edited image here without consulting me. I would like to make corrections only at my own source to ensure that the changes improve the image and are preserved.Otherwise you may upload an edited image with a new name. Please use one of the templates derivative or extract.",
+  "src": "https://commons.wikimedia.org/wiki/File:Red_Rose_Flower_IITMandi_Himachal_Aug19_D72_11473.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Red Rose Flower IITMandi Himachal Aug19 D72 11473"
+ },
+ "fr-q-nerves": {
+  "by": "photosteve101",
+  "src": "https://www.flickr.com/photos/42931449@N07/5263540555",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "overcoming writer's block - crumpled paper on wooden floor - crushed paper"
+ },
+ "fr-q-power": {
+  "by": "liza31337",
+  "src": "https://www.flickr.com/photos/85763206@N00/2944376209",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "Puzzle pieces"
+ },
+ "fr-q-rain": {
+  "by": "Nadeerpunchavayal",
+  "src": "https://commons.wikimedia.org/wiki/File:Rainy_walpaper.png",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Rainy walpaper"
+ },
+ "fr-q-words": {
+  "by": "Feliciano Guimarães from Guimarães, Portugal",
+  "src": "https://commons.wikimedia.org/wiki/File:Kitten_among_sofa_cushions_(2010).jpg",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0",
+  "title": "Kitten among sofa cushions (2010)"
+ },
+ "fr-r-chandler": {
+  "by": "Daderot",
+  "src": "https://commons.wikimedia.org/wiki/File:Easy_chair,_probably_Boston,_Massachusetts,_1750-1790,_mahogany,_maple,_pine,_replacement_wool_upholstery-_Dallas_Museum_of_Art_-_DSC04896.jpg",
+  "lic": "Public domain",
+  "lic_url": "",
+  "title": "Easy chair, probably Boston, Massachusetts, 1750-1790, mahogany, maple, pine, replacement wool upholstery- Dallas Museum of Art - DSC04896"
+ },
+ "fr-r-gunther": {
+  "by": "Ivan Radic",
+  "src": "https://www.flickr.com/photos/26344495@N05/48918211266",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "Coffee pouring out of an espresso machine into two cups"
+ },
+ "fr-r-janice": {
+  "by": "Axel Tschentscher",
+  "src": "https://commons.wikimedia.org/wiki/File:African_Leopard_Near_Okevi_Waterhole_Etosha_Namibia.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "African Leopard Near Okevi Waterhole Etosha Namibia"
+ },
+ "fr-r-joey": {
+  "by": "Rjcastillo",
+  "src": "https://commons.wikimedia.org/wiki/File:Pizza_Tradici%C3%B3n_Napolitana.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Pizza Tradición Napolitana"
+ },
+ "fr-r-monica": {
+  "by": "Feel free to use my photos, but please mention me as the author and if you want send me a message. or (rufre@lenz-nenning.at)",
+  "src": "https://commons.wikimedia.org/wiki/File:L_K%C3%BCche_2015.jpg",
+  "lic": "CC BY-SA 3.0 at",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0/at/deed.en",
+  "title": "L Küche 2015"
+ },
+ "fr-r-phoebe": {
+  "by": "Wilfredor",
+  "src": "https://commons.wikimedia.org/wiki/File:Paramount_Series_acoustic_guitars.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Paramount Series acoustic guitars"
+ },
+ "fr-r-rachel": {
+  "by": "Benoît Prieur",
+  "src": "https://commons.wikimedia.org/wiki/File:Boulevard_de_Waterloo_%C3%A0_Bruxelles,_boutique_Chanel_(d%C3%A9cembre_2019)_-_2.jpg",
+  "lic": "CC0",
+  "lic_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "title": "Boulevard de Waterloo à Bruxelles, boutique Chanel (décembre 2019) - 2"
+ },
+ "fr-r-richard": {
+  "by": "Michal Klajban",
+  "src": "https://commons.wikimedia.org/wiki/File:House_in_Lake_Clearwater,_Canterbury,_New_Zealand_18.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "House in Lake Clearwater, Canterbury, New Zealand 18"
+ },
+ "fr-r-ross": {
+  "by": "BadSwan",
+  "src": "https://www.flickr.com/photos/83293103@N00/6345304887",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "dinosaur skeleton"
+ },
+ "gs-cover": {
+  "by": "KennyOMG",
+  "src": "https://commons.wikimedia.org/wiki/File:Pahalgam_Valley.jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "Pahalgam Valley"
+ },
+ "gs-q-argue": {
+  "by": "Pudelek",
+  "src": "https://commons.wikimedia.org/wiki/File:Stone_Bridge_in_Prizren_(by_Pudelek).JPG",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Stone Bridge in Prizren (by Pudelek)"
+ },
+ "gs-q-day": {
+  "by": "Rhododendrites",
+  "src": "https://commons.wikimedia.org/wiki/File:Meadow_in_the_Smoky_Mountains_(41923p).jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Meadow in the Smoky Mountains (41923p)"
+ },
+ "gs-q-drink": {
+  "by": "Nayan j Nath",
+  "src": "https://commons.wikimedia.org/wiki/File:A_cup_of_Assam_Tea_with_lemon.jpg",
+  "lic": "CC0",
+  "lic_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "title": "A cup of Assam Tea with lemon"
+ },
+ "gs-q-fear": {
+  "by": "Ximonic (Simo Räsänen)",
+  "src": "https://commons.wikimedia.org/wiki/File:Foggy_Fanal_forest_in_Seixal,_Porto_Moniz,_Madeira,_2023_May.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Foggy Fanal forest in Seixal, Porto Moniz, Madeira, 2023 May"
+ },
+ "gs-q-gift": {
+  "by": "France1978",
+  "src": "https://www.flickr.com/photos/51764518@N02/18282179245",
+  "lic": "CC BY-SA 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+  "title": "Vintage Rogers Drymatic Tobacco Pipe Set With Five Interchangeable Bowls, Silk Lined Presentation Box, Circa 1955"
+ },
+ "gs-q-home": {
+  "by": "Uoaei1",
+  "src": "https://commons.wikimedia.org/wiki/File:Praha_Panorama_from_Pet%C5%99%C3%ADn_20170430.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Praha Panorama from Petřín 20170430"
+ },
+ "gs-q-rules": {
+  "by": "Krzysztof Golik",
+  "src": "https://commons.wikimedia.org/wiki/File:Gate_and_stone_wall_in_Saint-Chely-du-Tarn.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Gate and stone wall in Saint-Chely-du-Tarn"
+ },
+ "gs-q-time": {
+  "by": "Thennicke",
+  "src": "https://commons.wikimedia.org/wiki/File:Cumulonimbus_sunset_panorama,_Albury_NSW_Australia.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Cumulonimbus sunset panorama, Albury NSW Australia"
+ },
+ "gs-q-tired": {
+  "by": "NorbertNagel",
+  "src": "https://commons.wikimedia.org/wiki/File:Anse_Severe_-_La_Digue_-_Seychelles_-_04.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Anse Severe - La Digue - Seychelles - 04"
+ },
+ "gs-q-trip": {
+  "by": "Wilfredor",
+  "src": "https://commons.wikimedia.org/wiki/File:Backpacks_in_Quebec.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Backpacks in Quebec"
+ },
+ "gs-q-words": {
+  "by": "Anizotropia",
+  "src": "https://commons.wikimedia.org/wiki/File:Envelopes_001_ua0012.jpg",
+  "lic": "Public domain",
+  "lic_url": "",
+  "title": "Envelopes 001 ua0012"
+ },
+ "gs-q-work": {
+  "by": "quinet",
+  "src": "https://www.flickr.com/photos/91994044@N00/32812808254",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "Antique desk"
+ },
+ "gs-r-diluc": {
+  "by": "Roman Eisele",
+  "src": "https://commons.wikimedia.org/wiki/File:%C3%96stringen_-_Tiefenbach_-_Kreuzbergkapelle_-_Situationsansicht_von_Osten_bei_Sonnenuntergang.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Östringen - Tiefenbach - Kreuzbergkapelle - Situationsansicht von Osten bei Sonnenuntergang"
+ },
+ "gs-r-furina": {
+  "by": "ArildV",
+  "src": "https://commons.wikimedia.org/wiki/File:Slottsteatern_Gripsholm_2016_01.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Slottsteatern Gripsholm 2016 01"
+ },
+ "gs-r-ganyu": {
+  "by": "Екатерина Борисова",
+  "src": "https://commons.wikimedia.org/wiki/File:%D0%9B%D0%B8%D0%BB%D0%B8%D0%B8_%D0%B2_%D1%81%D0%B0%D0%B4%D1%83_%D0%BD%D0%B0_%D1%83%D0%B3%D0%BB%D1%83_%D0%93%D0%B0%D1%82%D1%87%D0%B8%D0%BD%D1%81%D0%BA%D0%BE%D0%B9_%D0%B8_%D0%9C%D0%B0%D0%BB%D0%BE%D0%B3%D0%BE_%D0%9F%D0%A1_04.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Лилии в саду на углу Гатчинской и Малого ПС 04"
+ },
+ "gs-r-hutao": {
+  "by": "Laitche",
+  "src": "https://commons.wikimedia.org/wiki/File:Flowers_of_Prunus_mume_(Armeniaca_mume%E2%80%98Benifude%E2%80%99),_Nagai_Botanical_Garden,_January_2026_-0923.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Flowers of Prunus mume (Armeniaca mume‘Benifude’), Nagai Botanical Garden, January 2026 -0923"
+ },
+ "gs-r-kazuha": {
+  "by": "Wilfredor",
+  "src": "https://commons.wikimedia.org/wiki/File:Maple_leaf_held_up_in_autumn,_Vieux-Limoilou.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Maple leaf held up in autumn, Vieux-Limoilou"
+ },
+ "gs-r-keqing": {
+  "by": "Jebulon",
+  "src": "https://commons.wikimedia.org/wiki/File:Saint_Peter%27s_Basilica,_Sant%27Angelo_bridge,_by_night,_Rome,_Italy.jpg",
+  "lic": "CC0",
+  "lic_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "title": "Saint Peter's Basilica, Sant'Angelo bridge, by night, Rome, Italy"
+ },
+ "gs-r-klee": {
+  "by": "Roc0ast3r",
+  "src": "https://commons.wikimedia.org/wiki/File:Fireworks_in_Sevierville,_Tennessee_on_4th_of_July_-_1.jpg",
+  "lic": "CC0",
+  "lic_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "title": "Fireworks in Sevierville, Tennessee on 4th of July - 1"
+ },
+ "gs-r-nahida": {
+  "by": "Dietmar Rabich",
+  "src": "https://commons.wikimedia.org/wiki/File:Beech_Forest_(AU),_Great_Otway_National_Park_--_2019_--_1357.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Beech Forest (AU), Great Otway National Park -- 2019 -- 1357"
+ },
+ "gs-r-raiden": {
+  "by": "charlie applebottom",
+  "src": "https://www.flickr.com/photos/40046624@N00/1785334072",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "Dango"
+ },
+ "gs-r-venti": {
+  "by": "DeFacto",
+  "src": "https://commons.wikimedia.org/wiki/File:Brill_windmill_April_2017.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Brill windmill April 2017"
+ },
+ "gs-r-xiao": {
+  "by": "Jakub Hałun",
+  "src": "https://commons.wikimedia.org/wiki/File:View_of_misty_Tengger_caldera,_Java,_Indonesia,_20220820_0610_9479.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "View of misty Tengger caldera, Java, Indonesia, 20220820 0610 9479"
+ },
+ "gs-r-zhongli": {
+  "by": "Nadav Spiegelman",
+  "src": "https://commons.wikimedia.org/wiki/File:Wuyi_oolong_tea.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Wuyi oolong tea"
+ },
+ "gt-cover": {
+  "by": "Rbrechko",
+  "src": "https://commons.wikimedia.org/wiki/File:46-233-0009_Svirzh_Castle_RB.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "46-233-0009 Svirzh Castle RB"
+ },
+ "gt-q-betray": {
+  "by": "Kritzolina",
+  "src": "https://commons.wikimedia.org/wiki/File:Damaged_glass_01.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Damaged glass 01"
+ },
+ "gt-q-conflict": {
+  "by": "Jebulon",
+  "src": "https://commons.wikimedia.org/wiki/File:Sword_french_commissaire_de_police_-detail-.jpg",
+  "lic": "CC0",
+  "lic_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "title": "Sword french commissaire de police -detail-"
+ },
+ "gt-q-evening": {
+  "by": "W.carter",
+  "src": "https://commons.wikimedia.org/wiki/File:Candle_light_projected_through_a_glass_orb.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Candle light projected through a glass orb"
+ },
+ "gt-q-home": {
+  "by": "Radomír Šalda",
+  "src": "https://commons.wikimedia.org/wiki/File:Karl%C5%A1tejn_in_winter.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Karlštejn in winter"
+ },
+ "gt-q-morning": {
+  "by": "Abdul Momin",
+  "src": "https://commons.wikimedia.org/wiki/File:A_foggy_winter_morning.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "A foggy winter morning"
+ },
+ "gt-q-pet": {
+  "by": "Shadow Ayush",
+  "src": "https://commons.wikimedia.org/wiki/File:Domestic_horse_at_Suryachaur_and_the_mountains_in_the_back1.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Domestic horse at Suryachaur and the mountains in the back1"
+ },
+ "gt-q-rules": {
+  "by": "Photographed at the Royal Society, London, with the kind permission of the Royal Society Library, as part of WikiProject Royal Society. Photograph by Mike Peel (www.mikepeel.net).",
+  "src": "https://commons.wikimedia.org/wiki/File:Royal_Society_-_Journal_Books_of_the_Royal_Society_1.jpg",
+  "lic": "Public domain",
+  "lic_url": "",
+  "title": "Royal Society - Journal Books of the Royal Society 1"
+ },
+ "gt-q-secret": {
+  "by": "CastawayVintage",
+  "src": "https://www.flickr.com/photos/44483053@N05/5578421346",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "Antique distressed wood trunk SOLD"
+ },
+ "gt-q-throne": {
+  "by": "Tuxyso",
+  "src": "https://commons.wikimedia.org/wiki/File:Essener-Krone-Domschatz-Essen-02-2025.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Essener-Krone-Domschatz-Essen-02-2025"
+ },
+ "gt-q-trump": {
+  "by": "Lou Levit loulevit",
+  "src": "https://commons.wikimedia.org/wiki/File:Vintage_chess_pieces_(Unsplash).jpg",
+  "lic": "CC0",
+  "lic_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "title": "Vintage chess pieces (Unsplash)"
+ },
+ "gt-q-value": {
+  "by": "Abrget47j",
+  "src": "https://commons.wikimedia.org/wiki/File:Tamme-Lauri_tamm_suvep%C3%A4eval.jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "Tamme-Lauri tamm suvepäeval"
+ },
+ "gt-q-weapon": {
+  "by": "Dietmar Rabich",
+  "src": "https://commons.wikimedia.org/wiki/File:M%C3%BCnster,_Freilichtmuseum_M%C3%BChlenhof,_Schmiede_--_2018_--_2188-94.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Münster, Freilichtmuseum Mühlenhof, Schmiede -- 2018 -- 2188-94"
+ },
+ "gt-r-arya": {
+  "by": "themet",
+  "src": "https://www.rawpixel.com/image/12852191/rapier",
+  "lic": "CC0",
+  "lic_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "title": "Ornate historical fencing sword"
+ },
+ "gt-r-brienne": {
+  "by": "Charles Hoffman",
+  "src": "https://commons.wikimedia.org/wiki/File:Armored_Knight_on_Horseback,_Philadelphia_Museum_of_Art.jpg",
+  "lic": "CC BY-SA 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/2.0",
+  "title": "Armored Knight on Horseback, Philadelphia Museum of Art"
+ },
+ "gt-r-cersei": {
+  "by": "Didriks",
+  "src": "https://www.flickr.com/photos/49889671@N03/19700577576",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "Alessi Mami Red Wine Glass"
+ },
+ "gt-r-dany": {
+  "by": "Booksworm",
+  "src": "https://commons.wikimedia.org/wiki/File:Flaming_wood.JPG",
+  "lic": "CC BY 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by/3.0",
+  "title": "Flaming wood"
+ },
+ "gt-r-hound": {
+  "by": "Evan Swigart from Chicago, USA",
+  "src": "https://commons.wikimedia.org/wiki/File:Max%27s_Roasted_Chicken_-_Evan_Swigart.jpg",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0",
+  "title": "Max's Roasted Chicken - Evan Swigart"
+ },
+ "gt-r-jaime": {
+  "by": "Maxwell Hamilton",
+  "src": "https://www.flickr.com/photos/37413900@N04/28270222925",
+  "lic": "CC BY 2.0",
+  "lic_url": "https://creativecommons.org/licenses/by/2.0/",
+  "title": "Golden Lion Statue"
+ },
+ "gt-r-jon": {
+  "by": "Musicaline",
+  "src": "https://commons.wikimedia.org/wiki/File:Loup_arctique_DSCF0456.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Loup arctique DSCF0456"
+ },
+ "gt-r-littlefinger": {
+  "by": "Peter Isotalo",
+  "src": "https://commons.wikimedia.org/wiki/File:Vasa-lower_gun_deck_companionways.jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "Vasa-lower gun deck companionways"
+ },
+ "gt-r-ned": {
+  "by": "Brocken Inaglory",
+  "src": "https://commons.wikimedia.org/wiki/File:Snowy_forest_in_Boreal,_California.jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "title": "Snowy forest in Boreal, California"
+ },
+ "gt-r-sansa": {
+  "by": "Kritzolina",
+  "src": "https://commons.wikimedia.org/wiki/File:Embroidery_on_a_saree_01.jpg",
+  "lic": "CC BY-SA 4.0",
+  "lic_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "title": "Embroidery on a saree 01"
+ },
+ "gt-r-tyrion": {
+  "by": "Photographed at the Royal Society, London, with the kind permission of the Royal Society Library, as part of WikiProject Royal Society. Photograph by Mike Peel (www.mikepeel.net).",
+  "src": "https://commons.wikimedia.org/wiki/File:Royal_Society_-_Journal_Books_of_the_Royal_Society_4.jpg",
+  "lic": "Public domain",
+  "lic_url": "",
+  "title": "Royal Society - Journal Books of the Royal Society 4"
+ },
+ "gt-r-varys": {
+  "by": "Luc Viatour",
+  "src": "https://commons.wikimedia.org/wiki/File:Dew_on_spider_web_Luc_Viatour.jpg",
+  "lic": "CC BY-SA 3.0",
+  "lic_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+  "title": "Dew on spider web Luc Viatour"
  },
  "hp-cover": {
   "by": "o palsson",

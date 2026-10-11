@@ -3,8 +3,8 @@ export default {
   imgs: {
     'cq-cover': 'spices market', 'cq-italy': 'pizza margherita', 'cq-japan': 'sushi platter', 'cq-georgia': 'khachapuri', 'cq-mexico': 'tacos',
     'cq-france': 'french onion soup', 'cq-india': 'curry naan', 'cq-china': 'peking duck', 'cq-thai': 'pad thai',
-    'cq-korea': 'bibimbap', 'cq-turkey': 'doner kebab', 'cq-greece': 'greek salad', 'cq-spain': 'paella',
-    'cq-usa': 'cheeseburger', 'cq-vietnam': 'pho soup', 'cq-moldova': 'mamaliga', 'cq-lebanon': 'hummus',
+    'cq-korea': 'bibimbap', 'cq-turkey': 'turkish kebab', 'cq-greece': 'greek salad', 'cq-spain': 'paella',
+    'cq-usa': 'cheeseburger', 'cq-vietnam': 'pho bowl', 'cq-moldova': 'mamaliga', 'cq-lebanon': 'hummus',
   },
   items: [
     { t: 'Итальянская', img: 'cq-italy' }, { t: 'Японская', img: 'cq-japan' }, { t: 'Грузинская', img: 'cq-georgia' }, { t: 'Мексиканская', img: 'cq-mexico' },

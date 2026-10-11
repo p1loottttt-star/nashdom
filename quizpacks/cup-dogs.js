@@ -4,7 +4,7 @@ export default {
     'cg-cover': 'puppies playing', 'cg-corgi': 'corgi puppy', 'cg-labrador': 'labrador puppy', 'cg-golden': 'golden retriever puppy', 'cg-husky': 'husky puppy',
     'cg-pomeranian': 'pomeranian dog', 'cg-pug': 'pug dog', 'cg-frenchie': 'french bulldog', 'cg-beagle': 'beagle puppy',
     'cg-dachshund': 'dachshund puppy', 'cg-samoyed': 'samoyed dog', 'cg-shiba': 'shiba inu dog', 'cg-bernese': 'bernese mountain dog',
-    'cg-yorkie': 'yorkshire terrier dog', 'cg-poodle': 'poodle dog', 'cg-dalmatian': 'dalmatian puppy', 'cg-collie': 'border collie dog',
+    'cg-yorkie': 'yorkshire terrier dog', 'cg-poodle': 'poodle dog', 'cg-dalmatian': 'dalmatian', 'cg-collie': 'border collie dog',
   },
   items: [
     { t: 'Корги', img: 'cg-corgi' }, { t: 'Лабрадор', img: 'cg-labrador' }, { t: 'Золотистый ретривер', img: 'cg-golden' }, { t: 'Хаски', img: 'cg-husky' },

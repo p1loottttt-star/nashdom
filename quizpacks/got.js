@@ -1,12 +1,12 @@
 // Фан-тест «Кто ты из «Игры престолов»». Тексты свои, герои только словами; фото — мир героев (ключи → запрос).
 export default {
   imgs: {
-    'gt-cover': 'castle ruins', 'gt-q-evening': 'candle light', 'gt-q-trump': 'playing cards', 'gt-q-betray': 'broken glass',
-    'gt-q-rules': 'old scroll', 'gt-q-home': 'snowy castle', 'gt-q-value': 'oak tree', 'gt-q-pet': 'horse in field',
-    'gt-q-conflict': 'old swords', 'gt-q-secret': 'old wooden chest', 'gt-q-throne': 'golden crown', 'gt-q-weapon': 'blacksmith forge', 'gt-q-morning': 'foggy morning',
-    'gt-r-jon': 'wolf in snow', 'gt-r-dany': 'fire flames', 'gt-r-tyrion': 'old library candle', 'gt-r-arya': 'rapier',
+    'gt-cover': 'castle ruins', 'gt-q-evening': 'candle light', 'gt-q-trump': 'card deck', 'gt-q-betray': 'broken glass',
+    'gt-q-rules': 'quill pen', 'gt-q-home': 'snowy castle', 'gt-q-value': 'oak tree', 'gt-q-pet': 'horse in field',
+    'gt-q-conflict': 'medieval sword', 'gt-q-secret': 'old wooden chest', 'gt-q-throne': 'golden crown', 'gt-q-weapon': 'blacksmith forge', 'gt-q-morning': 'foggy morning',
+    'gt-r-jon': 'wolf in snow', 'gt-r-dany': 'fire flames', 'gt-r-tyrion': 'old books', 'gt-r-arya': 'fencing sword',
     'gt-r-sansa': 'embroidery', 'gt-r-cersei': 'red wine glass', 'gt-r-jaime': 'golden lion statue', 'gt-r-ned': 'snowy forest',
-    'gt-r-brienne': 'knight armor', 'gt-r-littlefinger': 'old ladder', 'gt-r-varys': 'spider web', 'gt-r-hound': 'roast chicken',
+    'gt-r-brienne': 'knight armor', 'gt-r-littlefinger': 'wooden ladder', 'gt-r-varys': 'spider web', 'gt-r-hound': 'roast chicken',
   },
   results: {
     jon: { title: 'Джон Сноу', img: 'gt-r-jon', text: 'Честный, серьёзный и немного мрачный. Не рвёшься к власти, но берёшь ответственность, когда больше некому.' },

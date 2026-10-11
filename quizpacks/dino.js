@@ -3,9 +3,9 @@ export default {
   imgs: {
     'dn2-cover': 'dinosaur skeleton museum', 'dn2-q-morning': 'sunrise fern', 'dn2-q-company': 'herd grazing', 'dn2-q-food': 'grilled steak',
     'dn2-q-conflict': 'volcano rocks', 'dn2-q-trip': 'desert canyon', 'dn2-q-flirt': 'sunset lake', 'dn2-q-fear': 'dark cave',
-    'dn2-q-words': 'ammonite fossil', 'dn2-q-style': 'hiking boots', 'dn2-q-learn': 'old books', 'dn2-q-dacha': 'hammock garden', 'dn2-q-power': 'giant tree',
-    'dn2-r-trex': 'tyrannosaurus skeleton', 'dn2-r-trice': 'triceratops skull', 'dn2-r-raptor': 'velociraptor fossil', 'dn2-r-stego': 'stegosaurus skeleton',
-    'dn2-r-brachio': 'brachiosaurus skeleton', 'dn2-r-ankylo': 'ankylosaurus fossil', 'dn2-r-spino': 'mangrove river', 'dn2-r-para': 'fern forest',
+    'dn2-q-words': 'ammonite fossil', 'dn2-q-style': 'hiking boots', 'dn2-q-learn': 'old books', 'dn2-q-dacha': 'vegetable garden', 'dn2-q-power': 'giant tree',
+    'dn2-r-trex': 'tyrannosaurus skeleton', 'dn2-r-trice': 'triceratops skull', 'dn2-r-raptor': 'velociraptor skeleton', 'dn2-r-stego': 'stegosaurus skeleton',
+    'dn2-r-brachio': 'brachiosaurus skeleton', 'dn2-r-ankylo': 'ankylosaurus skeleton', 'dn2-r-spino': 'mangrove river', 'dn2-r-para': 'fern forest',
   },
   results: {
     trex: { title: 'Тираннозавр', img: 'dn2-r-trex', text: 'Громкий, голодный и главный в любой компании. Лапки коротковаты для объятий, но характер такой, что все и так чувствуют твою любовь.' },

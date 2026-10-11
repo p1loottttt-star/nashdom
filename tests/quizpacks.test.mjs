@@ -19,10 +19,11 @@ for (const f of files) {
   assert.equal(meta.n, length(pack), 'n ' + id);
   const keys = [pack.cover, ...(pack.questions || []).map((x) => x.img), ...Object.values(pack.results || {}).map((x) => x.img), ...(pack.items || []).map((x) => x.img)].filter(Boolean);
   for (const k of keys) assert.ok(pack.imgs?.[k], `${id}: ключ фото без запроса ${k}`);
-  if (credits) for (const k of Object.keys(pack.imgs)) {
+  if (credits?.[pack.cover]) for (const k of Object.keys(pack.imgs)) { // фото пакета собраны — значит все и с авторами
     assert.ok(existsSync(new URL(`public/quiz/${k}.webp`, root)), 'нет файла ' + k);
     const c = credits[k]; assert.ok(c?.by && c.src && c.lic, 'нет автора ' + k); photos++;
   }
 }
 for (const q of NEW) assert.ok(files.includes(q.id + '.js'), 'нет пакета ' + q.id);
-console.log(`quizpacks: ok (${files.length} тестов${credits ? `, ${photos} фото` : ', фото ещё не собраны'})`);
+for (const id of ['hp', 'cup-dessert', 'tier-food', 'trivia-movies']) assert.ok(credits?.[NEW.find((q) => q.id === id).cover], 'пилот без фото: ' + id);
+console.log(`quizpacks: ok (${files.length} тестов, с фото: ${NEW.filter((q) => credits?.[q.cover]).length}, ${photos} фото)`);
