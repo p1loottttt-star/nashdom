@@ -114,6 +114,18 @@ const ICONS = {
   pin: [['circle', 24, 20, 20, 'a'], ['circle', 20, 16, 6, 'p', { line: false }], ['line', 24, 30, 24, 44, { stroke: '#8a8f99', w: 2.4 }]],
   check: [['path', 'M8 25 L19 36 L41 10', null, { w: 4 }]],
   star: [['polygon', [[24, 5], [29.5, 18], [43, 18.5], [32.5, 27], [36.5, 41], [24, 33], [11.5, 41], [15.5, 27], [5, 18.5], [18.5, 18]], 'a']],
+  // наклейки альбомов (11.10)
+  ticket: [['g', -8, 24, 24, [['path', rr(4, 14, 40, 20, 3), 'a'], ['line', 32, 16, 32, 32, { stroke: 'p', w: 1.6 }], ['circle', 32, 14, 6, 'p', { line: false }], ['circle', 32, 34, 6, 'p', { line: false }],
+    ['path', heart(18, 24.5, 11), 'p', { line: false }], ['line', 36, 20, 40, 20, { stroke: 'p', w: 1.4 }], ['line', 36, 24, 40, 24, { stroke: 'p', w: 1.4 }], ['line', 36, 28, 40, 28, { stroke: 'p', w: 1.4 }]]]],
+  popcorn: [['circle', 15, 18, 11, '#fff1cf'], ['circle', 33, 17, 11, '#fff1cf'], ['circle', 24, 12, 12, '#fff1cf'], ['circle', 19, 8, 8, '#fff1cf'], ['circle', 30, 8, 7, '#fff1cf'],
+    ['polygon', [[10, 20], [38, 20], [33, 44], [15, 44]], 'p'], ['path', 'M19.5 20 L21 44', null, { stroke: 'a', w: 3.6 }], ['path', 'M28.5 20 L27 44', null, { stroke: 'a', w: 3.6 }]],
+  flower: [['path', 'M24 26 C22 33 26 38 24 45', null, { stroke: '#6f9a5a', w: 2.2 }], ['g', -35, 31, 36, [['ellipse', 31, 36, 13, 6, '#9cc48a']]],
+    ...[0, 72, 144, 216, 288].map((d) => ['circle', +(24 + 8 * Math.cos((d - 90) * Math.PI / 180)).toFixed(1), +(18 + 8 * Math.sin((d - 90) * Math.PI / 180)).toFixed(1), 12, 'a']), ['circle', 24, 18, 8, '#f6c64f']],
+  leaf: [['path', 'M8 41 C7 21 22 8 42 6 C41 26 28 41 8 41 Z', 'a'], ['path', 'M8 41 C18 31 26 22 36 12', null, { w: 1.6 }], ['line', 17, 31, 16, 23, { w: 1.2 }], ['line', 24, 24, 31, 25, { w: 1.2 }], ['line', 29, 18, 28, 12, { w: 1.2 }]],
+  stamp: [['polygon', Array.from({ length: 40 }, (_, i) => { const t = i / 40 * 4, side = Math.floor(t), k = t - side, j = i % 2 ? 1.6 : 0, x = [8 + 32 * k, 40 - j, 40 - 32 * k, 8 + j][side], y = [6 + j, 6 + 36 * k, 42 - j, 42 - 36 * k][side]; return [+x.toFixed(1), +y.toFixed(1)]; }), 'p'],
+    ['rectangle', 12, 10, 24, 22, 'b'], ['circle', 30, 15, 6, '#f6c64f', { line: false }], ['polygon', [[12, 32], [20, 19], [26, 27], [29, 23], [36, 32]], 'a'], ['line', 13, 37, 26, 37, { w: 1.4 }]],
+  compass: [['circle', 24, 24, 38, 'p'], ['circle', 24, 24, 30, null, { w: 1.2 }], ['polygon', [[24, 8], [28.5, 24], [19.5, 24]], 'a'], ['polygon', [[24, 40], [28.5, 24], [19.5, 24]], 'b'],
+    ['circle', 24, 24, 4, 'i', { line: false }], ['line', 24, 3, 24, 6, { w: 1.6 }], ['line', 45, 24, 42, 24, { w: 1.6 }], ['line', 3, 24, 6, 24, { w: 1.6 }]],
 };
 
 // мягкий тон акцента для заливок 'b'

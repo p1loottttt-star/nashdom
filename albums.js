@@ -9,7 +9,8 @@ import '@fontsource/bad-script/400.css';
 import { DATA } from './data.js';
 import { pop } from './sound.js';
 import * as store from './store.js';
-import { LAYOUTS, THEMES, theme } from './albumthemes.js';
+import { LAYOUTS, THEMES, theme, accentOf } from './albumthemes.js';
+import { doodle } from './doodles.js';
 import { layoutById, blankPage, applyLayout, shuffle, putPhoto, migrate } from './albumlogic.js';
 
 export const PALETTE = ['#e7849b', '#7fb3c8', '#8fb07a', '#e9b35f', '#a99ad6', '#f0a37a', '#6f7fb8', '#c8645f', '#5f9e8f', '#3b2a35'];
@@ -51,7 +52,7 @@ const later = (key, fn) => { clearTimeout(timers.get(key)); timers.set(key, setT
 const saveAlbum = () => later('album', () => { store.put('albums', A.id, A).catch(() => {}); onChange?.(A); });
 const savePage = (pg) => { pg.by = store.me()?.id || ''; pg.at = Date.now(); later(pg.id, () => store.put('albumpage', pg.id, pg).catch(() => {})); };
 function flush() { for (const [k, t] of timers) { clearTimeout(t); if (k === 'album') store.put('albums', A.id, A).catch(() => {}); else if (P.get(k)) store.put('albumpage', k, P.get(k)).catch(() => {}); } timers.clear(); }
-const setPage = (pg) => { P.set(pg.id, pg); savePage(pg); };
+const setPage = (pg) => { track(pg); P.set(pg.id, pg); savePage(pg); };
 const remember = (photo) => { if (photo && !A.photos.includes(photo)) { A.photos.push(photo); saveAlbum(); } };
 
 function render() {
@@ -70,6 +71,7 @@ function render() {
   $('.album-pos').textContent = `${spread + 1} / ${total}`;
   $('[data-a=prev]').disabled = spread === 0;
   $('[data-a=next]').disabled = spread >= total - 1;
+  renderSel();
 }
 
 function pageEl(pg, vi) {
@@ -201,49 +203,66 @@ function capEl(pg, cap) {
   return node;
 }
 
-// ---------- свободные вещи поверх раскладки ----------
-let selected = null;
-function select(node) {
+// ---------- свободные вещи поверх раскладки: фото, надписи, наклейки, ленты ----------
+let selected = null; // { page, id }
+function select(pageId, id) {
+  selected = id ? { page: pageId, id } : null;
   el.querySelectorAll('.item.sel').forEach((n) => n.classList.remove('sel'));
-  selected = node; node?.classList.add('sel');
+  if (selected) el.querySelector(`.page[data-page="${pageId}"] .item[data-id="${id}"]`)?.classList.add('sel');
+  renderSel();
 }
+const selItem = () => (selected ? P.get(selected.page)?.items.find((x) => x.id === selected.id) : null);
+// изменить вещь (или все вещи страницы) и сохранить
+function editItems(pageId, fn) { const pg = P.get(pageId); setPage({ ...pg, items: fn(pg.items) }); render(); }
+
 function itemEl(it, pg, page) {
-  const node = h('div', { className: 'item ' + it.type });
+  const t = TH(), node = h('div', { className: 'item ' + it.type + (selected?.id === it.id ? ' sel' : '') });
+  node.dataset.id = it.id;
   const place = () => {
     node.style.left = it.x + '%'; node.style.top = it.y + '%'; node.style.transform = `rotate(${it.rot || 0}deg)`;
-    if (it.type === 'photo') node.style.width = it.w + '%';
-    else node.style.fontSize = it.size + 'cqw';
+    if (it.type === 'text') node.style.fontSize = it.size + 'cqw'; else node.style.width = it.w + '%';
   };
   place();
   if (it.type === 'photo') node.prepend(h('img', { src: photoURL(it.photo), alt: '', draggable: false }));
+  else if (it.type === 'sticker') node.innerHTML = doodle(it.name, { style: t.print, accent: accentOf(t, it.name) });
+  else if (it.type === 'tape') node.style.background = t.tapes[(it.tape || 0) % t.tapes.length];
   else {
-    const t = h('div', { className: 'txt', textContent: it.text });
-    node.append(t);
+    const tx = h('div', { className: 'txt', textContent: it.text });
+    node.style.fontFamily = `'${t.fonts[it.font || 0]}', Caveat, cursive`; node.style.color = t.ink[(it.ink || 0) % t.ink.length];
+    node.append(tx);
     node.ondblclick = () => {
       if (!editing) return;
-      t.contentEditable = 'true'; t.focus(); busy = pg.id;
-      document.getSelection().selectAllChildren(t);
-      t.onblur = () => { t.contentEditable = 'false'; busy = null; it.text = t.textContent.trim() || 'подпись'; t.textContent = it.text; savePage(P.get(pg.id)); };
+      tx.contentEditable = 'true'; tx.focus(); busy = pg.id;
+      document.getSelection().selectAllChildren(tx);
+      tx.onblur = () => { tx.contentEditable = 'false'; busy = null; const text = tx.textContent.trim() || 'надпись'; editItems(pg.id, (xs) => xs.map((x) => (x.id === it.id ? { ...x, text } : x))); };
     };
   }
   if (!editing) return node;
   const handle = (cls, title) => h('span', { className: 'hd ' + cls, title });
   const del = handle('del', 'убрать'), size = handle('size', 'размер'), rot = handle('rot', 'повернуть');
   node.append(del, size, rot);
-  del.onpointerdown = (e) => { e.stopPropagation(); const cur = P.get(pg.id); setPage({ ...cur, items: cur.items.filter((x) => x.id !== it.id) }); render(); };
+  del.onpointerdown = (e) => { e.stopPropagation(); select(null); editItems(pg.id, (xs) => xs.filter((x) => x.id !== it.id)); };
   const drag = (e, mode) => {
     if (node.querySelector('[contenteditable=true]')) return;
-    e.preventDefault(); e.stopPropagation(); select(node); busy = pg.id;
+    e.preventDefault(); e.stopPropagation(); select(pg.id, it.id); busy = pg.id;
     const r = page.getBoundingClientRect(), sx = e.clientX, sy = e.clientY, s0 = { ...it };
     const nr = node.getBoundingClientRect(), cx = nr.left + nr.width / 2, cy = nr.top + nr.height / 2;
+    const wPct = (node.offsetWidth / page.offsetWidth) * 100, hPct = (node.offsetHeight / page.offsetHeight) * 100;
     const move = (m) => {
       const dx = ((m.clientX - sx) / r.width) * 100, dy = ((m.clientY - sy) / r.height) * 100;
-      if (mode === 'move') { it.x = Math.min(95, Math.max(-20, s0.x + dx)); it.y = Math.min(95, Math.max(-10, s0.y + dy)); }
-      if (mode === 'size') { if (it.type === 'photo') it.w = Math.min(100, Math.max(12, s0.w + dx)); else it.size = Math.min(16, Math.max(2.5, s0.size + dx / 6)); }
-      if (mode === 'rot') it.rot = (Math.atan2(m.clientY - cy, m.clientX - cx) * 180) / Math.PI + 90;
+      if (mode === 'move') {
+        const s = snap(s0.x + dx, s0.y + dy, wPct, hPct, page, it.id, m.altKey);
+        it.x = Math.min(95, Math.max(-20, s.x)); it.y = Math.min(95, Math.max(-10, s.y));
+      }
+      if (mode === 'size') { if (it.type === 'text') it.size = Math.min(16, Math.max(2.5, s0.size + dx / 6)); else it.w = Math.min(100, Math.max(it.type === 'photo' ? 12 : 6, s0.w + dx)); }
+      if (mode === 'rot') { const a = (Math.atan2(m.clientY - cy, m.clientX - cx) * 180) / Math.PI + 90; it.rot = Math.abs(a % 90) < 3 || Math.abs(a % 90) > 87 ? Math.round(a / 90) * 90 : a; }
       place();
     };
-    const up = () => { removeEventListener('pointermove', move); removeEventListener('pointerup', up); busy = null; const cur = P.get(pg.id); setPage({ ...cur, items: cur.items.map((x) => (x.id === it.id ? { ...it } : x)) }); };
+    const up = () => {
+      removeEventListener('pointermove', move); removeEventListener('pointerup', up); busy = null; guides();
+      if (it.x === s0.x && it.y === s0.y && it.w === s0.w && it.size === s0.size && it.rot === s0.rot) return;
+      const cur = P.get(pg.id); setPage({ ...cur, items: cur.items.map((x) => (x.id === it.id ? { ...it } : x)) });
+    };
     addEventListener('pointermove', move); addEventListener('pointerup', up);
   };
   node.onpointerdown = (e) => drag(e, 'move');
@@ -252,10 +271,89 @@ function itemEl(it, pg, page) {
   return node;
 }
 
+// магниты: центр страницы, поля 6 %, края и центры других вещей; Alt — без магнитов. Направляющие видно, пока тащишь
+const SNAP = 1.4;
+function snap(x, y, w, hh, page, id, off) {
+  if (off) return guides(), { x, y };
+  const xs = [50, 6, 94], ys = [50, 6, 94];
+  for (const n of page.querySelectorAll('.item, .ab-slot')) {
+    if (n.dataset.id === id) continue;
+    const l = (n.offsetLeft / page.offsetWidth) * 100, t = (n.offsetTop / page.offsetHeight) * 100, nw = (n.offsetWidth / page.offsetWidth) * 100, nh = (n.offsetHeight / page.offsetHeight) * 100;
+    xs.push(l, l + nw / 2, l + nw); ys.push(t, t + nh / 2, t + nh);
+  }
+  const best = (v, half, list) => { let out = null; for (const g of list) for (const k of [0, half, half * 2]) if (Math.abs(v + k - g) < SNAP && (!out || Math.abs(v + k - g) < out.d)) out = { v: g - k, g, d: Math.abs(v + k - g) }; return out; };
+  const bx = best(x, w / 2, xs), by = best(y, hh / 2, ys);
+  guides(page, bx?.g, by?.g);
+  return { x: bx ? bx.v : x, y: by ? by.v : y };
+}
+function guides(page, gx, gy) {
+  el.querySelectorAll('.ab-guide').forEach((g) => g.remove());
+  if (gx != null) page.append(h('i', { className: 'ab-guide v', style: `left:${gx}%` }));
+  if (gy != null) page.append(h('i', { className: 'ab-guide h', style: `top:${gy}%` }));
+}
+
+// новая вещь: перетащить из панели на страницу или нажать — в середину активной страницы
+function dragNew(e, ghostHTML, make) {
+  e.preventDefault();
+  const sx = e.clientX, sy = e.clientY;
+  let ghost = null;
+  const move = (m) => {
+    if (!ghost && Math.hypot(m.clientX - sx, m.clientY - sy) < 6) return;
+    if (!ghost) { ghost = h('div', { className: 'ab-ghost' }); ghost.innerHTML = ghostHTML; document.body.append(ghost); }
+    ghost.style.left = m.clientX + 'px'; ghost.style.top = m.clientY + 'px';
+  };
+  const up = (m) => {
+    removeEventListener('pointermove', move); removeEventListener('pointerup', up); removeEventListener('pointercancel', up);
+    ghost?.remove();
+    let pageEl = ghost ? document.elementFromPoint(m.clientX, m.clientY)?.closest('.page:not(.cover)') : el.querySelector(`.page[data-page="${activePage()?.id}"]`);
+    if (!pageEl || m.type === 'pointercancel') return;
+    const r = pageEl.getBoundingClientRect(), it = { id: store.uid(), ...make() };
+    const px = ghost ? ((m.clientX - r.left) / r.width) * 100 : 50, py = ghost ? ((m.clientY - r.top) / r.height) * 100 : 45;
+    it.x = px - (it.w || 30) / 2; it.y = py - (it.type === 'tape' ? 2 : it.type === 'text' ? 4 : (it.w || 20) / 2 * 0.75);
+    editItems(pageEl.dataset.page, (xs) => [...xs, it]); select(pageEl.dataset.page, it.id);
+  };
+  addEventListener('pointermove', move); addEventListener('pointerup', up); addEventListener('pointercancel', up);
+}
+const tilt = (k) => Math.round((Math.random() - 0.5) * k);
+
+// панель выбранной вещи: слои, дубль, удалить; у надписи — шрифт и чернила
+function renderSel() {
+  const box = $('.ab-sel'), it = selItem();
+  box.hidden = !editing || !it;
+  if (box.hidden) return box.replaceChildren();
+  const t = TH(), pid = selected.page, set = (patch) => editItems(pid, (xs) => xs.map((x) => (x.id === it.id ? { ...x, ...patch } : x)));
+  const b = (text, title, fn) => h('button', { type: 'button', className: 'tbtn', textContent: text, title, onclick: fn });
+  const kids = [
+    b('⬆ выше', 'выше других', () => editItems(pid, (xs) => [...xs.filter((x) => x.id !== it.id), it])),
+    b('⬇ ниже', 'ниже других', () => editItems(pid, (xs) => [it, ...xs.filter((x) => x.id !== it.id)])),
+    b('⧉ дубль', 'копия рядом (Ctrl+D)', duplicate),
+    b('✕ убрать', 'удалить (Delete)', () => { select(null); editItems(pid, (xs) => xs.filter((x) => x.id !== it.id)); }),
+  ];
+  if (it.type === 'text') {
+    kids.push(...t.fonts.map((f, i) => h('button', { type: 'button', className: 'tbtn ab-font' + ((it.font || 0) === i ? ' on' : ''), textContent: 'Аа', style: `font-family:'${f}'`, title: f, onclick: () => set({ font: i }) })));
+    kids.push(...t.ink.map((c, i) => h('button', { type: 'button', className: 'sw' + ((it.ink || 0) === i ? ' on' : ''), style: `background:${c}`, title: 'чернила', onclick: () => set({ ink: i }) })));
+  }
+  if (it.type === 'tape') kids.push(...t.tapes.map((bg, i) => h('button', { type: 'button', className: 'ab-tapebtn' + ((it.tape || 0) % t.tapes.length === i ? ' on' : ''), style: `background:${bg}`, onclick: () => set({ tape: i }) })));
+  box.replaceChildren(h('span', { className: 'ab-note', textContent: { photo: 'фото', text: 'надпись — двойной клик, чтобы писать', sticker: 'наклейка', tape: 'лента' }[it.type] }), ...kids);
+}
+function duplicate() {
+  const it = selItem(); if (!it) return;
+  const copy = { ...it, id: store.uid(), x: it.x + 4, y: it.y + 4 };
+  editItems(selected.page, (xs) => [...xs, copy]); select(selected.page, copy.id);
+}
+
+// отмена/повтор: снимки страниц до правки
+const undo = [], redo = [];
+function track(pg) { const before = P.get(pg.id); if (before && before !== pg) { undo.push(before); if (undo.length > 80) undo.shift(); redo.length = 0; } }
+function step(from, to) {
+  const pg = from.pop(); if (!pg) return;
+  to.push(P.get(pg.id)); P.set(pg.id, pg); savePage(pg); select(null); render();
+}
+
 // ---------- панель правки: вкладки фото / раскладки / тема ----------
 const activePage = () => (active > 0 ? P.get(A.pageIds[active - 1]) : null);
 function renderTools() {
-  el.querySelectorAll('.atabs button').forEach((b) => b.classList.toggle('on', b.dataset.tab === tab));
+  el.querySelectorAll('.atabs [data-tab]').forEach((b) => b.classList.toggle('on', b.dataset.tab === tab));
   const box = $('.atab');
   if (tab === 'photos') {
     const used = new Set([...P.values()].flatMap((pg) => [...Object.values(pg.slots).map((c) => c?.photo), ...pg.items.map((it) => it.photo)]));
@@ -279,6 +377,12 @@ function renderTools() {
       h('button', { type: 'button', className: 'tbtn', textContent: '＋ страница', onclick: addPage }),
       h('button', { type: 'button', className: 'tbtn', textContent: '− страница', disabled: !pg || A.pageIds.length <= 1, onclick: delPage }),
     );
+  } else if (tab === 'decor') {
+    const t = TH();
+    const tapes = t.tapes.map((bg, i) => { const b = h('button', { type: 'button', className: 'ab-tapebtn', style: `background:${bg}`, title: 'лента' }); b.onpointerdown = (e) => dragNew(e, `<i class="ab-tapeghost" style="background:${bg}"></i>`, () => ({ type: 'tape', tape: i, w: 26, rot: tilt(30) })); return b; });
+    const stk = t.stickers.map((name) => { const svg = doodle(name, { style: t.print, accent: accentOf(t, name) }), b = h('button', { type: 'button', className: 'ab-stk', title: 'наклейка' }); b.innerHTML = svg; b.onpointerdown = (e) => dragNew(e, svg, () => ({ type: 'sticker', name, w: 16, rot: tilt(24) })); return b; });
+    const txt = t.fonts.map((f, i) => { const b = h('button', { type: 'button', className: 'tbtn ab-font', textContent: '＋ надпись', style: `font-family:'${f}'` }); b.onpointerdown = (e) => dragNew(e, `<b style="font-family:'${f}'">надпись</b>`, () => ({ type: 'text', text: 'надпись', font: i, ink: 0, size: 6, rot: tilt(8) })); return b; });
+    box.replaceChildren(...txt, ...tapes, ...stk, h('span', { className: 'ab-note', textContent: 'перетащи на страницу или нажми — встанет в середину' }));
   } else {
     const themes = THEMES.map((t) => h('button', { type: 'button', className: 'ab-thc th-' + t.id + (A.theme === t.id ? ' on' : ''), onclick: () => { A.theme = t.id; A.color = t.cover; saveAlbum(); render(); } }, h('b', { textContent: t.name })));
     const title = h('input', { name: 'title', maxLength: 40, value: A.title, ariaLabel: 'Название альбома' });
@@ -350,12 +454,23 @@ async function go(dir) {
 // ---------- кнопки окна ----------
 $('[data-a=close]').onclick = () => closeAlbum();
 $('[data-a=edit]').onclick = () => { editing = !editing; select(null); render(); };
+$('[data-u=undo]').onclick = () => step(undo, redo);
+$('[data-u=redo]').onclick = () => step(redo, undo);
 $('[data-a=prev]').onclick = () => go(-1);
 $('[data-a=next]').onclick = () => go(1);
-el.querySelectorAll('.atabs button').forEach((b) => (b.onclick = () => { tab = b.dataset.tab; renderTools(); }));
+el.querySelectorAll('.atabs [data-tab]').forEach((b) => (b.onclick = () => { tab = b.dataset.tab; renderTools(); }));
 addEventListener('keydown', (e) => {
   if (el.hidden || document.activeElement?.isContentEditable || document.activeElement?.tagName === 'INPUT') return;
-  if (e.key === 'Escape') closeAlbum();
+  const mod = e.ctrlKey || e.metaKey, it = editing && selItem();
+  if (editing && mod && e.code === 'KeyZ') { e.preventDefault(); return e.shiftKey ? step(redo, undo) : step(undo, redo); }
+  if (editing && mod && e.code === 'KeyY') { e.preventDefault(); return step(redo, undo); }
+  if (it && mod && e.code === 'KeyD') { e.preventDefault(); return duplicate(); }
+  if (it && (e.key === 'Delete' || e.key === 'Backspace')) { const pid = selected.page; select(null); return editItems(pid, (xs) => xs.filter((x) => x.id !== it.id)); }
+  if (it && e.key.startsWith('Arrow')) { // стрелки двигают выбранное (Shift — дальше)
+    e.preventDefault(); const k = e.shiftKey ? 2 : 0.5, d = { ArrowLeft: [-k, 0], ArrowRight: [k, 0], ArrowUp: [0, -k], ArrowDown: [0, k] }[e.key];
+    return editItems(selected.page, (xs) => xs.map((x) => (x.id === it.id ? { ...x, x: x.x + d[0], y: x.y + d[1] } : x)));
+  }
+  if (e.key === 'Escape') return selected ? select(null) : closeAlbum();
   if (e.key === 'ArrowRight') go(1);
   if (e.key === 'ArrowLeft') go(-1);
 });

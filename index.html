@@ -239,7 +239,8 @@
   .page + .page { border-radius: 8px 2px 2px 8px; background: #fffaf3 linear-gradient(270deg, rgba(0,0,0,.06), transparent 8%); }
   .page.cover { background: var(--album) linear-gradient(135deg, rgba(255,255,255,.18), rgba(0,0,0,.12)); display: grid; place-items: center; align-content: center; gap: 6cqw; }
   .editing .page.active { outline: 3px dashed var(--album); outline-offset: -6px; }
-  .editing .page { width: min(44vw, calc((100vh - 280px) * .75)); }
+  .editing .page { width: min(44vw, calc((100vh - 300px) * .75)); }
+  #album.editing:has(.ab-sel:not([hidden])) .page { width: min(44vw, calc((100vh - 345px) * .75)); }
   .cover-photo { width: 64cqw; aspect-ratio: 4 / 3; background: #fff; padding: 3cqw; box-shadow: 0 8px 20px rgba(0,0,0,.25); transform: rotate(-2deg); display: grid; place-items: center; font: 700 6cqw Caveat, cursive; color: #b9a7a0; text-align: center; }
   .cover-photo img { width: 100%; height: 100%; object-fit: cover; }
   .cover-title { font: 700 11cqw/1 Caveat, cursive; text-align: center; padding: 0 6cqw; }
@@ -284,7 +285,7 @@
   .ab-slot .ab-ph { position: relative; width: 100%; height: 100%; overflow: hidden; background: #e7ddd0; }
   .ab-slot img { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; transition: transform .05s; }
   .ab-slot.ab-empty .ab-ph { background: repeating-linear-gradient(45deg, rgba(59,42,53,.05) 0 8px, transparent 8px 16px), #efe6da; }
-  .ab-slot-add { position: absolute; inset: 0; display: grid; place-items: center; font: 700 4.5cqw Caveat, cursive; color: #a08c80; }
+  .ab-add { position: absolute; inset: 0; display: grid; place-items: center; font: 700 4.5cqw Caveat, cursive; color: #a08c80; }
   .editing .ab-slot { cursor: grab; touch-action: none; }
   .editing .ab-slot:hover { box-shadow: 0 0 0 2px rgba(59,42,53,.35), 0 .8cqw 2.2cqw rgba(0,0,0,.2); }
   .ab-slot.ab-drop { box-shadow: 0 0 0 4px #ff8fab, 0 1.2cqw 3cqw rgba(0,0,0,.3); }
@@ -301,7 +302,7 @@
   .th-film .ab-slot { background: #0e0c10; padding: 10% 4%; box-shadow: 0 .8cqw 2.4cqw rgba(0,0,0,.6); }
   .th-film .ab-slot::before, .th-film .ab-slot::after { content: ''; position: absolute; left: 3%; right: 3%; height: 4.5%; background: repeating-linear-gradient(90deg, rgba(245,235,215,.82) 0 6%, transparent 6% 11%); border-radius: 1px; }
   .th-film .ab-slot::before { top: 2.6%; } .th-film .ab-slot::after { bottom: 2.6%; }
-  .th-film .ab-slot.ab-empty .ab-ph { background: #29242d; } .th-film .ab-slot-add { color: #8d8291; }
+  .th-film .ab-slot.ab-empty .ab-ph { background: #29242d; } .th-film .ab-add { color: #8d8291; }
   /* акварель: тонкая белая рамка и уголки для фото */
   .th-water .ab-slot { padding: 2.6%; box-shadow: 0 .5cqw 1.6cqw rgba(91,74,99,.18); }
   .th-water .ab-slot::before, .th-water .ab-slot::after { content: ''; position: absolute; z-index: 1; width: 13%; aspect-ratio: 1; background: #c99aa9; }
@@ -317,12 +318,32 @@
   #album .item.text { font-family: var(--font), Caveat, cursive; color: var(--aink); }
   .th-film .item.photo { background: #0e0c10; }
 
+  /* украшения: наклейки, ленты, надписи, направляющие (этап 2) */
+  #album .item.sticker svg { display: block; width: 100%; height: auto; filter: drop-shadow(0 .4cqw .6cqw rgba(0,0,0,.18)); pointer-events: none; }
+  #album .item.tape { aspect-ratio: 4.6 / 1; opacity: .93; box-shadow: 0 .2cqw .5cqw rgba(0,0,0,.12); clip-path: polygon(0 10%, 3% 0, 6% 12%, 9% 2%, 100% 0, 97% 30%, 100% 55%, 97% 80%, 100% 100%, 4% 100%, 1% 75%, 3% 50%, 0 25%); }
+  #album .item.text { line-height: 1.05; }
+  .ab-guide { position: absolute; z-index: 8; pointer-events: none; }
+  .ab-guide.v { top: 0; bottom: 0; border-left: 1.5px dashed #ef6f8c; } .ab-guide.h { left: 0; right: 0; border-top: 1.5px dashed #ef6f8c; }
+  .ab-ghost { position: fixed; z-index: 100; width: 72px; translate: -50% -50%; pointer-events: none; rotate: -6deg; font: 700 26px Caveat, cursive; color: #3b2a35; }
+  .ab-ghost svg { display: block; width: 100%; } .ab-tapeghost { display: block; width: 96px; height: 21px; opacity: .9; }
+  #album .ab-stk { width: 54px; height: 54px; padding: 3px; border: 1px solid var(--line); border-radius: 9px; background: #fff; cursor: grab; touch-action: none; }
+  #album .ab-stk svg { width: 100%; height: 100%; display: block; pointer-events: none; }
+  #album .ab-tapebtn { width: 50px; height: 17px; padding: 0; border: 0; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,.25); cursor: grab; touch-action: none; }
+  #album .ab-tapebtn.on, #album .ab-font.on, #album .ab-sel .sw.on { box-shadow: 0 0 0 2px #ef6f8c; }
+  #album .ab-sel { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 6px; align-items: center; padding: 4px 2px; border-top: 1px dashed var(--line); scrollbar-width: thin; }
+  #album .ab-sel > * { flex: none; }
+  #album .ab-sel[hidden] { display: none; }
+  #album .ab-sel .tbtn, #album .atab .ab-font { border: 1px solid var(--line); background: #fff; border-radius: 9px; padding: 5px 9px; font-weight: 700; font-size: 14px; cursor: pointer; }
+  #album .atab .ab-font { font-size: 19px; font-weight: 400; touch-action: none; }
+  #album .atabs .grow { flex: 1; } #album .atabs [data-u] { font: 700 18px Nunito, sans-serif; padding: 0 10px; }
   /* панель правки: вкладки */
-  .album-tools { flex-direction: column; align-items: stretch; gap: 6px; }
+  .album-tools { flex-direction: column; flex-wrap: nowrap !important; align-items: stretch; gap: 6px; min-width: 0; }
+  #album .atabs, #album .atab, #album .ab-sel { min-width: 0; max-width: 100%; }
   .atabs { display: flex; gap: 6px; }
   #album .atabs button { border: 0; background: transparent; font: 700 20px Caveat, cursive; padding: 2px 12px; border-radius: 9px; color: #7b6670; }
   #album .atabs button.on { background: #f4dce3; color: #3b2a35; }
-  .atab { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; max-height: 140px; overflow-y: auto; padding: 2px; }
+  #album .atab { display: flex; flex-wrap: nowrap; gap: 8px; align-items: center; overflow-x: auto; overflow-y: hidden; padding: 2px 2px 6px; scrollbar-width: thin; }
+  #album .atab > * { flex: none; }
   #album .atab .tbtn { border: 1px solid var(--line); background: #fff; border-radius: 9px; padding: 6px 10px; font-weight: 700; font-size: 14px; cursor: pointer; white-space: nowrap; }
   #album .atab .tbtn:disabled { opacity: .4; } .atab .tbtn.danger { color: #c43a4f; } .atab label input { display: none; }
   #album .atab .ab-note { font: 600 17px Caveat, cursive; color: #8d7a82; }
@@ -348,7 +369,7 @@
   .ab-leaf .ab-face { position: absolute; inset: 0; width: 100% !important; height: 100%; backface-visibility: hidden; }
   .ab-leaf .ab-face.ab-back { transform: rotateY(180deg); }
   .page.ab-blank { background: transparent !important; box-shadow: none; }
-  @media (max-width: 760px) { #album .album-tools { order: 3; } #album .album-nav { order: 2; } #album .atab { max-height: 24vh; } #album.editing .page { width: min(92vw, calc((100vh - 430px) * .75)); } #album .ab-thc { width: 96px; height: 54px; } }
+  @media (max-width: 760px) { #album .album-tools { order: 3; } #album .album-nav { order: 2; } #album.editing .page { width: min(92vw, calc((100vh - 330px) * .75)); } #album.editing:has(.ab-sel:not([hidden])) .page { width: min(92vw, calc((100vh - 400px) * .75)); } #album .ab-thc { width: 96px; height: 54px; } #album .atabs { gap: 2px; overflow-x: auto; } #album .atabs > * { flex: none; } #album .atabs button { font-size: 17px; padding: 2px 6px; } #album .atabs [data-u] { padding: 0 6px; } }
 
 
   /* ---- пароль, фото на стене, листание стопки ---- */
@@ -1228,7 +1249,8 @@
     <button data-a="edit">✎ редактировать</button>
   </div>
   <div class="album-tools" hidden>
-    <div class="atabs"><button type="button" data-tab="photos">фото</button><button type="button" data-tab="layouts">раскладки</button><button type="button" data-tab="theme">тема</button></div>
+    <div class="atabs"><button type="button" data-tab="photos">фото</button><button type="button" data-tab="layouts">раскладки</button><button type="button" data-tab="decor">украшения</button><button type="button" data-tab="theme">тема</button><span class="grow"></span><button type="button" data-u="undo" title="отменить (Ctrl+Z)">↶</button><button type="button" data-u="redo" title="повторить (Ctrl+Shift+Z)">↷</button></div>
+    <div class="ab-sel" hidden></div>
     <div class="atab"></div>
   </div>
   <div class="spread"></div>

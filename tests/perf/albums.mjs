@@ -50,6 +50,24 @@ await tab(A, 'layouts'); await A.click('.atab .tbtn >> text=перемешать
 // темы
 for (const t of ['travel', 'film', 'water', 'kraft']) { await tab(A, 'theme'); await A.click(`.ab-thc.th-${t}`); await A.waitForTimeout(500); await shot(A, '6-theme-' + t); }
 await A.waitForTimeout(600);
+// украшения: наклейка нажатием, лента перетаскиванием (магниты), надпись — шрифт и чернила, дубль, отмена/повтор
+await tab(A, 'decor'); await A.waitForSelector('.ab-stk svg');
+await A.click('.ab-stk >> nth=2'); await A.waitForTimeout(200);
+const tb = await A.locator('.ab-tapebtn').first().boundingBox(), pg1 = await A.locator('.page[data-vi="1"]').boundingBox();
+await A.mouse.move(tb.x + 10, tb.y + 8); await A.mouse.down(); await A.mouse.move(pg1.x + pg1.width * 0.5, pg1.y + pg1.height * 0.08, { steps: 10 }); await A.mouse.up();
+await A.click('.atab .ab-font >> nth=1'); await A.waitForTimeout(200);
+await A.click('.ab-sel .sw >> nth=2'); await A.click('.ab-sel .tbtn >> text=дубль');
+const items0 = await A.locator('.page[data-vi="1"] .item').count();
+const st = await A.locator('.page[data-vi="1"] .item.sticker').first().boundingBox();
+await A.mouse.move(st.x + st.width / 2, st.y + st.height / 2); await A.mouse.down(); await A.mouse.move(pg1.x + pg1.width / 2 + 3, pg1.y + pg1.height * 0.6, { steps: 8 });
+const guide = await A.locator('.ab-guide').count(); await shot(A, '6b-decor-drag'); await A.mouse.up();
+await A.keyboard.press('Control+z'); const itemsU = await A.locator('.page[data-vi="1"] .item').count();
+await A.keyboard.press('Control+z'); const itemsU2 = await A.locator('.page[data-vi="1"] .item').count();
+await A.keyboard.press('Control+Shift+z'); const itemsR = await A.locator('.page[data-vi="1"] .item').count();
+await A.click('.page[data-vi="1"]', { position: { x: 5, y: 5 } }); await A.waitForTimeout(300); await shot(A, '6c-decor');
+for (const t of ['travel', 'film', 'water']) { await tab(A, 'theme'); await A.click(`.ab-thc.th-${t}`); await tab(A, 'decor'); await A.waitForTimeout(400); await shot(A, '6d-decor-' + t); }
+await tab(A, 'theme'); await A.click('.ab-thc.th-kraft'); await A.waitForTimeout(300);
+console.log({ decor: { items0, guide, itemsU, itemsU2, itemsR } });
 
 // Соня в это же время правит третью страницу
 const B = await open('&as=b');

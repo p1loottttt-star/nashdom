@@ -15,6 +15,13 @@ for (let n = 1; n <= 5; n++) assert.ok(LAYOUTS.some((l) => l.slots.length === n)
 for (let n = 1; n <= 4; n++) assert.ok(LAYOUTS.filter((l) => l.slots.length === n).length >= 2, 'перемешать есть из чего: ' + n);
 assert.ok(SEQ.every((id) => ids.has(id)));
 assert.ok(THEMES.length === 4 && THEMES.every((t) => t.fonts.length === 2 && t.ink.length === 5));
+// наклейки тем — настоящие рисунки doodles.js (сам модуль в node не грузится из-за roughjs — имена читаем из текста)
+import { readFileSync } from 'node:fs';
+const drawn = new Set([...readFileSync(new URL('../doodles.js', import.meta.url), 'utf8').matchAll(/^  (\w+): \[/gm)].map((m) => m[1]));
+for (const t of THEMES) {
+  for (const n of t.stickers) assert.ok(drawn.has(n), `${t.id}: нет рисунка ${n}`);
+  assert.ok(t.stickers.length >= 10 && t.tapes.length >= 4 && ['sticker', 'pencil', 'riso'].includes(t.print), t.id + ': набор украшений');
+}
 
 // перенос: старые свободные фото и подписи на месте, обложка и фото в лотке
 let n = 0; const uid = () => 'u' + n++;

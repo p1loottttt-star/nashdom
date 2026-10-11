@@ -24,3 +24,23 @@ export const THEMES = [
   { id: 'water', name: 'Нежная акварель', fonts: ['Marck Script', 'Bad Script'], ink: ['#5b4a63', '#c06a86', '#5f86a8', '#6f9a72', '#b8875a'], frame: 'corners', tilt: 0.5, cover: '#e8c9d3' },
 ];
 export const theme = (id) => THEMES.find((t) => t.id === id) || THEMES[0];
+// украшения тем: наклейки (рисунки doodles.js) — стиль печати и краски; ленты — CSS-фон полоски
+const DECOR = {
+  kraft: { print: 'sticker', accents: ['#ef7f9b', '#6fa8d6', '#e9a92f', '#7fae6a'],
+    stickers: ['heart', 'hearts', 'star', 'coffee', 'love', 'house', 'camera', 'note', 'flame', 'cake', 'bear', 'pin'],
+    tapes: ['repeating-linear-gradient(45deg, #f08aa0 0 7px, #ffd6a0 7px 14px)', 'repeating-linear-gradient(90deg, #7fb3c8 0 6px, #fffaf2 6px 9px)', 'radial-gradient(circle, #fffaf2 2px, transparent 2.5px) 0 0 / 10px 10px, #8fc7a8',
+      'linear-gradient(rgba(255,255,255,.25) 1px, transparent 1px) 0 0 / 8px 8px, linear-gradient(90deg, rgba(255,255,255,.25) 1px, transparent 1px) 0 0 / 8px 8px, #e9b35f', 'repeating-linear-gradient(0deg, rgba(200,80,95,.55) 0 5px, transparent 5px 10px), repeating-linear-gradient(90deg, rgba(200,80,95,.55) 0 5px, #fff2f0 5px 10px)', '#d8bf98'] },
+  travel: { print: 'riso', accents: ['#e0614f', '#4b6fb5', '#e9a92f', '#5f9e8f'],
+    stickers: ['plane', 'suitcase', 'stamp', 'compass', 'mountain', 'sea', 'train', 'tent', 'museum', 'ferris', 'camera', 'pin'],
+    tapes: ['#e9dcbf', 'repeating-linear-gradient(45deg, #d9493c 0 8px, #fffaf0 8px 14px, #3e64a8 14px 22px, #fffaf0 22px 28px)', 'radial-gradient(circle, rgba(47,74,107,.6) 1.4px, transparent 2px) 0 0 / 7px 7px, #f3ead6', '#8d9a6a', 'repeating-linear-gradient(90deg, #2f4a6b 0 3px, #f2e8d3 3px 12px)'] },
+  film: { print: 'sticker', accents: ['#ffd36b', '#ef7f9b', '#e0614f', '#6fa8d6'],
+    stickers: ['film', 'ticket', 'popcorn', 'star', 'heart', 'mic', 'note', 'candle', 'icecream', 'pizza', 'camera', 'flame'],
+    tapes: ['#26222a', 'linear-gradient(#b9b4bd, #8f8a93)', '#d9493c', 'repeating-linear-gradient(-45deg, #ffd36b 0 8px, #26222a 8px 16px)', 'radial-gradient(circle, #ffd36b 1.6px, transparent 2.2px) 0 0 / 9px 9px, #3a3340'] },
+  water: { print: 'pencil', accents: ['#e8a0b8', '#a9c4e0', '#b5d3a8', '#d9b8e6'],
+    stickers: ['flower', 'leaf', 'heart', 'hearts', 'star', 'cake', 'candle', 'gift', 'tree', 'sunrise', 'snow', 'garland'],
+    tapes: ['rgba(240,180,200,.8)', 'radial-gradient(circle, #fff 1.8px, transparent 2.3px) 0 0 / 9px 9px, rgba(200,180,230,.85)', 'repeating-linear-gradient(90deg, rgba(170,210,180,.85) 0 5px, rgba(255,255,255,.8) 5px 8px)', 'rgba(255,214,180,.85)', 'radial-gradient(circle at 50% 0, transparent 3px, rgba(255,255,255,.95) 3.5px) 0 0 / 8px 6px, rgba(255,255,255,.6)'] },
+};
+for (const t of THEMES) Object.assign(t, DECOR[t.id]);
+// краска наклейки — своя у каждого рисунка, стабильная
+export const accentOf = (t, name) => t.accents[[...name].reduce((s, c) => s + c.charCodeAt(0), 0) % t.accents.length];
+
