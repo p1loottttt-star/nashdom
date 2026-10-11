@@ -48,7 +48,10 @@ async function search(ids) {
   for (const { id, imgs } of await packs(ids)) {
     const keys = Object.keys(imgs).filter((k) => !existsSync(at(`public/quiz/${k}.webp`)) && picks[k] == null);
     for (const k of keys) {
-      if (!cand[k] || cand[k].q !== imgs[k]) { const all = [...(await commons(imgs[k])), ...(await openverse(imgs[k])), ...(await commons(imgs[k], ''))];
+      if (!cand[k] || cand[k].q !== imgs[k]) { // сначала отобранные Quality images; Openverse и общая выдача — только если хороших мало (у них лимиты и паузы)
+        const all = await commons(imgs[k]);
+        if (all.length < 6) all.push(...(await openverse(imgs[k])));
+        if (all.length < 9) all.push(...(await commons(imgs[k], '')));
         cand[k] = { q: imgs[k], list: all.filter((c, i) => all.findIndex((d) => d.src === c.src) === i).slice(0, 12) }; }
       console.log(k, cand[k].list.length); save(CAND, cand);
     }
