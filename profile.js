@@ -49,6 +49,13 @@ export function avatar(p, size = 64) {
   return a;
 }
 
+// штампы в паспорте пары: город, день рождения (вид — CSS .pstamp)
+const dm = (iso) => (iso ? iso.slice(8, 10) + '.' + iso.slice(5, 7) : '');
+const stamp = (top, big, cls) => h('i', { className: 'pstamp ' + cls }, h('small', { textContent: top }), h('b', { textContent: big }));
+const stamps = (p) => h('div', { className: 'pstamps' }, p.city?.name ? stamp('город', p.city.name, 'city') : null, p.birthday ? stamp('день рождения', dm(p.birthday), 'bday') : null);
+// строка внизу страницы, как машиночитаемая зона паспорта
+const mrz = (p, c) => h('i', { className: 'pmrz', textContent: `P<ДОМ<<${(p.name || '').toUpperCase().replace(/\s+/g, '<')}<<${(c.title || '').toUpperCase().replace(/\s+/g, '<')}`.padEnd(44, '<').slice(0, 44) + '\n' + `${(c.started || '').replace(/-/g, '')}<<${(p.birthday || '').replace(/-/g, '')}`.padEnd(44, '<').slice(0, 44) });
+
 // удалить аккаунт: дом остаётся партнёру; последний — дом и фото удаляются навсегда
 async function removeMe() {
   const p = store.partner();
@@ -75,7 +82,8 @@ export function renderProfile(el) {
       h('div', { className: 'prow' }, ...COLORS.map((col) => h('button', { className: 'pcol' + (me.color === col ? ' on' : ''), style: `background:${col}`, onclick: () => store.saveProfile({ color: col }).then(draw) }))),
       cityField(me),
       h('label', { className: 'pfield' }, 'день рождения', h('input', { type: 'date', value: me.birthday || '', onchange: (e) => store.saveProfile({ birthday: e.target.value || null }) })),
-      h('label', { className: 'pfield col' }, 'о себе', h('textarea', { rows: 3, maxLength: 300, value: me.about || '', placeholder: 'что любишь, о чём мечтаешь…', oninput: (e) => save({ about: e.target.value }) })));
+      h('label', { className: 'pfield col' }, 'о себе', h('textarea', { rows: 3, maxLength: 300, value: me.about || '', placeholder: 'что любишь, о чём мечтаешь…', oninput: (e) => save({ about: e.target.value }) })),
+      stamps(me), mrz(me, c));
 
     let other;
     if (p) {
@@ -83,7 +91,7 @@ export function renderProfile(el) {
         h('div', { className: 'ptop' }, avatar(p, 84), h('div', {}, h('b', { className: 'pname', textContent: p.name }), h('small', { textContent: 'твоя половинка ♥' }))),
         p.city?.lat ? (() => { const w = h('p', { className: 'pwx' }); partnerWeather(p, w); return w; })() : null,
         p.birthday ? h('p', { textContent: `🎂 ${fmt(p.birthday)}` }) : null,
-        h('p', { className: 'pabout', textContent: p.about || 'пока без описания' }));
+        h('p', { className: 'pabout', textContent: p.about || 'пока без описания' }), stamps(p), mrz(p, c));
     } else {
       const link = c.invite ? `${location.origin}${location.pathname}?invite=${c.invite}` : '';
       other = h('div', { className: 'pfcard invite' },
@@ -96,6 +104,7 @@ export function renderProfile(el) {
     const house = h('div', { className: 'phouse' },
       h('label', { className: 'pfield' }, 'дом', h('input', { value: c.title, maxLength: 60, onchange: (e) => store.saveCouple({ title: e.target.value.trim() || 'Наш дом' }) })),
       h('label', { className: 'pfield' }, 'вместе с', h('input', { type: 'date', value: c.started || '', onchange: (e) => store.saveCouple({ started: e.target.value || null }) })),
+      c.started ? stamp('вместе с', c.started.split('-').reverse().join('.'), 'since') : null,
       h('span', { className: 'grow' }),
       h('button', { textContent: store.isCloud() ? 'выйти' : 'войти как вторая половинка', onclick: () => store.signOut() }));
 

@@ -77,7 +77,7 @@ const APPS = {
         e.preventDefault(); if (!ta.value.trim()) return;
         store.put('thoughts', store.uid(), { from: who.value, date: new Date().toISOString(), text: ta.value.trim() }).catch(console.warn);
         ta.value = ''; draw();
-      } }, ta, who, h('button', { textContent: '+' }));
+      } }, ta, who, h('button', { textContent: '♥', title: 'отправить' }));
       draw();
       el.append(form, box);
     },
