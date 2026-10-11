@@ -410,7 +410,7 @@ async function buildShelf() {
   shelf.clear(); books = [];
   let x = 0.29;
   albums.slice(0, 13).forEach((a, i) => {
-    const w = 0.042 + Math.min(0.026, a.pages.length * 0.003), hgt = 0.2 + ((i * 53) % 5) * 0.012;
+    const w = 0.042 + Math.min(0.026, (a.pageIds || a.pages || []).length * 0.003), hgt = 0.2 + ((i * 53) % 5) * 0.012;
     makeBook(a, w, hgt, x); x += w + 0.005;
   });
   if (x < 1.12) makeBook(null, 0.04, 0.19, x + 0.01);

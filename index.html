@@ -259,6 +259,96 @@
   .hd.rot { top: -11px; left: -11px; cursor: grab; } .hd.rot::after { content: '⟳'; }
   .album-nav { display: flex; align-items: center; gap: 14px; color: #fff; font-weight: 700; }
   .album-nav button:disabled { opacity: .35; }
+  /* ---- альбом как фотокнига: темы, рамки, раскладки, листание ---- */
+  #album { --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .25 0 0 0 0 .17 0 0 0 0 .1 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .th-kraft { --pg: var(--grain), radial-gradient(120% 90% at 30% 20%, #e6cfa6, #d4b88c); --capsize: 5.6cqw; }
+  .th-travel { --pg: repeating-radial-gradient(circle at 78% 22%, transparent 0 22px, rgba(47,74,107,.07) 22px 23px), linear-gradient(rgba(47,74,107,.05) 1px, transparent 1px) 0 0 / 100% 7.5%, var(--grain), #f2e8d3; --capsize: 3.4cqw; }
+  .th-film { --pg: var(--grain), radial-gradient(130% 100% at 50% 0%, #2c2731, #17141a); --capsize: 7cqw; }
+  .th-water { --pg: radial-gradient(38% 28% at 12% 10%, rgba(240,160,190,.28), transparent 70%), radial-gradient(30% 24% at 92% 88%, rgba(140,180,220,.3), transparent 70%), radial-gradient(26% 20% at 85% 18%, rgba(170,210,160,.25), transparent 70%), var(--grain), #fffcf7; --capsize: 5.4cqw; }
+  #album .page:not(.cover) { background: linear-gradient(90deg, rgba(0,0,0,.08), transparent 7%), var(--pg); }
+  #album .page + .page:not(.cover) { background: linear-gradient(270deg, rgba(0,0,0,.08), transparent 7%), var(--pg); }
+  .th-film .page-num { color: #8d8291; }
+
+  /* обложка: цвет альбома + фактура темы */
+  #album .page.cover { background: var(--grain), linear-gradient(135deg, rgba(255,255,255,.16), rgba(0,0,0,.14)), var(--album); }
+  .th-kraft .page.cover::after { content: ''; position: absolute; top: 0; bottom: 0; right: 14%; width: .9cqw; background: repeating-linear-gradient(170deg, #c9a77a 0 1.2cqw, #a8835a 1.2cqw 2.2cqw); box-shadow: 0 0 .6cqw rgba(0,0,0,.25); }
+  .th-travel .page.cover::after { content: ''; position: absolute; inset: 3cqw; border: .5cqw solid rgba(232,196,120,.75); border-radius: 1cqw; pointer-events: none; }
+  .th-travel .cover-title { color: #e8c478; font-size: 7cqw; letter-spacing: .08em; text-transform: uppercase; }
+  .th-film .page.cover::before, .th-film .page.cover::after { content: ''; position: absolute; left: 0; right: 0; height: 9cqw; background-color: #0d0b0f; background-image: repeating-linear-gradient(90deg, rgba(245,235,215,.85) 0 3cqw, transparent 3cqw 6cqw); background-size: 100% 2.6cqw; background-position: 0 50%; background-repeat: no-repeat; }
+  .th-film .page.cover::before { top: 6cqw; } .th-film .page.cover::after { bottom: 6cqw; }
+  .th-water .page.cover { background: radial-gradient(60% 45% at 30% 30%, rgba(255,255,255,.45), transparent 70%), var(--grain), var(--album); }
+  #album .cover-title { font-family: var(--font), Caveat, cursive; }
+
+  /* слоты: рамка темы, внутри окно с фото */
+  .ab-slot { position: absolute; box-sizing: border-box; background: #fffdf8; padding: 3.5% 3.5% 13%; box-shadow: 0 .8cqw 2.2cqw rgba(0,0,0,.2); }
+  .ab-slot .ab-ph { position: relative; width: 100%; height: 100%; overflow: hidden; background: #e7ddd0; }
+  .ab-slot img { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; transition: transform .05s; }
+  .ab-slot.ab-empty .ab-ph { background: repeating-linear-gradient(45deg, rgba(59,42,53,.05) 0 8px, transparent 8px 16px), #efe6da; }
+  .ab-slot-add { position: absolute; inset: 0; display: grid; place-items: center; font: 700 4.5cqw Caveat, cursive; color: #a08c80; }
+  .editing .ab-slot { cursor: grab; touch-action: none; }
+  .editing .ab-slot:hover { box-shadow: 0 0 0 2px rgba(59,42,53,.35), 0 .8cqw 2.2cqw rgba(0,0,0,.2); }
+  .ab-slot.ab-drop { box-shadow: 0 0 0 4px #ff8fab, 0 1.2cqw 3cqw rgba(0,0,0,.3); }
+  .ab-slot.ab-crop { z-index: 6; cursor: move; box-shadow: 0 0 0 4px #ffd36b, 0 1.2cqw 3cqw rgba(0,0,0,.35); }
+  .crop-hint { position: fixed; left: 50%; bottom: 18px; translate: -50% 0; z-index: 40; padding: 8px 16px; border-radius: 999px; background: var(--paper); color: #3b2a35; font: 700 20px Caveat, cursive; box-shadow: 0 4px 0 rgba(59,42,53,.3); white-space: nowrap; }
+  .drag-ghost { position: fixed; z-index: 100; width: 96px; height: 72px; object-fit: cover; pointer-events: none; translate: -50% -50%; rotate: -5deg; border: 4px solid #fff; box-shadow: 0 10px 24px rgba(0,0,0,.35); }
+  /* крафт: полароид + washi-лента сверху */
+  .th-kraft .ab-slot::before { content: ''; position: absolute; z-index: 1; top: -5%; left: 50%; width: 36%; height: 10%; min-height: 12px; translate: -50% 0; rotate: -5deg; background: repeating-linear-gradient(45deg, rgba(240,138,160,.78) 0 7px, rgba(255,214,160,.78) 7px 14px); clip-path: polygon(0 8%, 6% 0, 12% 10%, 100% 0, 96% 50%, 100% 100%, 90% 92%, 4% 100%, 0 55%); }
+  .th-kraft .ab-slot:nth-of-type(even)::before { left: 78%; rotate: 38deg; top: -3%; background: repeating-linear-gradient(90deg, rgba(127,179,200,.78) 0 6px, rgba(255,250,242,.78) 6px 9px); }
+  /* путешествие: рваный белый край, уголок ленты, штемпель */
+  .th-travel .ab-slot { padding: 4.5%; clip-path: polygon(0 2%, 4% 0, 9% 1.5%, 15% 0, 22% 1%, 30% 0, 41% 1.6%, 50% 0, 61% 1%, 70% 0, 80% 1.5%, 90% 0, 100% 1.2%, 99% 12%, 100% 25%, 98.6% 40%, 100% 55%, 99% 70%, 100% 85%, 99% 100%, 88% 98.5%, 76% 100%, 64% 98.6%, 51% 100%, 40% 98.8%, 28% 100%, 16% 98.5%, 5% 100%, 0 98%, 1.2% 85%, 0 70%, 1.4% 55%, 0 40%, 1% 25%, 0 12%); filter: drop-shadow(0 .6cqw 1cqw rgba(0,0,0,.2)); box-shadow: none; }
+  .th-travel .ab-slot:first-of-type::after { content: '✈'; position: absolute; right: 2%; bottom: 3%; width: 5em; height: 5em; display: grid; place-items: center; font-size: 2.2cqw; color: rgba(165,64,45,.75); border: .35cqw dashed rgba(165,64,45,.6); border-radius: 50%; rotate: -14deg; }
+  /* плёнка: кадр на чёрной ленте с перфорацией */
+  .th-film .ab-slot { background: #0e0c10; padding: 10% 4%; box-shadow: 0 .8cqw 2.4cqw rgba(0,0,0,.6); }
+  .th-film .ab-slot::before, .th-film .ab-slot::after { content: ''; position: absolute; left: 3%; right: 3%; height: 4.5%; background: repeating-linear-gradient(90deg, rgba(245,235,215,.82) 0 6%, transparent 6% 11%); border-radius: 1px; }
+  .th-film .ab-slot::before { top: 2.6%; } .th-film .ab-slot::after { bottom: 2.6%; }
+  .th-film .ab-slot.ab-empty .ab-ph { background: #29242d; } .th-film .ab-slot-add { color: #8d8291; }
+  /* акварель: тонкая белая рамка и уголки для фото */
+  .th-water .ab-slot { padding: 2.6%; box-shadow: 0 .5cqw 1.6cqw rgba(91,74,99,.18); }
+  .th-water .ab-slot::before, .th-water .ab-slot::after { content: ''; position: absolute; z-index: 1; width: 13%; aspect-ratio: 1; background: #c99aa9; }
+  .th-water .ab-slot::before { top: -1.5%; left: -1.5%; clip-path: polygon(0 0, 100% 0, 0 100%); }
+  .th-water .ab-slot::after { bottom: -1.5%; right: -1.5%; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+
+  /* подпись раскладки и свободные вещи — шрифт и чернила темы */
+  .ab-cap { position: absolute; font-family: var(--font), Caveat, cursive; font-size: var(--capsize); line-height: 1.1; color: var(--aink); text-align: center; outline: none; min-height: 1.1em; overflow-wrap: anywhere; }
+  .th-travel .ab-cap { text-transform: uppercase; letter-spacing: .04em; }
+  .th-film .ab-cap { font-weight: 700; }
+  .editing .ab-cap { cursor: text; border-radius: 4px; } .editing .ab-cap:hover, .editing .ab-cap:focus { background: rgba(255,255,255,.25); box-shadow: 0 0 0 1px rgba(59,42,53,.25); }
+  .editing .ab-cap:empty::before { content: attr(data-ph); opacity: .45; }
+  #album .item.text { font-family: var(--font), Caveat, cursive; color: var(--aink); }
+  .th-film .item.photo { background: #0e0c10; }
+
+  /* панель правки: вкладки */
+  .album-tools { flex-direction: column; align-items: stretch; gap: 6px; }
+  .atabs { display: flex; gap: 6px; }
+  #album .atabs button { border: 0; background: transparent; font: 700 20px Caveat, cursive; padding: 2px 12px; border-radius: 9px; color: #7b6670; }
+  #album .atabs button.on { background: #f4dce3; color: #3b2a35; }
+  .atab { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; max-height: 140px; overflow-y: auto; padding: 2px; }
+  #album .atab .tbtn { border: 1px solid var(--line); background: #fff; border-radius: 9px; padding: 6px 10px; font-weight: 700; font-size: 14px; cursor: pointer; white-space: nowrap; }
+  #album .atab .tbtn:disabled { opacity: .4; } .atab .tbtn.danger { color: #c43a4f; } .atab label input { display: none; }
+  #album .atab .ab-note { font: 600 17px Caveat, cursive; color: #8d7a82; }
+  #album .ab-tray { position: relative; width: 58px; height: 58px; padding: 0; border: 2px solid #fff; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,.18); cursor: grab; touch-action: none; }
+  #album .ab-tray img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+  #album .ab-tray.ab-used::after { content: '✓'; position: absolute; right: 2px; bottom: 2px; width: 16px; height: 16px; border-radius: 50%; background: #8fb07a; color: #fff; font: 700 11px/16px Nunito, sans-serif; }
+  #album .ab-lay { position: relative; width: 42px; height: 56px; padding: 0; border: 1px solid var(--line); border-radius: 4px; background: #fffaf3; cursor: pointer; }
+  #album .ab-lay i { position: absolute; background: #d9c6b8; border-radius: 1px; }
+  #album .ab-lay.on { box-shadow: 0 0 0 2px #ef6f8c; } .ab-lay:hover i { background: #ef9fb2; }
+  #album .ab-thc { width: 112px; height: 64px; padding: 0 0 4px; border: 2px solid transparent; border-radius: 10px; background: var(--pg); display: flex; align-items: flex-end; justify-content: center; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+  #album .ab-thc b { font: 700 15px var(--f, Caveat), cursive; color: #3b2a35; background: rgba(255,255,255,.7); padding: 0 6px; border-radius: 6px; }
+  #album .ab-thc.th-film b { background: rgba(0,0,0,.5); color: #f6efe2; }
+  #album .ab-thc.on { border-color: #ef6f8c; }
+  .atab input[name=title] { font: 700 20px Caveat, cursive; padding: 4px 10px; border: 1px solid var(--line); border-radius: 8px; width: 190px; }
+
+  /* листание: страница переворачивается по корешку */
+  .spread { position: relative; perspective: 2400px; }
+  .ab-leaf { position: absolute; z-index: 5; transform-style: preserve-3d; }
+  .ab-leaf.ab-fwd { transform-origin: left center; animation: leaf-f .8s cubic-bezier(.45,.05,.3,1) forwards; }
+  .ab-leaf.ab-bwd { transform-origin: right center; animation: leaf-b .8s cubic-bezier(.45,.05,.3,1) forwards; }
+  @keyframes leaf-f { to { transform: rotateY(-180deg); } }
+  @keyframes leaf-b { to { transform: rotateY(180deg); } }
+  .ab-leaf .ab-face { position: absolute; inset: 0; width: 100% !important; height: 100%; backface-visibility: hidden; }
+  .ab-leaf .ab-face.ab-back { transform: rotateY(180deg); }
+  .page.ab-blank { background: transparent !important; box-shadow: none; }
+  @media (max-width: 760px) { #album .album-tools { order: 3; } #album .album-nav { order: 2; } #album .atab { max-height: 24vh; } #album.editing .page { width: min(92vw, calc((100vh - 430px) * .75)); } #album .ab-thc { width: 96px; height: 54px; } }
 
 
   /* ---- пароль, фото на стене, листание стопки ---- */
@@ -1138,14 +1228,8 @@
     <button data-a="edit">✎ редактировать</button>
   </div>
   <div class="album-tools" hidden>
-    <input name="title" maxlength="40" aria-label="Название альбома">
-    <span class="swatches"></span><input type="color" name="color" aria-label="Свой цвет">
-    <label>🖼 фото на обложку<input type="file" name="cover" accept="image/*"></label>
-    <label>＋ фото<input type="file" name="photos" accept="image/*" multiple></label>
-    <button type="button" data-a="text">＋ подпись</button>
-    <button type="button" data-a="page">＋ страница</button>
-    <button type="button" data-a="unpage">− страница</button>
-    <button type="button" data-a="delete" class="danger">удалить альбом</button>
+    <div class="atabs"><button type="button" data-tab="photos">фото</button><button type="button" data-tab="layouts">раскладки</button><button type="button" data-tab="theme">тема</button></div>
+    <div class="atab"></div>
   </div>
   <div class="spread"></div>
   <div class="album-nav"><button data-a="prev">‹</button><span class="album-pos"></span><button data-a="next">›</button></div>
