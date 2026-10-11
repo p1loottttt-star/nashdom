@@ -87,6 +87,9 @@ async function fetchPicked() {
     credits[k] = { by: c.by, src: c.page, lic: c.lic, lic_url: c.lic_url, title: c.title };
     console.log('ok', k);
   }
+  // тесты, у которых собраны ВСЕ фото, — только их каталог показывает (quizplay ready)
+  credits.__packs = (await packs([])).filter((p) => Object.keys(p.imgs).every((k) => credits[k] && existsSync(at(`public/quiz/${k}.webp`)))).map((p) => p.id).sort();
+  console.log('готовы:', credits.__packs.length, 'тестов');
   save(CREDITS, Object.fromEntries(Object.entries(credits).sort()));
   await b.close();
 }

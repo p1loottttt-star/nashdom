@@ -20,8 +20,8 @@ export async function loadQuiz(meta) {
   return { ...meta, ...pack };
 }
 let CR = null, crp = null;
-// новый тест виден в каталоге, когда его фото собраны (обложка есть в credits.json) — пакеты можно выкатывать по готовности
-export const ready = (q) => !isNew(q) || !!CR?.[q.cover];
+// новый тест виден в каталоге, когда собраны все его фото (список __packs пишет scripts/quizimg.mjs fetch) — пакеты можно выкатывать по готовности
+export const ready = (q) => !isNew(q) || !!CR?.__packs?.includes(q.id);
 export const credits = () => (crp ||= fetch('/quiz/credits.json').then((r) => r.json()).then((j) => (CR = j)).catch(() => (CR = {})));
 const short = (s) => (s.length > 42 ? s.slice(0, 40) + '…' : s);
 export function photo(key, cls = '') {
@@ -167,7 +167,7 @@ export function resultNew(q, A, B, ctx) {
 
 // ---------- авторы фото ----------
 export function creditsView() {
-  const rows = Object.entries(CR || {});
+  const rows = Object.entries(CR || {}).filter(([k]) => k !== '__packs');
   return [h('p', { className: 'qz-hint', textContent: 'Все фото в тестах — со свободными лицензиями (CC0, общественное достояние, CC BY, CC BY-SA). Фото уменьшены и кадрированы. Герои вселенных упоминаются только текстом.' }),
     h('div', { className: 'qz-credits' }, ...rows.map(([k, c]) => h('a', { href: c.src, target: '_blank', rel: 'noopener' },
       h('img', { src: `/quiz/${k}.webp`, alt: '', loading: 'lazy' }), h('span', {}, h('b', { textContent: c.title || k }), h('small', { textContent: `${short(c.by)} · ${c.lic}` })))))];

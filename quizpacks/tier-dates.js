@@ -2,7 +2,7 @@
 export default {
   imgs: {
     'td-cover': 'fairy lights', 'td-restaurant': 'restaurant dinner', 'td-picnic': 'picnic blanket', 'td-cinema': 'movie theater', 'td-park': 'autumn park walk',
-    'td-skating': 'ice skating', 'td-bowling': 'bowling pins', 'td-escape': 'escape room', 'td-karaoke': 'karaoke microphone', 'td-concert': 'concert stage',
+    'td-skating': 'ice skating', 'td-bowling': 'bowling alley', 'td-escape': 'escape room', 'td-karaoke': 'karaoke microphone', 'td-concert': 'concert stage',
     'td-museum': 'museum gallery', 'td-cooking': 'cooking pasta', 'td-boardgames': 'board games', 'td-trip': 'country road', 'td-bike': 'bicycle path',
     'td-zoo': 'zoo', 'td-aquapark': 'water slide', 'td-amusement': 'amusement park', 'td-spa': 'spa candles', 'td-homemovie': 'popcorn bowl', 'td-horse': 'horse riding',
   },
