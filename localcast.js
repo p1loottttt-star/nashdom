@@ -3,7 +3,8 @@
 import * as store from './store.js';
 import { file as filePlayer } from './players.js';
 import { watchCast } from './caststats.js';
-import { badAudio, fixAudio } from './audiofix.js';
+import { badAudio, fixAudio, nativeSound } from './audiofix.js';
+import { audioTracks, trackLabel } from './mkvtracks.js';
 
 const h = (tag, props = {}) => Object.assign(document.createElement(tag), props);
 const files = new Map(); // sid → File; живёт только в этой вкладке
@@ -17,6 +18,21 @@ const Q = new URLSearchParams(location.search), CODEC = Q.get('castcodec') || 'a
 // старт оценки канала с 1,2 Мбит/с вместо ~0,3: иначе первые ~10 с эфир идёт в 480p, пока «разгоняется» (замер 11.10)
 const fastStart = (sdp) => { const [head, ...ms] = sdp.split(/(?=^m=)/m); return head + ms.map((m) => (m.startsWith('m=video') ? m.replace(/^a=fmtp:\d+ [^\r\n]*/gm, (l) => (l.includes('x-google-start-bitrate') ? l : l + ';x-google-start-bitrate=1200')) : m)).join(''); };
 const send = (m) => store.live.send('cast', { ...m, from: store.me().id });
+
+// несколько звуковых дорожек (mkv): меню в углу плеера. Первая и понятная браузеру — родной звук; иначе перевод (audiofix, -map 0:a:N).
+// swap(сделать перевод | null, родной звук вкл.) — меняет звук у вызывающего (эфир переподключается там же)
+async function trackMenu(box, v, f, note, swap) {
+  const list = await audioTracks(f).catch(() => []);
+  if (list.length < 2) return;
+  const sel = h('select', { className: 'ttrack', title: 'звуковая дорожка' });
+  sel.append(...list.map((t) => h('option', { value: t.i, textContent: '🔊 ' + trackLabel(t) })));
+  sel.onchange = () => {
+    const t = list[sel.value], nat = t.i === 0 && !/AC3|DTS|TRUEHD|MLP/i.test(t.codec);
+    swap(nat ? null : () => fixAudio(v, f, note, t.i), nat);
+    note(`Дорожка: ${trackLabel(t)}`);
+  };
+  box.append(sel);
+}
 
 export function shareFile(file) { const sid = store.uid(); files.set(sid, file); return sid; }
 
@@ -114,6 +130,7 @@ async function host(box, src, on) {
     for (let i = 0; i < 40 && !cap.getVideoTracks().length; i++) await new Promise((r) => setTimeout(r, 100));
     await new Promise((r) => setTimeout(r, 150)); // звук приходит чуть позже картинки
     if (fix) return { stream: cap, tracks: [...cap.getVideoTracks(), ...fix.stream.getAudioTracks()] };
+    if (v.__dest) return { stream: cap, tracks: [...cap.getVideoTracks(), ...v.__dest.stream.getAudioTracks()] }; // родной звук уже идёт через WebAudio (меню дорожек)
     return { stream: cap, tracks: cap.getTracks() };
   }, v);
   // время и длительность для шкалы у партнёра
@@ -127,6 +144,7 @@ async function host(box, src, on) {
     checked = true;
     if (v.webkitAudioDecodedByteCount === 0) { fix = fixAudio(v, f, note); stop.renew(); }
   });
+  trackMenu(box, v, f, note, (make, nat) => { fix?.destroy(); nativeSound(v, nat); fix = make?.() || null; checked = true; stop.renew(); });
   return {
     ...p,
     type: 'file', title: () => f.name,
@@ -175,6 +193,8 @@ async function viewer(box, src, on) {
     box.insertBefore(own, v); v.hidden = true; v.muted = true; wait.remove(); ownBtn.remove();
     send({ sid: src.sid, to: src.host, type: 'bye' }); pc?.close(); pc = null; v.srcObject = null;
     ownFix = (await badAudio(f).catch(() => null)) ? fixAudio(own, f, (x) => on('note', x)) : null;
+    box.querySelector('.ttrack')?.remove();
+    trackMenu(box, own, f, (x) => on('note', x), (make, nat) => { ownFix?.destroy(); nativeSound(own, nat); ownFix = make?.() || null; });
     on('note', 'Смотришь свой файл в оригинальном качестве — время и пауза общие с партнёром ✓');
     clearInterval(ownSync);
     // держимся за время показывающего: далеко — перемотка, близко — чуть быстрее/медленнее (незаметно)

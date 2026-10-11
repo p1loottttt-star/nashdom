@@ -1,5 +1,5 @@
 // Стенд эфира «свой фильм»: вкладка A показывает файл, вкладка B смотрит; через N секунд — сводка getStats с обеих сторон (caststats.js).
-// node tests/perf/cast.mjs <файл> [--secs=60] [--url=http://localhost:8125] [--q=&castcodec=vp8&castdeg=maintain-resolution]
+// node tests/perf/cast.mjs <файл> [--secs=60] [--url=http://localhost:8125] [--q=&castcodec=vp8&castdeg=maintain-resolution] [--track=N — переключить звуковую дорожку, 0 — первая]
 // Обе вкладки на одной машине (видеокарта общая), сеть — петля: стенд ловит кодировщик, захват и приём, а не интернет.
 import { chromium } from 'playwright-core';
 import fs from 'node:fs';
@@ -43,6 +43,10 @@ await A.locator('.tpick input[type=file]').setInputFiles(FILE);
 console.log('файл выбран, ждём эфир…');
 if (arg('seek')) { await A.waitForTimeout(3000); await A.evaluate((t) => { document.querySelector('.tube video').currentTime = t; }, +arg('seek')); }
 await B.waitForFunction(() => window.__cast?.viewer?.samples?.length > 3, null, { timeout: 60000 }).catch(() => console.log('эфир не пришёл'));
+if (arg('track')) { // меню дорожек (mkv с несколькими звуковыми)
+  await A.waitForSelector('.ttrack', { timeout: 15000 }); await A.selectOption('.ttrack', arg('track'));
+  console.log('дорожка:', await A.$eval('.ttrack', (s) => s.selectedOptions[0].textContent)); await sleep(4000);
+}
 if (arg('viewshot')) await B.locator('.tscreen').screenshot({ path: arg('viewshot') }); // как видит смотрящий (ловит то, что легло поверх видео)
 if (process.argv.includes('--own')) { // у смотрящего тот же файл: свой экземпляр в такт с показывающим
   await B.locator('.town input').setInputFiles(FILE);

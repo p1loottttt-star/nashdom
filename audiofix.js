@@ -37,7 +37,16 @@ const getCore = (progress) => (core ||= (async () => ({
 // Поэтому экземпляр живёт RECYCLE кусков, потом заменяется свежим (≈0,5 с: ядро уже в blob:)
 const RECYCLE = 50;
 
-export function fixAudio(v, file, note) {
+// родной звук видео: выключить (играет другая дорожка через перевод) или вернуть. Громкость и mute элемента не трогаем — их читает перевод.
+// После createMediaElementSource звук элемента идёт только через WebAudio, поэтому «выключить» = не подключать к выходу.
+export function nativeSound(v, on) {
+  const { ctx } = audio();
+  if (!v.__src) { v.__src = ctx.createMediaElementSource(v); v.__dest = ctx.createMediaStreamDestination(); } // __dest — этот же звук для эфира
+  v.__src.disconnect();
+  if (on) { v.__src.connect(ctx.destination); v.__src.connect(v.__dest); }
+}
+
+export function fixAudio(v, file, note, track = 0) {
   const { ctx } = audio();
   const gain = ctx.createGain(), dest = ctx.createMediaStreamDestination();
   gain.connect(ctx.destination); gain.connect(dest);
@@ -47,7 +56,7 @@ export function fixAudio(v, file, note) {
   const chunks = new Map(); // номер куска → Promise<AudioBuffer>
 
   // один ffmpeg — по очереди; кусок k = [k·20 с, (k+1)·20 с), стыкуется с соседним до сэмпла
-  const stat = (window.__afix = { ms: [], exec: [], restarts: 0, drift: [], recycles: 0 }); // отладка: мс на кусок, перезапуски звука, замены ffmpeg
+  const stat = (window.__afix = { track, ms: [], exec: [], restarts: 0, drift: [], recycles: 0 }); // отладка: мс на кусок, перезапуски звука, замены ffmpeg
   // свежий ffmpeg с подключённым файлом (WORKERFS — читает прямо с диска)
   async function spawn(progress) {
     const C = await getCore(progress), x = new C.FFmpeg();
@@ -65,7 +74,7 @@ export function fixAudio(v, file, note) {
     runs++;
     const out = `/a${k}.raw`;
     // -probesize/-analyzeduration: без них ffmpeg каждый раз ~3 с «принюхивается» к файлу
-    await ff.exec(['-hide_banner', '-nostdin', '-probesize', '1000000', '-analyzeduration', '0', '-ss', String(k * D), '-i', `${dir}/${name}`, '-t', String(D), '-map', '0:a:0', '-vn', '-ac', '2', '-ar', String(RATE), '-f', 'f32le', out]);
+    await ff.exec(['-hide_banner', '-nostdin', '-probesize', '1000000', '-analyzeduration', '0', '-ss', String(k * D), '-i', `${dir}/${name}`, '-t', String(D), '-map', `0:a:${track}`, '-vn', '-ac', '2', '-ar', String(RATE), '-f', 'f32le', out]);
     const raw = await ff.readFile(out); ff.deleteFile(out).catch(() => {});
     return raw;
   }
