@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Б. Уютная игра</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;600;700;800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  /* Б. Уютная игра — как Animal Crossing (NookPhone) и Unpacking: крупные «нажимаемые» кнопки с объёмом, округлый шрифт,
+     рисованные значки-наклейки, подсказка пузырём. Один шрифт интерфейса, три размера. */
+  :root { --cream: #fff6e5; --cream2: #f6e7cb; --cocoa: #4a2f27; --cocoa2: #8a6a5c; --bevel: #c99f7c; --tomato: #ff6b4a; --mint: #2fb58c; --sky: #5aa9e0; --butter: #ffcd57;
+    --f: 'Rubik', system-ui, sans-serif; --hand: 'Caveat', cursive; }
+  * { box-sizing: border-box; } html, body { margin: 0; height: 100%; } body { font: 600 15px/1.35 var(--f); color: var(--cocoa); background: #22171c; overflow: hidden; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  .screen { position: fixed; inset: 0; display: none; } .screen.on { display: block; }
+  .dd { width: 100%; height: 100%; display: block; }
+  /* кнопка с объёмом: лицо + нижний бортик, нажатие опускает лицо */
+  .chunk { border: 0; background: var(--cream); border-radius: 20px; box-shadow: 0 5px 0 var(--bevel), 0 12px 18px -6px rgba(40,20,10,.45); transition: translate .08s, box-shadow .08s; }
+  .chunk:hover { translate: 0 -2px; box-shadow: 0 7px 0 var(--bevel), 0 16px 22px -8px rgba(40,20,10,.45); }
+  .chunk:active { translate: 0 4px; box-shadow: 0 1px 0 var(--bevel), 0 4px 8px -4px rgba(40,20,10,.4); }
+
+  /* ---------- комната: значок погоды слева сверху, круглые кнопки-действия справа снизу, подсказка пузырём ---------- */
+  #room { background: url(room.png) center / cover; }
+  @media (max-width: 760px) { #room { background-image: url(room-m.png); } }
+  .wx { position: absolute; left: 22px; top: 22px; display: flex; align-items: center; gap: 12px; padding: 10px 18px 10px 10px; border-radius: 22px; }
+  .wx .ic { width: 46px; height: 46px; } .wx b { font: 800 26px/1 var(--f); letter-spacing: -.02em; } .wx span { display: block; font-size: 13px; color: var(--cocoa2); font-weight: 600; }
+  .acts { position: absolute; right: 26px; bottom: 26px; display: flex; gap: 18px; align-items: flex-end; }
+  .act { display: grid; justify-items: center; gap: 8px; border: 0; background: none; padding: 0; }
+  .act .chunk { display: grid; place-items: center; width: 74px; height: 74px; border-radius: 26px; }
+  .act.big .chunk { width: 92px; height: 92px; border-radius: 32px; background: var(--butter); box-shadow: 0 6px 0 #d09a2c, 0 14px 20px -6px rgba(40,20,10,.5); }
+  .act .ic { width: 50px; height: 50px; } .act.big .ic { width: 62px; height: 62px; }
+  .act em { font-style: normal; font-weight: 700; font-size: 13px; color: var(--cream); text-shadow: 0 1px 0 rgba(0,0,0,.4), 0 0 10px rgba(0,0,0,.5); }
+  .act.sm .chunk { width: 52px; height: 52px; border-radius: 18px; } .act.sm .ic { width: 34px; height: 34px; }
+  .bubble { position: absolute; left: 26px; bottom: 30px; max-width: 330px; padding: 14px 18px; background: var(--cream); border-radius: 22px 22px 22px 6px; font-weight: 600; font-size: 16px; box-shadow: 0 5px 0 var(--bevel), 0 12px 18px -6px rgba(40,20,10,.45); }
+  .bubble b { color: var(--tomato); }
+  .bubble .who { position: absolute; left: -6px; top: -16px; padding: 3px 10px; border-radius: 10px; background: var(--cocoa); color: var(--cream); font-size: 12px; font-weight: 700; rotate: -4deg; }
+
+  /* ---------- редактор: лента-заголовок, инвентарь снизу (вкладки-корешки + ячейки), пузырь над выбранным ---------- */
+  #album { background: url(room.png) center / cover; }
+  #album::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 40%, rgba(60,30,40,.45), rgba(25,12,18,.85)); backdrop-filter: blur(10px); }
+  .round { position: absolute; display: grid; place-items: center; width: 54px; height: 54px; border-radius: 50%; font-size: 24px; font-weight: 800; }
+  .ribbon { position: absolute; left: 50%; top: 16px; translate: -50% 0; padding: 12px 54px 14px; background: var(--tomato); color: #fff; font: 800 22px var(--f); letter-spacing: -.01em; white-space: nowrap;
+    clip-path: polygon(0 0, 100% 0, 96% 50%, 100% 100%, 0 100%, 4% 50%); filter: drop-shadow(0 4px 0 #b8432b); }
+  .ribbon small { font-weight: 600; font-size: 13px; opacity: .85; margin-left: 10px; }
+  .go { position: absolute; right: 22px; top: 18px; padding: 13px 26px; border-radius: 18px; background: var(--mint); color: #fff; font-weight: 800; font-size: 17px; box-shadow: 0 5px 0 #1d7f61, 0 12px 18px -6px rgba(0,0,0,.4); }
+  .undo { position: absolute; right: 150px; top: 24px; display: flex; gap: 10px; } .undo .round { position: static; width: 44px; height: 44px; font-size: 20px; }
+  .stage { position: absolute; left: 0; right: 0; top: 92px; bottom: 236px; display: grid; place-items: center; }
+  .spread { position: relative; display: flex; height: 100%; aspect-ratio: 1.5; filter: drop-shadow(0 18px 30px rgba(0,0,0,.5)); }
+  .pg { position: relative; flex: 1; background: #f0dfc2; overflow: hidden; } .pg:first-child { border-radius: 14px 2px 2px 14px; } .pg:last-child { border-radius: 2px 14px 14px 2px; background-image: linear-gradient(270deg, transparent 90%, rgba(0,0,0,.08)); }
+  .pf { position: absolute; background: #fffdf8; padding: 3% 3% 10%; border-radius: 3px; box-shadow: 0 6px 14px -6px rgba(0,0,0,.4); } .pf img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 2px; }
+  .cap { position: absolute; font: 700 26px var(--hand); color: var(--cocoa); }
+  .pf.sel { outline: 4px solid var(--butter); outline-offset: 5px; border-radius: 6px; }
+  .pop { position: absolute; display: flex; gap: 8px; padding: 8px; background: var(--cocoa); border-radius: 22px; translate: -50% 0; box-shadow: 0 10px 20px -6px rgba(0,0,0,.5); }
+  .pop::after { content: ''; position: absolute; left: 50%; bottom: -9px; translate: -50% 0; border: 10px solid transparent; border-bottom: 0; border-top-color: var(--cocoa); }
+  .pop button { width: 42px; height: 42px; border: 0; border-radius: 14px; background: rgba(255,246,229,.12); display: grid; place-items: center; padding: 6px; }
+  .pop button:hover { background: rgba(255,246,229,.24); }
+  .inv { position: absolute; left: 50%; bottom: 18px; translate: -50% 0; width: min(980px, calc(100% - 32px)); }
+  .tabs { display: flex; gap: 6px; padding-left: 26px; }
+  .tab { display: flex; align-items: center; gap: 8px; padding: 10px 16px 14px; margin-bottom: -6px; border: 0; border-radius: 16px 16px 0 0; background: var(--cream2); color: var(--cocoa2); font-weight: 700; font-size: 14px; }
+  .tab .ic { width: 24px; height: 24px; } .tab.on { background: var(--cream); color: var(--cocoa); padding-top: 13px; }
+  .tray { position: relative; display: flex; gap: 12px; padding: 18px 20px; background: var(--cream); border-radius: 26px; box-shadow: 0 6px 0 var(--bevel), 0 20px 30px -10px rgba(0,0,0,.5); overflow-x: auto; }
+  .slot { flex: none; width: 74px; height: 74px; display: grid; place-items: center; padding: 10px; border: 0; border-radius: 20px; background: var(--cream2); box-shadow: inset 0 3px 0 rgba(74,47,39,.12); }
+  .slot:hover { background: #fde1b6; } .slot.tape { padding: 0 8px; } .slot.tape i { width: 100%; height: 20px; border-radius: 3px; }
+  .slot.new { box-shadow: inset 0 3px 0 rgba(74,47,39,.12), 0 0 0 3px var(--tomato); }
+  .sep { flex: none; width: 2px; margin: 8px 4px; border-radius: 2px; background: var(--cream2); }
+  .pages { position: absolute; right: 22px; top: -54px; display: flex; gap: 6px; }
+  .pages button { width: 36px; height: 36px; border: 0; border-radius: 12px; background: rgba(255,246,229,.18); color: var(--cream); font-weight: 800; }
+  .pages button.on { background: var(--cream); color: var(--cocoa); box-shadow: 0 3px 0 var(--bevel); }
+
+  /* ---------- окно в ноутбуке: толстый скруглённый «картридж», цветная шапка, плитки игр ---------- */
+  #win { background: radial-gradient(circle at 20% 20%, #ffe7c4, #f7c98f); }
+  #win::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle, rgba(255,255,255,.5) 2px, transparent 2.5px) 0 0 / 28px 28px; opacity: .6; }
+  .top { position: absolute; left: 16px; right: 16px; top: 12px; display: flex; align-items: center; gap: 12px; }
+  .top .pill { padding: 8px 14px; border-radius: 14px; font-weight: 700; } .top .grow { flex: 1; }
+  .window { position: absolute; left: 50%; top: 72px; translate: -50% 0; width: min(1000px, calc(100% - 32px)); height: calc(100% - 190px); background: var(--cream); border-radius: 30px; box-shadow: 0 8px 0 var(--bevel), 0 30px 50px -16px rgba(80,40,10,.55); overflow: hidden; display: flex; flex-direction: column; }
+  .wh { display: flex; align-items: center; gap: 14px; padding: 14px 18px; background: var(--sky); color: #fff; }
+  .wh .ic { width: 44px; height: 44px; padding: 4px; border-radius: 14px; background: var(--cream); } .wh h2 { margin: 0; font: 800 26px var(--f); letter-spacing: -.02em; }
+  .wh .x { margin-left: auto; width: 40px; height: 40px; border: 0; border-radius: 13px; background: rgba(255,255,255,.25); color: #fff; font-weight: 800; font-size: 18px; }
+  .wb { flex: 1; overflow: auto; padding: 22px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-content: start; }
+  .tile { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: 24px; color: var(--cocoa); }
+  .tile .art { width: 84px; height: 84px; align-self: flex-start; margin-bottom: 4px; } .tile h4 { margin: 0; font: 800 21px/1.1 var(--f); letter-spacing: -.01em; }
+  .tile p { margin: 0 0 6px; font-weight: 500; font-size: 14px; color: rgba(74,47,39,.75); } .tile .play { margin-top: auto; align-self: flex-start; padding: 11px 20px; border-radius: 16px; font-weight: 800; color: #fff; }
+  .tile .badge { position: absolute; right: 14px; top: 14px; padding: 4px 10px; border-radius: 10px; background: var(--cocoa); color: var(--cream); font-size: 12px; font-weight: 700; }
+  .tile.big { grid-column: span 2; flex-direction: row; align-items: center; gap: 20px; } .tile.big .art { width: 140px; height: 140px; } .tile.big h4 { font-size: 30px; } .tile.big > div { display: flex; flex-direction: column; gap: 8px; }
+  .dock { position: absolute; left: 50%; bottom: 16px; translate: -50% 0; display: flex; gap: 10px; padding: 10px 14px; border-radius: 26px; }
+  .dock button { width: 56px; height: 56px; border: 0; border-radius: 18px; background: var(--cream2); padding: 7px; position: relative; } .dock button:hover { translate: 0 -4px; }
+  .dock button.run::after { content: ''; position: absolute; left: 50%; bottom: -8px; translate: -50% 0; width: 8px; height: 8px; border-radius: 50%; background: var(--tomato); }
+
+  @media (max-width: 760px) {
+    .acts { left: 12px; right: 12px; bottom: 16px; justify-content: space-between; gap: 6px; } .act .chunk { width: 62px; height: 62px; border-radius: 22px; } .act .ic { width: 40px; height: 40px; }
+    .act.big .chunk { width: 76px; height: 76px; } .act.big .ic { width: 50px; height: 50px; } .act em { font-size: 11px; }
+    .bubble { left: 12px; right: 12px; bottom: 130px; max-width: none; font-size: 15px; } .wx { left: 12px; top: 12px; }
+    .ribbon { font-size: 17px; padding: 10px 30px 12px; top: 74px; } .ribbon small, .undo { display: none; } .go { top: 12px; right: 12px; } .round { width: 48px; height: 48px; }
+    .stage { top: 130px; bottom: 250px; } .spread { aspect-ratio: .75; } .pg:first-child { display: none; } .pg:last-child { border-radius: 14px; }
+    .tabs { padding-left: 8px; overflow-x: auto; } .tab { padding: 8px 12px 12px; font-size: 13px; } .tab span { display: none; } .tab.on span { display: inline; }
+    .inv { width: calc(100% - 16px); bottom: 10px; } .pages { right: 8px; } .slot { width: 64px; height: 64px; }
+    .window { top: 64px; height: calc(100% - 160px); } .wb { grid-template-columns: 1fr; } .tile.big { grid-column: auto; } .tile.big .art { width: 90px; height: 90px; }
+    .dock { gap: 4px; padding: 8px; } .dock button { width: 44px; height: 44px; } .top .pill:not(:first-child) { display: none; }
+  }
+</style>
+</head>
+<body>
+<section class="screen" id="room">
+  <div class="wx chunk"><span class="ic" data-d="sunset" data-c="#ef7f9b"></span><div><b>+12°</b><span>Кишинёв · ясно</span></div></div>
+  <div class="bubble"><span class="who">котик</span>Нажми на <b>ноутбук</b>, записку на столе или на меня.</div>
+  <nav class="acts">
+    <button class="act sm"><span class="chunk"><span class="ic" data-d="note" data-c="#6fa8d6"></span></span><em>звук</em></button>
+    <button class="act"><span class="chunk"><span class="ic" data-d="sofa" data-c="#7fae6a"></span></span><em>расставить</em></button>
+    <button class="act"><span class="chunk"><span class="ic" data-d="book" data-c="#a58bd1"></span></span><em>альбомы</em></button>
+    <button class="act big"><span class="chunk"><span class="ic" data-d="love" data-c="#ef7f9b"></span></span><em>записка</em></button>
+  </nav>
+</section>
+
+<section class="screen" id="album">
+  <button class="round chunk" style="left:22px;top:18px">←</button>
+  <div class="ribbon">Первая поездка<small>6 страниц</small></div>
+  <div class="undo"><button class="round chunk">↶</button><button class="round chunk">↷</button></div>
+  <button class="go">Готово</button>
+  <main class="stage">
+    <div class="spread">
+      <div class="pg">
+        <div class="pf" style="left:9%;top:7%;width:60%;height:50%;rotate:-3deg"><img src="/quiz/cc-prague.webp" alt=""></div>
+        <div class="pf" style="left:40%;top:52%;width:52%;height:40%;rotate:4deg"><img src="/quiz/cc-vienna.webp" alt=""></div>
+        <div class="cap" style="left:8%;top:66%">Прага, 12 июля</div>
+        <span class="ic" data-d="plane" data-c="#e0614f" style="position:absolute;left:66%;top:10%;width:22%;height:16%;rotate:12deg"></span>
+      </div>
+      <div class="pg">
+        <div class="pf sel" style="left:12%;top:8%;width:76%;height:58%;rotate:1deg"><img src="/quiz/cc-lisbon.webp" alt=""></div>
+        <div class="cap" style="left:22%;top:74%">первый трамвай вдвоём ♥</div>
+      </div>
+    </div>
+  </main>
+  <div class="pop" style="left:calc(50% + 260px);top:66px">
+    <button title="кадр"><span class="ic" data-d="camera" data-c="#ffcd57"></span></button><button title="выше"><span class="ic" data-d="star" data-c="#ffcd57"></span></button><button title="копия"><span class="ic" data-d="clip"></span></button><button title="убрать"><span class="ic" data-d="bath" data-c="#ff6b4a"></span></button>
+  </div>
+  <div class="inv">
+    <div class="pages"><button>1</button><button class="on">2</button><button>3</button><button>4</button><button>＋</button></div>
+    <div class="tabs">
+      <button class="tab"><span class="ic" data-d="gallery" data-c="#6fa8d6"></span><span>Фото</span></button>
+      <button class="tab"><span class="ic" data-d="plans" data-c="#7fae6a"></span><span>Макеты</span></button>
+      <button class="tab on"><span class="ic" data-d="gift" data-c="#ef7f9b"></span><span>Украшения</span></button>
+      <button class="tab"><span class="ic" data-d="draw" data-c="#e0614f"></span><span>Надписи</span></button>
+      <button class="tab"><span class="ic" data-d="roller" data-c="#f08b46"></span><span>Тема</span></button>
+    </div>
+    <div class="tray">
+      <button class="slot tape"><i style="background:repeating-linear-gradient(45deg,#f08aa0 0 7px,#ffd6a0 7px 14px)"></i></button>
+      <button class="slot tape"><i style="background:repeating-linear-gradient(90deg,#7fb3c8 0 6px,#fffaf2 6px 9px)"></i></button>
+      <button class="slot tape"><i style="background:radial-gradient(circle,#fffaf2 2px,transparent 2.5px) 0 0/10px 10px,#8fc7a8"></i></button>
+      <span class="sep"></span>
+      <button class="slot new"><span class="ic" data-d="heart" data-c="#ef7f9b"></span></button><button class="slot"><span class="ic" data-d="plane" data-c="#e0614f"></span></button><button class="slot"><span class="ic" data-d="camera" data-c="#6fa8d6"></span></button>
+      <button class="slot"><span class="ic" data-d="coffee" data-c="#f08b46"></span></button><button class="slot"><span class="ic" data-d="ticket" data-c="#e9a92f"></span></button><button class="slot"><span class="ic" data-d="flower" data-c="#ef7f9b"></span></button>
+      <button class="slot"><span class="ic" data-d="star" data-c="#ffcd57"></span></button><button class="slot"><span class="ic" data-d="stamp" data-c="#4b6fb5"></span></button>
+    </div>
+  </div>
+</section>
+
+<section class="screen" id="win">
+  <div class="top"><span class="pill chunk">♥ Наш дом</span><span class="grow"></span><span class="pill chunk">вместе 744 дня</span><span class="pill chunk">22:43</span></div>
+  <div class="window">
+    <div class="wh"><span class="ic" data-d="games"></span><h2>Игры</h2><button class="x">✕</button></div>
+    <div class="wb">
+      <article class="tile big" style="background:#ffe1d6"><span class="art ic" data-d="draw" data-c="#e0614f"></span><div><span class="badge">серия 6!</span><h4>Рисуй — угадывай</h4><p>Один рисует, второй угадывает. 80 секунд, подсказки буквами.</p><button class="play chunk" style="background:var(--tomato);box-shadow:0 5px 0 #b8432b">Новая партия</button></div></article>
+      <article class="tile" style="background:#e3f1dd"><span class="art ic" data-d="cats" data-c="#f08b46"></span><span class="badge">ход Сони</span><h4>Котобой</h4><p>Найди котов партнёра в тумане.</p><button class="play chunk" style="background:var(--mint);box-shadow:0 5px 0 #1d7f61">Играть</button></article>
+      <article class="tile" style="background:#dceefa"><span class="art ic" data-d="wave" data-c="#6fa8d6"></span><h4>Одна волна</h4><p>Подсказка одним словом — угадай точку.</p><button class="play chunk" style="background:var(--sky);box-shadow:0 5px 0 #2f78ad">Играть</button></article>
+      <article class="tile" style="background:#fbe8f0"><span class="art ic" data-d="ttt" data-c="#ef7f9b"></span><h4>Крестики-нолики</h4><p>Сердечки против лапок.</p><button class="play chunk" style="background:#e45f8b;box-shadow:0 5px 0 #a83d63">Играть</button></article>
+    </div>
+  </div>
+  <nav class="dock chunk"><button><span class="ic" data-d="tube" data-c="#e0614f"></span></button><button><span class="ic" data-d="gallery" data-c="#6fa8d6"></span></button><button><span class="ic" data-d="plans" data-c="#7fae6a"></span></button><button><span class="ic" data-d="thoughts" data-c="#a58bd1"></span></button><button class="run"><span class="ic" data-d="games" data-c="#3fa39a"></span></button><button><span class="ic" data-d="quiz" data-c="#e9a92f"></span></button><button><span class="ic" data-d="shop" data-c="#f08b46"></span></button><button><span class="ic" data-d="power" data-c="#f2c260"></span></button></nav>
+</section>
+<script type="module">
+  import { doodle } from '/doodles.js';
+  document.querySelectorAll('[data-d]').forEach((e) => { e.innerHTML = doodle(e.dataset.d, { style: 'sticker', accent: e.dataset.c || '#ef7f9b' }); });
+  const show = () => { const id = (location.hash || '#room').slice(1); document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('on', s.id === id)); };
+  addEventListener('hashchange', show); show();
+</script>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>А. Канцелярия</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;1,7..72,400;1,7..72,500&family=PT+Mono&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<style>
+  /* А. Канцелярия — как Midori Traveler's Notebook / Moleskine: книжная антиква, моно-подписи, тонкие чернильные линии,
+     одна краска штампа. Рукописный шрифт — только то, что пишут люди. */
+  :root { --paper: #f5efe4; --paper2: #ebe2d2; --ink: #2a2421; --ink2: #6b5f57; --line: rgba(42,36,33,.16); --red: #b5432f; --sh: 0 1px 0 rgba(42,36,33,.06), 0 10px 30px -12px rgba(42,30,20,.45);
+    --serif: 'Literata', Georgia, serif; --mono: 'PT Mono', ui-monospace, monospace; --hand: 'Caveat', cursive; }
+  * { box-sizing: border-box; } html, body { margin: 0; height: 100%; } body { font: 400 15px/1.45 var(--serif); color: var(--ink); background: #1d1719; overflow: hidden; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  .screen { position: fixed; inset: 0; display: none; } .screen.on { display: block; }
+  .grain { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .2 0 0 0 0 .15 0 0 0 0 .1 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .mono { font: 400 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+
+  /* ---------- комната: одна бумажная планка-указатель внизу ---------- */
+  #room { background: url(room.png) center / cover; }
+  @media (max-width: 760px) { #room { background-image: url(room-m.png); } }
+  .hud { position: absolute; left: 50%; bottom: 22px; translate: -50% 0; display: flex; align-items: stretch; background-color: var(--paper); border-radius: 3px; box-shadow: var(--sh); }
+  .hud > * { display: flex; align-items: center; gap: 10px; padding: 12px 18px; border: 0; background: none; border-left: 1px solid var(--line); white-space: nowrap; transition: background .2s; }
+  .hud > :first-child { border-left: 0; }
+  .hud button:hover { background: var(--paper2); }
+  .hud button:active { translate: 0 1px; }
+  .hud i { font-size: 19px; color: var(--ink2); }
+  .hud .act { font-size: 15px; font-weight: 500; }
+  .hud .act small { margin-left: 4px; color: var(--ink2); }
+  .hud .stamp { gap: 12px; padding-right: 20px; }
+  .stamp b { display: grid; place-items: center; width: 40px; height: 40px; border: 1.5px solid var(--red); border-radius: 50%; color: var(--red); font: 600 14px var(--serif); rotate: -8deg; }
+  .stamp span { display: grid; gap: 3px; } .stamp em { font-style: italic; font-size: 14px; } .stamp .mono { color: var(--ink2); font-size: 10px; }
+  .hud .ico { padding: 12px 15px; }
+  .hint { position: absolute; left: 50%; bottom: 96px; translate: -50% 0; color: #f6eadb; font: italic 400 17px var(--serif); text-shadow: 0 1px 12px rgba(0,0,0,.55); opacity: .9; white-space: nowrap; }
+  .hint kbd { font: 400 11px var(--mono); padding: 2px 5px; border: 1px solid rgba(246,234,219,.5); border-radius: 3px; margin: 0 2px; font-style: normal; }
+
+  /* ---------- редактор альбома: узкая рейка инструментов слева, ящик с вещами, мини-панель над выбранным ---------- */
+  #album { background: url(room.png) center / cover; }
+  #album::before { content: ''; position: absolute; inset: 0; background: rgba(24,18,20,.62); backdrop-filter: blur(14px); }
+  .bar { position: absolute; left: 0; right: 0; top: 0; height: 60px; display: flex; align-items: center; gap: 18px; padding: 0 22px; color: #f3e9dc; }
+  .bar .back { border: 0; background: none; display: flex; gap: 8px; align-items: center; opacity: .8; } .bar .back:hover { opacity: 1; }
+  .bar h1 { flex: 1; margin: 0; text-align: center; font: italic 500 22px var(--serif); letter-spacing: -.01em; }
+  .bar h1 small { display: block; font: 400 10px var(--mono); letter-spacing: .14em; text-transform: uppercase; font-style: normal; opacity: .55; margin-top: 2px; }
+  .bar .undo { display: flex; gap: 2px; } .bar .undo button { width: 36px; height: 36px; border: 0; border-radius: 3px; background: none; color: inherit; opacity: .75; font-size: 18px; } .bar .undo button:hover { background: rgba(255,255,255,.08); opacity: 1; }
+  .btn-ink { border: 0; border-radius: 3px; padding: 9px 18px; background: var(--paper); color: var(--ink); font-weight: 600; box-shadow: 0 2px 0 rgba(0,0,0,.25); }
+  .rail { position: absolute; left: 18px; top: 76px; bottom: 96px; width: 74px; display: flex; flex-direction: column; gap: 4px; padding: 8px 6px; background-color: var(--paper); border-radius: 3px; box-shadow: var(--sh); }
+  .rail button { border: 0; background: none; display: grid; justify-items: center; gap: 5px; padding: 10px 0 9px; border-radius: 2px; color: var(--ink2); }
+  .rail button i { font-size: 22px; } .rail button .mono { font-size: 9px; letter-spacing: .1em; }
+  .rail button.on { color: var(--ink); background: var(--paper2); box-shadow: inset 3px 0 0 var(--red); }
+  .drawer { position: absolute; left: 100px; top: 76px; bottom: 96px; width: 268px; padding: 18px 18px 14px; background-color: var(--paper); border-radius: 3px; box-shadow: var(--sh); overflow: auto; }
+  .drawer h3 { margin: 0 0 2px; font: 500 19px var(--serif); letter-spacing: -.01em; } .drawer p { margin: 0 0 14px; color: var(--ink2); font-size: 13px; }
+  .drawer .sec { display: flex; justify-content: space-between; align-items: baseline; margin: 18px 0 9px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .drawer .sec .mono { color: var(--ink2); }
+  .tapes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .tape { height: 20px; border: 0; opacity: .92; clip-path: polygon(0 12%, 4% 0, 100% 3%, 96% 50%, 100% 100%, 3% 96%, 0 60%); }
+  .stickers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .stk { aspect-ratio: 1; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 2px; background: #fbf7ef; font-size: 26px; color: var(--ink); }
+  .stk:hover { border-color: var(--ink2); }
+  .fonts { display: grid; gap: 6px; } .fontrow { display: flex; justify-content: space-between; align-items: center; padding: 9px 11px; border: 1px solid var(--line); border-radius: 2px; background: #fbf7ef; }
+  .fontrow b { font-weight: 400; font-size: 21px; } .fontrow .mono { color: var(--ink2); font-size: 9px; }
+  .stage { position: absolute; left: 392px; right: 24px; top: 76px; bottom: 96px; display: grid; place-items: center; }
+  .spread { position: relative; display: flex; height: min(100%, 560px); aspect-ratio: 1.5; filter: drop-shadow(0 22px 40px rgba(0,0,0,.45)); }
+  .pg { position: relative; flex: 1; background-color: #efe3cf; overflow: hidden; }
+  .pg:first-child { border-radius: 4px 0 0 4px; background-image: linear-gradient(90deg, transparent 88%, rgba(0,0,0,.09)); }
+  .pg:last-child { border-radius: 0 4px 4px 0; background-image: linear-gradient(270deg, transparent 88%, rgba(0,0,0,.09)); }
+  .pf { position: absolute; background: #fffdf8; padding: 3.2% 3.2% 11%; box-shadow: 0 6px 16px -6px rgba(0,0,0,.35); }
+  .pf img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .cap { position: absolute; font: 600 26px var(--hand); color: #3a2c2a; }
+  .sel { outline: 1.5px solid var(--ink); outline-offset: 5px; }
+  .sel .hd { position: absolute; width: 9px; height: 9px; background: var(--paper); border: 1.5px solid var(--ink); }
+  .float { position: absolute; display: flex; background: var(--ink); color: var(--paper); border-radius: 3px; box-shadow: 0 8px 20px -6px rgba(0,0,0,.5); translate: -50% 0; }
+  .float button { border: 0; background: none; color: inherit; padding: 8px 11px; display: flex; gap: 6px; align-items: center; font-size: 13px; border-left: 1px solid rgba(255,255,255,.12); }
+  .float button:first-child { border-left: 0; } .float button:hover { background: rgba(255,255,255,.08); }
+  .float .sw { width: 13px; height: 13px; border-radius: 50%; padding: 0; margin: 0 4px; border: 1.5px solid rgba(255,255,255,.4); }
+  .strip { position: absolute; left: 392px; right: 24px; bottom: 22px; height: 56px; display: flex; align-items: center; gap: 10px; color: #f3e9dc; }
+  .strip .mono { opacity: .55; margin-right: 6px; }
+  .th { width: 64px; height: 42px; display: flex; gap: 2px; padding: 3px; border: 0; border-radius: 2px; background: #efe3cf; opacity: .7; }
+  .th i { flex: 1; background: #cdb89a center / cover; } .th.on { opacity: 1; outline: 1.5px solid var(--paper); outline-offset: 3px; }
+  .strip .add { width: 42px; height: 42px; border: 1px dashed rgba(243,233,220,.4); background: none; color: inherit; border-radius: 2px; }
+
+  /* ---------- окно в ноутбуке: страница блокнота, карточки-каталожки ---------- */
+  #win { background-color: #d9cdb8; }
+  .menubar { position: absolute; left: 0; right: 0; top: 0; height: 34px; display: flex; align-items: center; gap: 22px; padding: 0 18px; background-color: rgba(245,239,228,.92); border-bottom: 1px solid var(--line); font-size: 13px; }
+  .menubar b { font: italic 600 15px var(--serif); } .menubar .grow { flex: 1; } .menubar .mono { color: var(--ink2); font-size: 10px; }
+  .window { position: absolute; left: 50%; top: 70px; translate: -50% 0; width: min(1000px, calc(100% - 48px)); height: calc(100% - 180px); background-color: var(--paper); border-radius: 4px; box-shadow: 0 30px 60px -20px rgba(40,25,10,.55), 0 0 0 1px rgba(42,36,33,.08); display: flex; flex-direction: column; overflow: hidden; }
+  .wh { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+  .dots { display: flex; gap: 7px; } .dots i { width: 11px; height: 11px; border-radius: 50%; border: 1px solid var(--ink2); }
+  .wh h2 { margin: 0; font: 500 20px var(--serif); letter-spacing: -.01em; } .wh .mono { color: var(--ink2); margin-left: auto; }
+  .wb { flex: 1; overflow: auto; padding: 28px 32px; display: grid; grid-template-columns: 1.3fr 1fr; gap: 22px; align-content: start; }
+  .lead { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 18px; padding-bottom: 6px; }
+  .lead h3 { margin: 0; font: 400 34px/1 var(--serif); letter-spacing: -.02em; } .lead p { margin: 0; color: var(--ink2); max-width: 46ch; }
+  .card { position: relative; padding: 20px 22px 18px 34px; background-color: #fbf7ef; border: 1px solid var(--line); border-radius: 2px;
+    background-image: linear-gradient(90deg, transparent 22px, rgba(181,67,47,.35) 22px 23px, transparent 23px), repeating-linear-gradient(transparent 0 25px, rgba(60,90,140,.12) 25px 26px); }
+  .card .mono { color: var(--red); font-size: 10px; } .card h4 { margin: 6px 0 4px; font: 500 22px var(--serif); letter-spacing: -.01em; } .card p { margin: 0 0 16px; color: var(--ink2); font-size: 14px; max-width: 40ch; }
+  .card .row { display: flex; gap: 10px; align-items: center; }
+  .btn { border: 1px solid var(--ink); border-radius: 2px; padding: 7px 14px; background: none; font-weight: 500; font-size: 14px; } .btn.fill { background: var(--ink); color: var(--paper); }
+  .btn:hover { background: var(--paper2); } .btn.fill:hover { background: #000; }
+  .card .who { margin-left: auto; color: var(--ink2); font-size: 12px; font-style: italic; }
+  .card.big { grid-row: span 2; } .card.big h4 { font-size: 30px; }
+  .card .art { position: absolute; right: 18px; top: 16px; font-size: 40px; color: var(--ink2); opacity: .6; }
+  .dock { position: absolute; left: 50%; bottom: 14px; translate: -50% 0; display: flex; gap: 4px; padding: 8px 10px; background-color: rgba(245,239,228,.92); border-radius: 4px; box-shadow: var(--sh); }
+  .dock button { width: 46px; height: 46px; border: 0; border-radius: 3px; background: none; font-size: 23px; color: var(--ink); display: grid; place-items: center; position: relative; }
+  .dock button:hover { background: var(--paper2); } .dock button.run::after { content: ''; position: absolute; bottom: 3px; width: 4px; height: 4px; border-radius: 50%; background: var(--red); }
+  .dock .sep { width: 1px; margin: 6px 4px; background: var(--line); }
+
+  @media (max-width: 760px) {
+    .hud { left: 12px; right: 12px; translate: none; justify-content: space-between; }
+    .hud > * { padding: 10px 10px; } .hud .act span, .stamp span { display: none; } .hud .act { flex-direction: column; gap: 4px; font-size: 11px; } .hud .act small { display: none; }
+    .hud .act::after { content: attr(data-s); font: 400 9px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink2); }
+    .hint { bottom: 90px; font-size: 15px; }
+    .rail { left: 0; right: 0; top: auto; bottom: 0; width: auto; height: 64px; flex-direction: row; justify-content: space-around; border-radius: 0; padding: 4px; }
+    .rail button { padding: 6px 10px; } .rail button.on { box-shadow: inset 0 -3px 0 var(--red); }
+    .drawer { left: 0; right: 0; top: auto; bottom: 64px; width: auto; height: 200px; border-radius: 10px 10px 0 0; }
+    .drawer .sec { margin-top: 10px; } .drawer .fonts, .drawer p, .drawer .sec:last-of-type { display: none; }
+    .stage { left: 8px; right: 8px; top: 64px; bottom: 330px; } .spread { aspect-ratio: .75; height: 100%; } .pg:first-child { display: none; } .pg:last-child { border-radius: 4px; }
+    .strip { left: 8px; right: 8px; bottom: 272px; overflow: hidden; } .strip .mono { display: none; }
+    .bar h1 small { display: none; } .bar .undo { display: none; }
+    .window { top: 46px; width: calc(100% - 16px); height: calc(100% - 130px); } .wb { grid-template-columns: 1fr; padding: 18px; } .card.big { grid-row: auto; } .lead { flex-direction: column; gap: 6px; }
+    .menubar .mono, .menubar span:not(.grow) { display: none; }
+  }
+</style>
+</head>
+<body>
+<section class="screen" id="room">
+  <div class="hint">нажми на ноутбук, записку или кота</div>
+  <nav class="hud grain">
+    <button class="stamp"><b>+12°</b><span><em>Кишинёв</em><span class="mono">ясно · 22:43</span></span></button>
+    <button class="act" data-s="записка"><i class="ph ph-pencil-simple-line"></i><span>Написать записку</span></button>
+    <button class="act" data-s="расставить"><i class="ph ph-arrows-out-cardinal"></i><span>Расставить вещи</span></button>
+    <button class="act" data-s="альбом"><i class="ph ph-book-open-text"></i><span>Альбомы</span></button>
+    <button class="ico" title="звук"><i class="ph ph-speaker-simple-high"></i></button>
+  </nav>
+</section>
+
+<section class="screen" id="album">
+  <header class="bar">
+    <button class="back"><i class="ph ph-arrow-left"></i> Комната</button>
+    <h1>Первая поездка<small>крафт · 6 страниц · правит Соня</small></h1>
+    <div class="undo"><button title="отменить"><i class="ph ph-arrow-counter-clockwise"></i></button><button title="повторить"><i class="ph ph-arrow-clockwise"></i></button></div>
+    <button class="btn-ink">Готово</button>
+  </header>
+  <nav class="rail grain">
+    <button><i class="ph ph-image"></i><span class="mono">фото</span></button>
+    <button><i class="ph ph-layout"></i><span class="mono">макет</span></button>
+    <button class="on"><i class="ph ph-sticker"></i><span class="mono">декор</span></button>
+    <button><i class="ph ph-text-aa"></i><span class="mono">текст</span></button>
+    <button><i class="ph ph-palette"></i><span class="mono">тема</span></button>
+  </nav>
+  <aside class="drawer grain">
+    <h3>Украшения</h3><p>Перетащи на страницу или нажми — встанет в середину.</p>
+    <div class="sec"><span>Ленты</span><span class="mono">6</span></div>
+    <div class="tapes">
+      <button class="tape" style="background:repeating-linear-gradient(45deg,#d98b8f 0 7px,#efcfa8 7px 14px)"></button>
+      <button class="tape" style="background:repeating-linear-gradient(90deg,#7d9fb2 0 6px,#f4ede1 6px 9px)"></button>
+      <button class="tape" style="background:#c9b08c"></button>
+      <button class="tape" style="background:radial-gradient(circle,#f4ede1 2px,transparent 2.5px) 0 0/10px 10px,#8fae94"></button>
+      <button class="tape" style="background:repeating-linear-gradient(0deg,rgba(181,67,47,.5) 0 5px,transparent 5px 10px),repeating-linear-gradient(90deg,rgba(181,67,47,.5) 0 5px,#f6ece8 5px 10px)"></button>
+      <button class="tape" style="background:#e2c26f"></button>
+    </div>
+    <div class="sec"><span>Штампы и значки</span><span class="mono">12</span></div>
+    <div class="stickers">
+      <button class="stk"><i class="ph ph-heart"></i></button><button class="stk"><i class="ph ph-airplane-tilt"></i></button><button class="stk"><i class="ph ph-camera"></i></button><button class="stk"><i class="ph ph-coffee"></i></button>
+      <button class="stk"><i class="ph ph-envelope-simple"></i></button><button class="stk"><i class="ph ph-star-four"></i></button><button class="stk"><i class="ph ph-flower-lotus"></i></button><button class="stk"><i class="ph ph-ticket"></i></button>
+    </div>
+    <div class="sec"><span>Подпись</span><span class="mono">2 шрифта</span></div>
+    <div class="fonts"><div class="fontrow"><b style="font-family:Caveat">от руки</b><span class="mono">caveat</span></div><div class="fontrow"><b style="font-family:Literata;font-size:17px;font-style:italic">книжная</b><span class="mono">literata</span></div></div>
+  </aside>
+  <main class="stage">
+    <div class="spread">
+      <div class="pg grain">
+        <div class="pf" style="left:9%;top:7%;width:60%;height:50%;rotate:-2deg"><img src="/quiz/cc-prague.webp" alt=""></div>
+        <div class="pf" style="left:40%;top:52%;width:52%;height:40%;rotate:3deg"><img src="/quiz/cc-vienna.webp" alt=""></div>
+        <div class="cap" style="left:8%;top:66%">Прага, 12 июля</div>
+      </div>
+      <div class="pg grain">
+        <div class="pf sel" style="left:12%;top:8%;width:76%;height:58%;rotate:1deg"><img src="/quiz/cc-lisbon.webp" alt=""><i class="hd" style="left:-6px;top:-6px"></i><i class="hd" style="right:-6px;top:-6px"></i><i class="hd" style="left:-6px;bottom:-6px"></i><i class="hd" style="right:-6px;bottom:-6px"></i></div>
+        <div class="cap" style="left:22%;top:74%">первый трамвай вдвоём</div>
+      </div>
+    </div>
+  </main>
+  <div class="float" style="left:calc(392px + (100% - 416px) / 2 + 160px);top:96px"><button><i class="ph ph-crop"></i>Кадр</button><button><i class="ph ph-stack"></i>Слой</button><button><i class="ph ph-copy"></i></button><button><i class="ph ph-trash"></i></button></div>
+  <footer class="strip"><span class="mono">страницы</span>
+    <button class="th"><i style="background-image:url(/quiz/cc-paris.webp)"></i></button>
+    <button class="th on"><i style="background-image:url(/quiz/cc-prague.webp)"></i><i style="background-image:url(/quiz/cc-lisbon.webp)"></i></button>
+    <button class="th"><i style="background-image:url(/quiz/cc-rome.webp)"></i><i style="background-image:url(/quiz/cc-venice.webp)"></i></button>
+    <button class="th"><i style="background-image:url(/quiz/cc-tokyo.webp)"></i><i></i></button>
+    <button class="add"><i class="ph ph-plus"></i></button>
+  </footer>
+</section>
+
+<section class="screen grain" id="win">
+  <div class="menubar grain"><b>Наш дом</b><span>Файл</span><span>Вид</span><span class="grow"></span><span class="mono">вместе 744 дня</span><span>22:43</span></div>
+  <div class="window grain">
+    <div class="wh"><div class="dots"><i></i><i></i><i></i></div><h2>Игры</h2><span class="mono">4 игры · сыграно 37 партий</span></div>
+    <div class="wb">
+      <div class="lead"><h3>Во что сыграем?</h3><p>Всё по очереди или вживую — когда вы оба в доме, ходы видны сразу.</p></div>
+      <article class="card big"><span class="mono">№ 1 · вживую</span><h4>Рисуй — угадывай</h4><p>Один рисует, второй угадывает. 80 секунд, подсказки буквами, ваши словечки выпадают чаще.</p><i class="ph ph-paint-brush art"></i><div class="row"><button class="btn fill">Новая партия</button><button class="btn">Рисунки</button><span class="who">серия 6 подряд</span></div></article>
+      <article class="card"><span class="mono">№ 2 · по ходам</span><h4>Котобой</h4><p>Рассади котов и найди котов партнёра в тумане.</p><div class="row"><button class="btn fill">Играть</button><span class="who">ход Сони</span></div></article>
+      <article class="card"><span class="mono">№ 3 · вместе</span><h4>Одна волна</h4><p>Подсказка одним словом — угадай точку на шкале.</p><div class="row"><button class="btn fill">Играть</button></div></article>
+    </div>
+  </div>
+  <nav class="dock grain"><button><i class="ph ph-film-strip"></i></button><button><i class="ph ph-images"></i></button><button><i class="ph ph-map-trifold"></i></button><button><i class="ph ph-envelope-simple"></i></button><button class="run"><i class="ph ph-dice-five"></i></button><button><i class="ph ph-question"></i></button><button><i class="ph ph-tag"></i></button><span class="sep"></span><button><i class="ph ph-moon"></i></button></nav>
+</section>
+<script>
+  const show = () => { const id = (location.hash || '#room').slice(1); document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('on', s.id === id)); };
+  addEventListener('hashchange', show); show();
+</script>
+</body>
+</html>

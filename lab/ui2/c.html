@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>В. Журнал</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Onest:wght@400;500;600&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/light/style.css">
+<style>
+  /* В. Журнал — редакционная вёрстка (журнал о жизни пары): большая курсивная антиква, гротеск для текста, сетка и линейки,
+     номера вместо значков, меню — текстом. Один акцент — розовый ризограф. */
+  :root { --paper: #f7f3ec; --ink: #171315; --ink2: #6e6468; --rule: rgba(23,19,21,.14); --pink: #ff4f7e; --disp: 'Playfair Display', Georgia, serif; --f: 'Onest', system-ui, sans-serif; --hand: 'Caveat', cursive; }
+  * { box-sizing: border-box; } html, body { margin: 0; height: 100%; } body { font: 400 15px/1.5 var(--f); color: var(--ink); background: #111; overflow: hidden; }
+  button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; padding: 0; }
+  .screen { position: fixed; inset: 0; display: none; } .screen.on { display: block; }
+  .num { font: 500 11px var(--f); letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+  a, .lnk { position: relative; } .lnk::after { content: ''; position: absolute; left: 0; right: 0; bottom: -2px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform .25s; } .lnk:hover::after { transform: scaleX(1); }
+
+  /* ---------- комната: шапка-«выходные данные» сверху слева, колонтитул-меню внизу ---------- */
+  #room { background: url(room.png) center / cover; color: #f7efe6; }
+  @media (max-width: 760px) { #room { background-image: url(room-m.png); } }
+  #room::after { content: ''; position: absolute; inset: auto 0 0 0; height: 200px; background: linear-gradient(transparent, rgba(16,8,14,.62)); pointer-events: none; }
+  .mast { position: absolute; left: 34px; top: 26px; text-shadow: 0 2px 18px rgba(0,0,0,.4); }
+  .mast h1 { margin: 0; font: italic 500 46px/1 var(--disp); letter-spacing: -.02em; } .mast p { margin: 8px 0 0; font-size: 13px; opacity: .85; } .mast p b { font-weight: 600; }
+  .foot { position: absolute; z-index: 2; left: 34px; right: 34px; bottom: 26px; display: flex; align-items: baseline; gap: 34px; padding-top: 14px; border-top: 1px solid rgba(247,239,230,.35); }
+  .foot button { display: flex; align-items: baseline; gap: 10px; font: 500 17px var(--f); }
+  .foot button .num { color: var(--pink); } .foot button:hover { color: #fff; }
+  .foot .main { font: italic 500 24px var(--disp); }
+  .foot .grow { flex: 1; } .foot em { font: italic 400 16px var(--disp); opacity: .75; }
+  .foot .snd { font-size: 13px; opacity: .8; }
+
+  /* ---------- редактор: страница журнала — содержание слева, разворот, колонка инструментов справа ---------- */
+  #album { background: var(--paper); }
+  .head { position: absolute; left: 0; right: 0; top: 0; height: 92px; display: flex; align-items: center; gap: 28px; padding: 0 34px; border-bottom: 1px solid var(--rule); }
+  .head .back { font-size: 14px; color: var(--ink2); display: flex; gap: 8px; align-items: center; }
+  .head h1 { margin: 0; font: italic 500 36px/1 var(--disp); letter-spacing: -.02em; } .head .meta { font-size: 13px; color: var(--ink2); }
+  .head .grow { flex: 1; } .head .lnk { font-size: 14px; color: var(--ink2); } .head .lnk:hover { color: var(--ink); }
+  .done { padding: 11px 22px; background: var(--ink); color: var(--paper); font: 500 14px var(--f); letter-spacing: .02em; transition: background .2s; } .done:hover { background: var(--pink); }
+  .toc { position: absolute; left: 34px; top: 92px; bottom: 0; width: 230px; padding-top: 26px; border-right: 1px solid var(--rule); }
+  .toc h4, .side h4 { margin: 0 0 12px; font: 600 11px var(--f); letter-spacing: .14em; text-transform: uppercase; color: var(--ink2); }
+  .toc ol { list-style: none; margin: 0; padding: 0 22px 0 0; }
+  .toc li { display: grid; grid-template-columns: 30px 1fr; gap: 4px; padding: 11px 0; border-bottom: 1px solid var(--rule); cursor: pointer; }
+  .toc li .num { color: var(--ink2); padding-top: 4px; } .toc li b { font: 500 16px/1.25 var(--disp); } .toc li small { grid-column: 2; color: var(--ink2); font-size: 12px; }
+  .toc li.on b { color: var(--pink); font-style: italic; } .toc li.on .num { color: var(--pink); }
+  .toc .add { margin-top: 14px; font-size: 14px; } .toc .add .num { color: var(--pink); margin-right: 6px; }
+  .stage { position: absolute; left: 290px; right: 330px; top: 92px; bottom: 78px; display: grid; place-items: center; }
+  .spread { display: flex; height: min(92%, 540px); aspect-ratio: 1.5; box-shadow: 0 1px 0 var(--rule), 0 30px 50px -28px rgba(23,19,21,.5); }
+  .pg { position: relative; flex: 1; background: #efe2cb; overflow: hidden; } .pg + .pg { border-left: 1px solid rgba(0,0,0,.08); }
+  .pf { position: absolute; background: #fffdf8; padding: 3% 3% 10%; box-shadow: 0 6px 14px -8px rgba(0,0,0,.45); } .pf img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cap { position: absolute; font: 600 26px var(--hand); color: #2f2427; }
+  .pf.sel { outline: 1px solid var(--pink); outline-offset: 6px; }
+  .cmd { position: absolute; left: 290px; right: 330px; bottom: 0; height: 78px; display: flex; align-items: center; justify-content: center; gap: 22px; border-top: 1px solid var(--rule); font-size: 14px; }
+  .cmd span { color: var(--ink2); font-style: italic; font-family: var(--disp); font-size: 16px; } .cmd .sep { width: 1px; height: 18px; background: var(--rule); } .cmd .del { color: var(--pink); }
+  .side { position: absolute; right: 34px; top: 92px; bottom: 0; width: 270px; padding-top: 26px; padding-left: 26px; border-left: 1px solid var(--rule); overflow: auto; }
+  .tabs { display: flex; gap: 18px; margin-bottom: 22px; font-size: 14px; color: var(--ink2); } .tabs .on { color: var(--ink); font-weight: 600; box-shadow: 0 2px 0 var(--pink); }
+  .side section { padding: 0 0 20px; margin-bottom: 20px; border-bottom: 1px solid var(--rule); }
+  .side h3 { margin: 0 0 12px; font: italic 500 22px var(--disp); }
+  .tapes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; } .tape { height: 18px; clip-path: polygon(0 10%, 4% 0, 100% 4%, 96% 50%, 100% 100%, 3% 96%, 0 60%); }
+  .glyphs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
+  .glyphs button { aspect-ratio: 1; display: grid; place-items: center; font-size: 28px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); transition: background .2s, color .2s; } .glyphs button:hover { background: var(--ink); color: var(--paper); }
+  .type { display: grid; gap: 10px; } .type button { display: flex; justify-content: space-between; align-items: baseline; text-align: left; padding-bottom: 8px; border-bottom: 1px dashed var(--rule); }
+  .type b { font-weight: 400; font-size: 24px; } .type small { color: var(--ink2); font-size: 12px; }
+
+  /* ---------- окно в ноутбуке: журнальная полоса, игры — нумерованные материалы ---------- */
+  #win { background: #e9e2d6; }
+  .menubar { position: absolute; left: 0; right: 0; top: 0; height: 36px; display: flex; align-items: center; gap: 24px; padding: 0 24px; font-size: 13px; border-bottom: 1px solid var(--rule); background: rgba(247,243,236,.9); }
+  .menubar b { font: italic 600 17px var(--disp); } .menubar .grow { flex: 1; } .menubar span { color: var(--ink2); }
+  .window { position: absolute; left: 50%; top: 66px; translate: -50% 0; width: min(1040px, calc(100% - 40px)); height: calc(100% - 170px); background: var(--paper); box-shadow: 0 40px 70px -30px rgba(23,19,21,.55); display: flex; flex-direction: column; overflow: hidden; }
+  .wh { display: flex; align-items: center; gap: 16px; padding: 12px 22px; border-bottom: 1px solid var(--rule); font-size: 13px; color: var(--ink2); }
+  .dots { display: flex; gap: 7px; } .dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--rule); } .wh .grow { flex: 1; }
+  .wb { flex: 1; overflow: auto; padding: 26px 44px 30px; }
+  .hero { display: grid; grid-template-columns: 1fr 300px; gap: 40px; align-items: end; padding-bottom: 22px; border-bottom: 2px solid var(--ink); }
+  .hero h2 { margin: 0; font: italic 400 84px/.9 var(--disp); letter-spacing: -.03em; } .hero p { margin: 0; color: var(--ink2); font-size: 14px; }
+  .hero p b { color: var(--ink); font-weight: 600; }
+  .row { display: grid; grid-template-columns: 70px 1fr 220px 120px; gap: 24px; align-items: baseline; padding: 20px 0; border-bottom: 1px solid var(--rule); }
+  .row .n { font: italic 400 40px/1 var(--disp); color: var(--ink2); } .row h3 { margin: 0; font: 500 30px/1.05 var(--disp); letter-spacing: -.015em; }
+  .row h3 i { font-style: italic; } .row p { margin: 0; color: var(--ink2); font-size: 14px; } .row .go { justify-self: end; font-weight: 600; font-size: 14px; }
+  .row .go .num { color: var(--pink); margin-left: 6px; }
+  .row.feat .n, .row.feat h3 i { color: var(--pink); } .tag { display: inline-block; margin-left: 10px; padding: 2px 8px; background: var(--pink); color: #fff; font: 600 10px var(--f); letter-spacing: .1em; text-transform: uppercase; vertical-align: middle; }
+  .dock { position: absolute; left: 50%; bottom: 18px; translate: -50% 0; display: flex; align-items: center; gap: 4px; padding: 6px 8px; background: var(--paper); box-shadow: 0 16px 30px -16px rgba(23,19,21,.5); }
+  .dock button { width: 46px; height: 46px; display: grid; place-items: center; font-size: 25px; position: relative; } .dock button:hover { background: var(--ink); color: var(--paper); }
+  .dock button.run::after { content: ''; position: absolute; bottom: 4px; width: 14px; height: 2px; background: var(--pink); } .dock i.sep { width: 1px; height: 26px; margin: 0 6px; background: var(--rule); }
+
+  @media (max-width: 760px) {
+    .mast { left: 18px; top: 18px; } .mast h1 { font-size: 34px; }
+    .foot { left: 18px; right: 18px; bottom: 18px; flex-wrap: wrap; gap: 10px 22px; } .foot .grow, .foot em { display: none; } .foot button { font-size: 15px; } .foot .main { font-size: 22px; width: 100%; }
+    .head { height: 70px; padding: 0 16px; gap: 14px; } .head h1 { font-size: 24px; } .head .meta, .head .lnk { display: none; }
+    .toc { display: none; } .side { left: 0; right: 0; top: auto; bottom: 0; width: auto; height: 250px; padding: 14px 16px; border-left: 0; border-top: 1px solid var(--rule); background: var(--paper); }
+    .side section:nth-of-type(n+2) { display: none; } .stage { left: 8px; right: 8px; top: 70px; bottom: 300px; } .spread { aspect-ratio: .75; } .pg:first-child { display: none; }
+    .cmd { left: 0; right: 0; bottom: 250px; height: 50px; gap: 12px; font-size: 13px; } .cmd span { display: none; }
+    .window { top: 46px; width: calc(100% - 16px); height: calc(100% - 130px); } .wb { padding: 18px; } .hero { grid-template-columns: 1fr; gap: 10px; } .hero h2 { font-size: 56px; }
+    .row { grid-template-columns: 40px 1fr; gap: 6px 14px; } .row p { grid-column: 2; } .row .go { grid-column: 2; justify-self: start; } .row .n { font-size: 28px; } .row h3 { font-size: 24px; }
+    .menubar span:not(.grow) { display: none; } .dock { gap: 0; } .dock button { width: 40px; }
+  }
+</style>
+</head>
+<body>
+<section class="screen" id="room">
+  <header class="mast"><h1>Наш дом</h1><p><b>№ 744</b> · воскресенье, 11 октября · Кишинёв, +12°, ясно</p></header>
+  <nav class="foot">
+    <button class="main lnk"><span class="num">01</span>Написать записку</button>
+    <button class="lnk"><span class="num">02</span>Альбомы</button>
+    <button class="lnk"><span class="num">03</span>Расставить</button>
+    <span class="grow"></span><em>нажми на ноутбук, записку или кота</em>
+    <button class="snd lnk">звук: вкл</button>
+  </nav>
+</section>
+
+<section class="screen" id="album">
+  <header class="head">
+    <button class="back"><i class="ph-light ph-arrow-left"></i>Комната</button>
+    <div><h1>Первая поездка</h1></div><span class="meta">6 страниц · тема «крафт» · правит Соня</span>
+    <span class="grow"></span><button class="lnk">Отменить</button><button class="lnk">Повторить</button><button class="done">Готово</button>
+  </header>
+  <aside class="toc">
+    <h4>Содержание</h4>
+    <ol>
+      <li><span class="num">01</span><b>Обложка</b><small>Первая поездка</small></li>
+      <li class="on"><span class="num">02</span><b>Прага и Лиссабон</b><small>12–14 июля · 3 фото</small></li>
+      <li><span class="num">03</span><b>Рим ночью</b><small>16 июля · 2 фото</small></li>
+      <li><span class="num">04</span><b>Венеция</b><small>18 июля · 4 фото</small></li>
+    </ol>
+    <button class="add lnk"><span class="num">+</span>Новая страница</button>
+  </aside>
+  <main class="stage">
+    <div class="spread">
+      <div class="pg">
+        <div class="pf" style="left:9%;top:7%;width:60%;height:50%;rotate:-2deg"><img src="/quiz/cc-prague.webp" alt=""></div>
+        <div class="pf" style="left:40%;top:52%;width:52%;height:40%;rotate:3deg"><img src="/quiz/cc-vienna.webp" alt=""></div>
+        <div class="cap" style="left:8%;top:66%">Прага, 12 июля</div>
+      </div>
+      <div class="pg">
+        <div class="pf sel" style="left:12%;top:8%;width:76%;height:58%;rotate:1deg"><img src="/quiz/cc-lisbon.webp" alt=""></div>
+        <div class="cap" style="left:22%;top:74%">первый трамвай вдвоём</div>
+      </div>
+    </div>
+  </main>
+  <div class="cmd"><span>Фото выбрано —</span><button class="lnk">Кадрировать</button><button class="lnk">Выше</button><button class="lnk">Ниже</button><button class="lnk">Копия</button><i class="sep"></i><button class="lnk del">Убрать</button></div>
+  <aside class="side">
+    <nav class="tabs"><button>Фото</button><button>Макет</button><button class="on">Украшения</button><button>Тема</button></nav>
+    <section><h3>Ленты</h3><div class="tapes">
+      <button class="tape" style="background:repeating-linear-gradient(45deg,#ff8fa9 0 7px,#ffe0b8 7px 14px)"></button><button class="tape" style="background:repeating-linear-gradient(90deg,#171315 0 2px,#f7f3ec 2px 7px)"></button><button class="tape" style="background:#d6c09c"></button>
+      <button class="tape" style="background:#ff4f7e"></button><button class="tape" style="background:radial-gradient(circle,#171315 1.4px,transparent 2px) 0 0/8px 8px,#efe6d6"></button><button class="tape" style="background:repeating-linear-gradient(-45deg,#9cc7d8 0 6px,#f7f3ec 6px 12px)"></button>
+    </div></section>
+    <section><h3>Знаки</h3><div class="glyphs">
+      <button><i class="ph-light ph-heart"></i></button><button><i class="ph-light ph-airplane-tilt"></i></button><button><i class="ph-light ph-camera"></i></button><button><i class="ph-light ph-coffee"></i></button>
+      <button><i class="ph-light ph-star-four"></i></button><button><i class="ph-light ph-flower-lotus"></i></button><button><i class="ph-light ph-ticket"></i></button><button><i class="ph-light ph-moon-stars"></i></button>
+    </div></section>
+    <section><h3>Надпись</h3><div class="type"><button><b style="font-family:Caveat">от руки</b><small>Caveat</small></button><button><b style="font-family:'Playfair Display';font-style:italic;font-size:21px">курсив</b><small>Playfair</small></button></div></section>
+  </aside>
+</section>
+
+<section class="screen" id="win">
+  <div class="menubar"><b>Наш дом</b><span>Файл</span><span>Вид</span><span class="grow"></span><span>№ 744</span><span>22:43</span></div>
+  <div class="window">
+    <div class="wh"><div class="dots"><i></i><i></i><i></i></div><span class="grow"></span><span>Игры · 4 · сыграно 37 партий</span></div>
+    <div class="wb">
+      <div class="hero"><h2>Во что<br>сыграем?</h2><p>Всё по очереди или вживую. Когда вы оба дома, ходы видны сразу. <b>Сейчас ход Сони</b> в «Котобое».</p></div>
+      <div class="row feat"><span class="n">01</span><h3>Рисуй — <i>угадывай</i><span class="tag">серия 6</span></h3><p>Один рисует, второй угадывает. 80 секунд, ваши словечки чаще.</p><button class="go lnk">Новая партия<span class="num">→</span></button></div>
+      <div class="row"><span class="n">02</span><h3>Кото<i>бой</i></h3><p>Рассади котов и найди котов партнёра в тумане.</p><button class="go lnk">Ваш ход<span class="num">→</span></button></div>
+      <div class="row"><span class="n">03</span><h3>Одна <i>волна</i></h3><p>Подсказка одним словом — угадай точку на шкале.</p><button class="go lnk">Играть<span class="num">→</span></button></div>
+    </div>
+  </div>
+  <nav class="dock"><button><i class="ph-light ph-film-strip"></i></button><button><i class="ph-light ph-images"></i></button><button><i class="ph-light ph-map-trifold"></i></button><button><i class="ph-light ph-envelope-simple"></i></button><button class="run"><i class="ph-light ph-dice-five"></i></button><button><i class="ph-light ph-question"></i></button><button><i class="ph-light ph-tag"></i></button><i class="sep"></i><button><i class="ph-light ph-moon"></i></button></nav>
+</section>
+<script>
+  const show = () => { const id = (location.hash || '#room').slice(1); document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('on', s.id === id)); };
+  addEventListener('hashchange', show); show();
+</script>
+</body>
+</html>
