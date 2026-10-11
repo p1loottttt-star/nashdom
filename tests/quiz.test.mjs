@@ -1,6 +1,6 @@
 // подсчёты «Тестов для пар» и целостность базы
 import assert from 'node:assert/strict';
-import { whoRows, typeResult, knowScore, validate, guessed, swaps, pickScore, listRows, eveningScore, qdayIndex, qdayStreak, prevDay, knowTitle } from '../quizlogic.js';
+import { whoRows, typeResult, knowScore, validate, guessed, swaps, pickScore, listRows, eveningScore, qdayIndex, qdayStreak, prevDay, knowTitle, typePercents, typeSame, seeded, cupPlay, cupScore, tierScore, triviaRight, triviaPair, length } from '../quizlogic.js';
 import { QUIZZES, TOPICS, QDAY } from '../quizdb.js';
 
 // «кто из нас»: ответы относительны отвечающему — переводим в людей
@@ -58,4 +58,36 @@ assert.equal(qdayStreak((d) => both.has(d), '2026-10-11'), 3, 'сегодня е
 assert.equal(qdayStreak((d) => both.has(d), '2026-10-12'), 0);
 // validate ловит поломки
 assert.ok(validate({ id: 't', kind: 'type', title: 'x', topic: 'fun', emoji: '·', results: { a: { title: 'A', text: '.' } }, questions: [{ q: '?', a: [['да', 'b']] }] }).length > 0);
+// кто ты из: проценты по героям, одинаковые ответы
+const tp = typePercents(type, [0, 1, 0]); // y x y
+assert.deepEqual(tp.map((r) => [r.key, r.pct]), [['y', 67], ['x', 33], ['z', 0]]);
+assert.equal(typeSame(type, { answers: [0, 1, 0] }, { answers: [0, 0, 0] }), 2);
+// турнир: сетка одинакова при одном зерне, матчи по ответам
+const ord = seeded(16, 'cup-x'); assert.deepEqual(ord, seeded(16, 'cup-x')); assert.deepEqual([...ord].sort((a, b) => a - b), [...Array(16).keys()]);
+assert.notDeepEqual(ord, seeded(16, 'cup-y'));
+const o4 = [0, 1, 2, 3];
+assert.deepEqual(cupPlay(o4, []).cur, [0, 1]); assert.equal(cupPlay(o4, []).size, 4);
+assert.deepEqual(cupPlay(o4, [1]).cur, [2, 3]);
+assert.deepEqual(cupPlay(o4, [1, 3]).cur, [1, 3]); assert.equal(cupPlay(o4, [1, 3]).size, 2);
+assert.equal(cupPlay(o4, [1, 3, 3]).cur, null); assert.equal(cupPlay(o4, [1, 3, 3]).champ, 3);
+const cs = cupScore({ items: [{}, {}, {}, {}] }, o4, { answers: [1, 3, 3] }, { answers: [1, 2, 1] });
+assert.deepEqual([cs.a.champ, cs.b.champ, cs.first, cs.top[0]], [3, 1, 1, 1]); // первый круг: 1=1, 3≠2; сумма побед: у 1 → 1+2
+assert.deepEqual(cs.a.wins, [0, 1, 0, 2]);
+// тирлист: на одной полке, горячие споры (разница 2+)
+const ts = tierScore({ items: [{ t: 'a' }, { t: 'b' }, { t: 'c' }] }, { answers: [0, 3, 1] }, { answers: [0, 0, 2] });
+assert.deepEqual([ts.same, ts.total, ts.hot.map((r) => r.i)], [1, 3, [1]]);
+// викторина
+const tv = { questions: [{ q: '1', a: ['a', 'b'], ok: 1 }, { q: '2', a: ['a', 'b'], ok: 0 }] };
+assert.equal(triviaRight(tv, [1, 1]), 1);
+const tvp = triviaPair(tv, { answers: [1, 0] }, { answers: [0, 0] });
+assert.deepEqual([tvp.mine, tvp.theirs, tvp.total], [2, 1, 2]);
+// validate новых форматов
+const img = (t) => ({ t, img: 'k' });
+assert.deepEqual(validate({ id: 'c', kind: 'cup', title: 'x', rubric: 'food', cover: 'k', items: Array.from({ length: 16 }, (_, i) => img('t' + i)) }), []);
+assert.ok(validate({ id: 'c', kind: 'cup', title: 'x', rubric: 'food', cover: 'k', items: [img('a')] }).length);
+assert.deepEqual(validate({ id: 't', kind: 'tier', title: 'x', rubric: 'food', cover: 'k', items: Array.from({ length: 12 }, (_, i) => img('t' + i)) }), []);
+assert.deepEqual(validate({ id: 'v', kind: 'trivia', title: 'x', rubric: 'cinema', cover: 'k', questions: Array.from({ length: 5 }, () => ({ q: '?', a: ['a', 'b'], ok: 1 })) }), []);
+assert.ok(validate({ id: 'v', kind: 'trivia', title: 'x', rubric: 'cinema', cover: 'k', questions: Array.from({ length: 5 }, () => ({ q: '?', a: ['a', 'b'], ok: 2 })) }).length);
+assert.deepEqual(validate({ id: 'h', kind: 'type', title: 'x', rubric: 'cinema', cover: 'k', results: { a: { title: 'A', text: '.', img: 'k' }, b: { title: 'B', text: '.' } }, questions: [{ q: '?', a: [['1', 'a'], ['2', 'b']] }] }), []);
+assert.equal(length({ kind: 'cup', items: Array(16) }), 15); assert.equal(length({ kind: 'tier', items: Array(20) }), 20); assert.equal(length({ kind: 'trivia', questions: Array(7) }), 7);
 console.log('quiz: ok');
