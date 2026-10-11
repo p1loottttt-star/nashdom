@@ -1,8 +1,8 @@
 // Викторина «Знаешь ли ты киновселенную Marvel»: факты о фильмах, фото по смыслу (без кадров).
 export default {
   imgs: {
-    'tv-cover': 'city skyline night', 'tv-hammer': 'blacksmith hammer', 'tv-shield': 'old shield', 'tv-runes': 'rune stone', 'tv-savanna': 'african savanna',
-    'tv-workshop': 'metal workshop', 'tv-gems': 'gemstones', 'tv-lab': 'science laboratory', 'tv-temple': 'kathmandu temple', 'tv-tree': 'old tree', 'tv-web': 'spider web',
+    'tv-cover': 'city skyline night', 'tv-hammer': 'anvil', 'tv-shield': 'medieval shield', 'tv-runes': 'runestone', 'tv-savanna': 'african savanna',
+    'tv-workshop': 'workbench tools', 'tv-gems': 'colorful crystals', 'tv-lab': 'laboratory glassware', 'tv-temple': 'kathmandu temple', 'tv-tree': 'old tree', 'tv-web': 'spider web',
   },
   questions: [
     { q: 'Как называется молот Тора?', img: 'tv-hammer', a: ['Мьёльнир', 'Гунгнир', 'Штормбрейкер', 'Экскалибур'], ok: 0 },

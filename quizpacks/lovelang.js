@@ -1,10 +1,10 @@
 // Тест для пар «Какой твой язык любви». Фото — предметы и места (ключи → запрос Openverse).
 export default {
   imgs: {
-    'll-cover': 'two coffee cups', 'll-q-show': 'love lock bridge', 'll-q-hurt': 'rain on window', 'll-q-evening': 'blanket candles',
-    'll-q-away': 'train station', 'll-q-anniv': 'gift box', 'll-q-tired': 'evening kitchen', 'll-q-quarrel': 'bouquet flowers',
+    'll-cover': 'two coffee cups', 'll-q-show': 'love lock bridge', 'll-q-hurt': 'rain on window', 'll-q-evening': 'cozy candles',
+    'll-q-away': 'train station', 'll-q-anniv': 'present ribbon', 'll-q-tired': 'dinner table', 'll-q-quarrel': 'bouquet flowers',
     'll-q-memory': 'pressed flowers', 'll-q-walk': 'park path autumn', 'll-q-say': 'handwritten note', 'll-q-forgive': 'broken cup',
-    'll-r-words': 'love letter', 'll-r-time': 'sunset bench', 'll-r-gifts': 'wrapped gift', 'll-r-service': 'breakfast tray', 'll-r-touch': 'holding hands',
+    'll-r-words': 'envelope letter', 'll-r-time': 'sunset bench', 'll-r-gifts': 'wrapped gift', 'll-r-service': 'breakfast tray', 'll-r-touch': 'holding hands',
   },
   results: {
     words: { title: 'Слова поддержки', img: 'll-r-words', text: 'Тебе важно слышать, что тебя любят и тобой гордятся. Одно тёплое слово греет тебя весь день, а резкое ранит надолго.' },

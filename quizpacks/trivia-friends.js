@@ -2,7 +2,7 @@
 export default {
   imgs: {
     'tr-cover': 'cozy sofa', 'tr-coffee': 'coffee shop', 'tr-dino': 'dinosaur skeleton', 'tr-kitchen': 'restaurant kitchen', 'tr-monkey': 'capuchin monkey',
-    'tr-paris': 'paris street', 'tr-altar': 'church altar', 'tr-guitar': 'acoustic guitar', 'tr-mirror': 'antique mirror', 'tr-sandwich': 'sandwich', 'tr-office': 'office cubicle',
+    'tr-paris': 'paris street', 'tr-altar': 'church altar', 'tr-guitar': 'acoustic guitar', 'tr-mirror': 'ornate mirror', 'tr-sandwich': 'sandwich', 'tr-office': 'office cubicle',
   },
   questions: [
     { q: 'Как называется кофейня, где друзья проводят почти всё время?', img: 'tr-coffee', a: ['Monk’s Café', 'Central Perk', 'MacLaren’s', 'Café Nervosa'], ok: 1 },

@@ -1,10 +1,10 @@
 // Тирлист «Домашние дела»: 20 дел по полкам.
 export default {
   imgs: {
-    'th-cover': 'cleaning supplies', 'th-dishes': 'washing dishes', 'th-ironing': 'clothes iron', 'th-vacuum': 'vacuum cleaner', 'th-trash': 'garbage bin',
-    'th-cooking': 'cooking pot stove', 'th-windows': 'window cleaning', 'th-wardrobe': 'wardrobe clothes', 'th-laundry': 'washing machine', 'th-bathroom': 'bathtub',
-    'th-plants': 'watering can plants', 'th-shop': 'grocery store', 'th-bed': 'bed linen', 'th-oven': 'oven', 'th-bags': 'grocery bags',
-    'th-dog': 'dog walking leash', 'th-floor': 'mop bucket', 'th-dust': 'feather duster', 'th-clothesline': 'clothesline laundry', 'th-fridge': 'refrigerator', 'th-bills': 'paying bills',
+    'th-cover': 'cleaning bucket', 'th-dishes': 'washing dishes', 'th-ironing': 'clothes iron', 'th-vacuum': 'vacuuming', 'th-trash': 'garbage bin',
+    'th-cooking': 'cooking pot stove', 'th-windows': 'squeegee', 'th-wardrobe': 'wardrobe clothes', 'th-laundry': 'washing machine', 'th-bathroom': 'bathtub',
+    'th-plants': 'watering can plants', 'th-shop': 'supermarket', 'th-bed': 'bedsheets', 'th-oven': 'kitchen oven', 'th-bags': 'shopping bag',
+    'th-dog': 'dog walking leash', 'th-floor': 'mop bucket', 'th-dust': 'dusting', 'th-clothesline': 'clothesline laundry', 'th-fridge': 'refrigerator', 'th-bills': 'receipts calculator',
   },
   items: [
     { t: 'Мыть посуду', img: 'th-dishes' }, { t: 'Гладить', img: 'th-ironing' }, { t: 'Пылесосить', img: 'th-vacuum' }, { t: 'Выносить мусор', img: 'th-trash' }, { t: 'Готовить', img: 'th-cooking' },

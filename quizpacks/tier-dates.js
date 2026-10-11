@@ -1,10 +1,10 @@
 // Тирлист «Свидания»: 20 вариантов по полкам.
 export default {
   imgs: {
-    'td-cover': 'fairy lights', 'td-restaurant': 'restaurant dinner', 'td-picnic': 'picnic blanket', 'td-cinema': 'cinema seats', 'td-park': 'autumn park walk',
-    'td-skating': 'ice skating', 'td-bowling': 'bowling alley', 'td-escape': 'escape room', 'td-karaoke': 'karaoke microphone', 'td-concert': 'concert stage',
-    'td-museum': 'museum gallery', 'td-cooking': 'home cooking kitchen', 'td-boardgames': 'board games', 'td-trip': 'country road', 'td-bike': 'bicycle path',
-    'td-zoo': 'zoo', 'td-aquapark': 'water park', 'td-amusement': 'amusement park', 'td-spa': 'spa candles', 'td-homemovie': 'popcorn bowl', 'td-horse': 'horse riding',
+    'td-cover': 'fairy lights', 'td-restaurant': 'restaurant dinner', 'td-picnic': 'picnic blanket', 'td-cinema': 'movie theater', 'td-park': 'autumn park walk',
+    'td-skating': 'ice skating', 'td-bowling': 'bowling pins', 'td-escape': 'escape room', 'td-karaoke': 'karaoke microphone', 'td-concert': 'concert stage',
+    'td-museum': 'museum gallery', 'td-cooking': 'cooking pasta', 'td-boardgames': 'board games', 'td-trip': 'country road', 'td-bike': 'bicycle path',
+    'td-zoo': 'zoo', 'td-aquapark': 'water slide', 'td-amusement': 'amusement park', 'td-spa': 'spa candles', 'td-homemovie': 'popcorn bowl', 'td-horse': 'horse riding',
   },
   items: [
     { t: 'Ужин в ресторане', img: 'td-restaurant' }, { t: 'Пикник', img: 'td-picnic' }, { t: 'Кино', img: 'td-cinema' }, { t: 'Прогулка по парку', img: 'td-park' }, { t: 'Каток', img: 'td-skating' },

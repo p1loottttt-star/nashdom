@@ -1,12 +1,12 @@
 // Фан-тест «Кто ты из «Наруто»». Тексты свои, герои только словами; фото — мир героев (ключи → запрос Openverse).
 export default {
   imgs: {
-    'nr-cover': 'japanese village', 'nr-q-day': 'village street', 'nr-q-words': 'paper lanterns', 'nr-q-learn': 'old scrolls',
-    'nr-q-lead': 'mountain path', 'nr-q-snack': 'dumplings', 'nr-q-sad': 'rainy street', 'nr-q-fight': 'bamboo forest',
-    'nr-q-teacher': 'temple stairs', 'nr-q-rules': 'torii gate', 'nr-q-place': 'japanese garden', 'nr-q-goal': 'mountain summit', 'nr-q-flaw': 'broken teacup',
+    'nr-cover': 'japanese village', 'nr-q-day': 'village street', 'nr-q-words': 'paper lanterns', 'nr-q-learn': 'rolled scrolls',
+    'nr-q-lead': 'hiking trail', 'nr-q-snack': 'dumplings', 'nr-q-sad': 'rainy night', 'nr-q-fight': 'bamboo forest',
+    'nr-q-teacher': 'temple stairs', 'nr-q-rules': 'torii gate', 'nr-q-place': 'japanese garden', 'nr-q-goal': 'mountain summit', 'nr-q-flaw': 'broken cup',
     'nr-r-naruto': 'ramen bowl', 'nr-r-sasuke': 'thunderstorm', 'nr-r-sakura': 'cherry blossom', 'nr-r-kakashi': 'pug dog',
     'nr-r-hinata': 'sunflowers', 'nr-r-shikamaru': 'clouds sky', 'nr-r-itachi': 'crow', 'nr-r-gaara': 'desert dunes',
-    'nr-r-lee': 'running track', 'nr-r-jiraiya': 'toad', 'nr-r-tsunade': 'dice', 'nr-r-neji': 'bird cage',
+    'nr-r-lee': 'running track', 'nr-r-jiraiya': 'toad', 'nr-r-tsunade': 'dice', 'nr-r-neji': 'vintage birdcage',
   },
   results: {
     naruto: { title: 'Наруто Узумаки', img: 'nr-r-naruto', text: 'Шумный, упрямый и бесконечно верный своим. Тебя можно сбить с ног, но не заставить сдаться, и рано или поздно ты добиваешься своего.' },

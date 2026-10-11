@@ -1,10 +1,10 @@
 // Фан-тест «Кто ты из «My Little Pony»». Тексты свои, герои только словами; фото — мир героев (ключи → запрос).
 export default {
   imgs: {
-    'lp-cover': 'pastel clouds', 'lp-q-day': 'flower meadow', 'lp-q-fear': 'dark forest', 'lp-q-friend': 'two cups of tea',
+    'lp-cover': 'pastel clouds', 'lp-q-day': 'flower meadow', 'lp-q-fear': 'misty forest', 'lp-q-friend': 'two cups of tea',
     'lp-q-morning': 'morning dew', 'lp-q-style': 'fabric rolls', 'lp-q-anger': 'storm clouds', 'lp-q-gift': 'gift box',
-    'lp-q-place': 'hilltop view', 'lp-q-party': 'confetti', 'lp-q-value': 'lighthouse', 'lp-q-task': 'old map', 'lp-q-pet': 'white rabbit',
-    'lp-r-twilight': 'night sky stars', 'lp-r-pinkie': 'party balloons', 'lp-r-rainbow': 'rainbow', 'lp-r-rarity': 'diamonds',
+    'lp-q-place': 'hilltop view', 'lp-q-party': 'confetti', 'lp-q-value': 'lighthouse', 'lp-q-task': 'antique map', 'lp-q-pet': 'white rabbit',
+    'lp-r-twilight': 'night sky stars', 'lp-r-pinkie': 'party balloons', 'lp-r-rainbow': 'rainbow', 'lp-r-rarity': 'cut diamond',
     'lp-r-fluttershy': 'butterfly on flower', 'lp-r-applejack': 'red apples', 'lp-r-spike': 'purple gemstones', 'lp-r-celestia': 'sunrise over sea', 'lp-r-discord': 'cotton candy',
   },
   results: {

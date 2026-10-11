@@ -3,9 +3,9 @@ export default {
   imgs: {
     'sh-cover': 'fairytale castle', 'sh-q-weekend': 'hammock', 'sh-q-food': 'cooking pot', 'sh-q-party': 'party lights',
     'sh-q-home': 'cottage', 'sh-q-flirt': 'red roses', 'sh-q-anger': 'thunderstorm', 'sh-q-pride': 'gold medal',
-    'sh-q-style': 'old wardrobe', 'sh-q-trouble': 'foggy road', 'sh-q-tale': 'old storybook', 'sh-q-tell': 'magnifying glass', 'sh-q-move': 'cardboard boxes',
+    'sh-q-style': 'old wardrobe', 'sh-q-trouble': 'foggy road', 'sh-q-tale': 'antique books', 'sh-q-tell': 'magnifying glass', 'sh-q-move': 'moving boxes',
     'sh-r-shrek': 'swamp', 'sh-r-donkey': 'donkey', 'sh-r-fiona': 'stone tower', 'sh-r-puss': 'leather boots',
-    'sh-r-gingy': 'gingerbread cookies', 'sh-r-farquaad': 'royal throne', 'sh-r-dragon': 'volcano lava', 'sh-r-godmother': 'glitter', 'sh-r-charming': 'white horse',
+    'sh-r-gingy': 'gingerbread cookies', 'sh-r-farquaad': 'royal throne', 'sh-r-dragon': 'volcano lava', 'sh-r-godmother': 'sparkles', 'sh-r-charming': 'white horse',
   },
   results: {
     shrek: { title: 'Шрек', img: 'sh-r-shrek', text: 'Снаружи колючий и ворчливый, внутри мягкий, и слоёв у тебя больше, чем кажется. Любишь свой угол и тишину, но своих не бросишь ни за что.' },

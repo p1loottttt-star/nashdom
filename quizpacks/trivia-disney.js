@@ -1,8 +1,8 @@
 // Викторина «Мультфильмы Disney и Pixar»: факты о мультфильмах, фото по смыслу (без кадров).
 export default {
   imgs: {
-    'tw-cover': 'fairy tale castle', 'tw-reef': 'coral reef fish', 'tw-hat': 'cowboy hat', 'tw-balloons': 'colorful balloons', 'tw-kitchen': 'chef kitchen',
-    'tw-slipper': 'glass slipper', 'tw-apple': 'red apple', 'tw-shell': 'seashell', 'tw-lamp': 'oil lamp', 'tw-marbles': 'colorful marbles', 'tw-track': 'race track',
+    'tw-cover': 'castle sunset', 'tw-reef': 'coral reef fish', 'tw-hat': 'cowboy hat', 'tw-balloons': 'colorful balloons', 'tw-kitchen': 'chef kitchen',
+    'tw-slipper': 'glass slipper', 'tw-apple': 'red apple', 'tw-shell': 'seashell', 'tw-lamp': 'oil lamp', 'tw-marbles': 'colorful marbles', 'tw-track': 'racetrack',
   },
   questions: [
     { q: 'Как зовут рыбку из «В поисках Немо», которая всё время всё забывает?', img: 'tw-reef', a: ['Дори', 'Марлин', 'Гилл', 'Брюс'], ok: 0 },

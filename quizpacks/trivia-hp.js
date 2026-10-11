@@ -2,7 +2,7 @@
 export default {
   imgs: {
     'th2-cover': 'old books candles', 'th2-owl': 'snowy owl', 'th2-train': 'steam train', 'th2-broom': 'broom', 'th2-lion': 'lion',
-    'th2-castle': 'old castle', 'th2-sock': 'sock', 'th2-stairs': 'old staircase', 'th2-deer': 'deer stag', 'th2-vault': 'bank vault', 'th2-eagle': 'eagle',
+    'th2-castle': 'old castle', 'th2-sock': 'wool socks', 'th2-stairs': 'old staircase', 'th2-deer': 'deer stag', 'th2-vault': 'bank vault', 'th2-eagle': 'eagle',
   },
   questions: [
     { q: 'Как зовут белую сову Гарри?', img: 'th2-owl', a: ['Букля', 'Короста', 'Живоглот', 'Клювокрыл'], ok: 0 },

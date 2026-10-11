@@ -1,12 +1,12 @@
 // Фан-тест «Кто ты из киновселенной Marvel». Тексты свои, герои только словами; фото — мир героев (ключи → запрос).
 export default {
   imgs: {
-    'mv-cover': 'night city skyline', 'mv-q-evening': 'desk lamp', 'mv-q-team': 'compass map', 'mv-q-trip': 'travel backpack',
+    'mv-cover': 'night city skyline', 'mv-q-evening': 'reading lamp', 'mv-q-team': 'hiking map', 'mv-q-trip': 'travel backpack',
     'mv-q-anger': 'storm clouds', 'mv-q-gift': 'gift box', 'mv-q-annoy': 'rainy window', 'mv-q-morning': 'morning coffee',
     'mv-q-task': 'puzzle pieces', 'mv-q-home': 'house on cliff', 'mv-q-sorry': 'flower bouquet', 'mv-q-fear': 'dark corridor', 'mv-q-power': 'sparkler',
-    'mv-r-ironman': 'mechanical workshop', 'mv-r-cap': 'vintage compass', 'mv-r-thor': 'lightning storm', 'mv-r-hulk': 'broken concrete',
+    'mv-r-ironman': 'workshop tools', 'mv-r-cap': 'brass compass', 'mv-r-thor': 'lightning storm', 'mv-r-hulk': 'broken concrete',
     'mv-r-widow': 'ballet shoes', 'mv-r-spidey': 'city rooftops', 'mv-r-strange': 'ancient manuscript', 'mv-r-loki': 'green snake',
-    'mv-r-starlord': 'cassette tape', 'mv-r-groot': 'tree sapling', 'mv-r-wanda': 'red smoke', 'mv-r-panther': 'black leopard',
+    'mv-r-starlord': 'cassette tape', 'mv-r-groot': 'tree sapling', 'mv-r-wanda': 'red mist', 'mv-r-panther': 'melanistic leopard',
   },
   results: {
     ironman: { title: 'Железный человек', img: 'mv-r-ironman', text: 'Голова работает быстрее языка, а язык и так быстрый. Прячешь заботу за шутками и всё важное доделываешь сам, до последнего винтика.' },

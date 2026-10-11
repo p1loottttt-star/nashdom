@@ -2,8 +2,8 @@
 export default {
   imgs: {
     'my-cover': 'misty mountains', 'my-q-evening': 'sunset sky', 'my-q-box': 'wooden jewelry box', 'my-q-fail': 'ashes fire',
-    'my-q-home': 'castle on cliff', 'my-q-company': 'campfire night', 'my-q-anger': 'thunderstorm', 'my-q-care': 'warm blanket tea',
-    'my-q-flaw': 'cracked glass', 'my-q-trip': 'mountain valley', 'my-q-words': 'old letters', 'my-q-weather': 'snowstorm', 'my-q-power': 'starry sky',
+    'my-q-home': 'castle on cliff', 'my-q-company': 'campfire', 'my-q-anger': 'thunderstorm', 'my-q-care': 'cup tea',
+    'my-q-flaw': 'cracked glass', 'my-q-trip': 'mountain valley', 'my-q-words': 'letters bundle', 'my-q-weather': 'snowstorm', 'my-q-power': 'starry sky',
     'my-r-dragon': 'volcano', 'my-r-phoenix': 'bonfire sparks', 'my-r-unicorn': 'rainbow meadow', 'my-r-griffin': 'eagle cliff',
     'my-r-mermaid': 'sea waves rocks', 'my-r-domovoy': 'old stove', 'my-r-kitsune': 'red torii gate', 'my-r-centaur': 'wild horses steppe',
   },

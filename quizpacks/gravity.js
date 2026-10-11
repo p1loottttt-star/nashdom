@@ -3,7 +3,7 @@ export default {
   imgs: {
     'gf-cover': 'wooden cabin woods', 'gf-q-summer': 'summer lake', 'gf-q-bag': 'old backpack', 'gf-q-argue': 'chess board',
     'gf-q-gift': 'gift box', 'gf-q-noise': 'dark forest night', 'gf-q-job': 'souvenir shop', 'gf-q-fear': 'cracked mirror',
-    'gf-q-style': 'flannel shirt', 'gf-q-attic': 'dusty attic', 'gf-q-evening': 'campfire', 'gf-q-value': 'old photographs', 'gf-q-power': 'old key',
+    'gf-q-style': 'flannel shirt', 'gf-q-attic': 'attic room', 'gf-q-evening': 'campfire', 'gf-q-value': 'vintage photos', 'gf-q-power': 'antique key',
     'gf-r-dipper': 'old journal', 'gf-r-mabel': 'knitted sweater', 'gf-r-stan': 'antique shop', 'gf-r-soos': 'toolbox',
     'gf-r-wendy': 'axe in log', 'gf-r-ford': 'microscope', 'gf-r-bill': 'triangle', 'gf-r-gideon': 'stage spotlight', 'gf-r-pacifica': 'pearl necklace',
   },

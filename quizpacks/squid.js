@@ -2,7 +2,7 @@
 export default {
   imgs: {
     'sq-cover': 'dalgona candy', 'sq-q-money': 'piggy bank', 'sq-q-games': 'school playground', 'sq-q-friends': 'park bench',
-    'sq-q-team': 'thick rope', 'sq-q-miss': 'old photographs', 'sq-q-mirror': 'mirror', 'sq-q-food': 'korean street food',
+    'sq-q-team': 'thick rope', 'sq-q-miss': 'photo album', 'sq-q-mirror': 'hand mirror', 'sq-q-food': 'korean street food',
     'sq-q-stairs': 'colorful staircase', 'sq-q-coins': 'coins', 'sq-q-calm': 'quiet street night', 'sq-q-wallet': 'leather wallet', 'sq-q-dawn': 'sunrise city',
     'sq-r-gihun': 'tteokbokki', 'sq-r-sangwoo': 'city skyscrapers', 'sq-r-saebyeok': 'jeju island', 'sq-r-ilnam': 'korean village',
     'sq-r-ali': 'work gloves', 'sq-r-jiyeong': 'night sky stars', 'sq-r-minyeo': 'red lipstick', 'sq-r-deoksu': 'gold chain', 'sq-r-junho': 'police car',
