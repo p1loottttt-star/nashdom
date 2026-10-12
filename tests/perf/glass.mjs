@@ -51,6 +51,14 @@ const frames = (setup) => a.evaluate(async (setup) => {
 const perf = { glass: await frames('glass'), flat: await frames('flat'), none: await frames('none') };
 await frames('glass');
 
+// переходы: «Ноутбук» → рабочий стол, обложка в «Памяти» → альбом
+await a.locator('.lg-tab[data-tab=laptop]').click(); const laptop = await a.waitForSelector('#desktop.on', { timeout: 8000 }).then(() => true, () => false);
+await a.keyboard.press('Escape'); await a.waitForFunction(() => !document.body.classList.contains('busy'), null, { timeout: 8000 }).catch(() => {});
+await a.locator('.lg-tab[data-tab=memory]').click(); await a.waitForSelector('.lg-book'); await a.locator('.lg-book').first().click();
+const album = await a.waitForFunction(() => { const e = document.getElementById('album'); return e && !e.hidden; }, null, { timeout: 8000 }).then(() => true, () => false);
+await a.reload(); await a.waitForFunction(() => window.__room && document.getElementById('lgui'), null, { timeout: 60000 }); await a.waitForTimeout(1500);
+await a.evaluate(() => document.querySelectorAll('.rsetup').forEach((e) => e.remove()));
+
 // телефон
 await a.setViewportSize({ width: 390, height: 844 }); await a.waitForTimeout(800);
 await a.screenshot({ path: `${OUT}/phone.png` });
@@ -58,8 +66,8 @@ await a.locator('.lg-tab[data-tab=memory]').click(); await a.waitForTimeout(600)
 await a.screenshot({ path: `${OUT}/phone-memory.png` });
 
 const gpu = await a.evaluate(() => { const gl = document.createElement('canvas').getContext('webgl2'), x = gl?.getExtension('WEBGL_debug_renderer_info'); return x ? gl.getParameter(x.UNMASKED_RENDERER_WEBGL) : '?'; });
-const res = { card, badgeAfterNote: n1, badgeAfterRead: n2, perf, gpu, errs };
+const res = { card, badgeAfterNote: n1, badgeAfterRead: n2, laptop, album, perf, gpu, errs };
 console.log(JSON.stringify(res, null, 1));
-const ok = card === 1 && n1 === '1' && n2 === '' && !errs.length;
+const ok = card === 1 && n1 === '1' && n2 === '' && laptop && album && !errs.length;
 console.log(ok ? 'glass ok' : 'НЕ ПРОШЛО'); if (!ok) process.exitCode = 1;
 await b.close();
