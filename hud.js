@@ -131,8 +131,9 @@ export function initHud(act) {
   async function memory() {
     const albums = await listAlbums();
     const cover = (a) => h('button', { className: 'lg-book press', style: `--c:${a.color}`, onclick: () => { closeSheet(); act.album(a); } },
-      h('i', { className: 'lg-cover', style: a.cover ? `background-image:url("${encodeURI(store.media(a.cover))}")` : '' }),
-      h('b', { textContent: a.title }), h('small', { className: 'lg-muted', textContent: a.pageIds?.length ? `${a.pageIds.length} стр.` : 'пустой' }));
+      h('i', { className: 'bk th-' + (a.theme || 'kraft'), style: `--album:${a.color}` },
+        a.cover ? h('i', { className: 'bk-photo', style: `background-image:url("${encodeURI(store.media(a.cover))}")` }) : null, h('b', { className: 'bk-title', textContent: a.title })),
+      h('small', { className: 'lg-muted', textContent: a.pageIds?.length ? `${a.pageIds.length} стр.` : 'пустой' }));
     return [head('Память'),
       h('div', { className: 'lg-books' }, albums.map(cover), h('button', { className: 'lg-book lg-new press', onclick: () => { closeSheet(); act.album(null); } }, h('i', { className: 'lg-cover', innerHTML: icon('plus') }), h('b', { textContent: 'новый альбом' }))),
       h('div', { className: 'lg-rows two' }, row('gallery', 'Галерея', 'все фото', () => { closeSheet(); act.laptop('gallery'); }), row('chat', 'Мысли', 'о чём думаем', () => { closeSheet(); act.laptop('thoughts'); }))];

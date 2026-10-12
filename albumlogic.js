@@ -111,3 +111,21 @@ export function exifTime(buf) {
   }
   return null;
 }
+
+// тихие рисунки на полях: 1–2 свободных угла/края страницы, где нет рамок, подписи и вещей; выбор стабилен по id страницы
+const SPOTS = [[4, 3], [81, 3], [4, 83], [81, 83], [43, 2], [3, 44], [82, 44]], DW = 14; // левый верх, %; ширина рисунка, % ширины (страница 3:4)
+const hit = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+export function decoSpots(L, items = [], id = '', names = []) {
+  if (!names.length || items.length >= 2) return []; // страницу уже украсили сами
+  let x = 2166136261; for (const c of id) x = Math.imul(x ^ c.charCodeAt(0), 16777619);
+  const rnd = () => ((x = Math.imul(x ^ (x >>> 15), 2246822507) ^ Math.imul(x ^ (x >>> 13), 3266489909)) >>> 0) / 4294967296;
+  const busy = [...(L?.slots || []), ...(L?.cap ? [{ ...L.cap, h: 9 }] : []), ...items.map((it) => ({ x: it.x, y: it.y, w: it.w || 20, h: (it.w || 20) * 0.75 })), { x: 40, y: 92, w: 20, h: 8 }]
+    .map((r) => ({ x: r.x - 2, y: r.y - 2, w: r.w + 4, h: r.h + 4 }));
+  const free = SPOTS.map(([sx, sy]) => ({ x: sx, y: sy, w: DW, h: DW * 0.75 })).filter((s) => !busy.some((b) => hit(s, b)));
+  const out = [], n = free.length > 2 && rnd() < 0.5 ? 2 : 1;
+  while (out.length < n && free.length) {
+    const s = free.splice(Math.floor(rnd() * free.length), 1)[0];
+    out.push({ x: s.x, y: s.y, w: DW, rot: Math.round((rnd() - 0.5) * 30), name: names[Math.floor(rnd() * names.length)] });
+  }
+  return out;
+}

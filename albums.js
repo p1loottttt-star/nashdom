@@ -11,7 +11,9 @@ import { pop } from './sound.js';
 import * as store from './store.js';
 import { LAYOUTS, THEMES, theme, accentOf } from './albumthemes.js';
 import { doodle } from './doodles.js';
-import { layoutById, blankPage, applyLayout, shuffle, putPhoto, migrate, autofill, exifTime, orientOf } from './albumlogic.js';
+import { icon } from './icons.js';
+import { watchGlass } from './glass.js';
+import { layoutById, blankPage, applyLayout, shuffle, putPhoto, migrate, autofill, exifTime, orientOf, decoSpots } from './albumlogic.js';
 
 export const PALETTE = ['#e7849b', '#7fb3c8', '#8fb07a', '#e9b35f', '#a99ad6', '#f0a37a', '#6f7fb8', '#c8645f', '#5f9e8f', '#3b2a35'];
 const blank = (title, color, order) => ({ id: store.uid(), title, color, order, cover: null, theme: 'kraft' });
@@ -72,13 +74,16 @@ function render() {
   el.style.setProperty('--album', A.color);
   el.style.setProperty('--font', `'${t.fonts[0]}'`); el.style.setProperty('--font2', `'${t.fonts[1]}'`); el.style.setProperty('--aink', t.ink[0]);
   $('.album-name').textContent = A.title;
-  $('[data-a=edit]').textContent = editing ? '✓ готово' : '✎ редактировать';
+  $('[data-a=edit]').innerHTML = editing ? `<i class="lg-ic">${icon('check')}</i>Готово` : `<i class="lg-ic">${icon('pencil')}</i>Редактировать`;
   $('.album-tools').hidden = !editing;
   if (editing) renderTools();
   const v = view(), n = perView(), total = Math.ceil(v.length / n);
   spread = Math.max(0, Math.min(spread, total - 1));
   const first = spread * n;
   $('.spread').replaceChildren(...v.slice(first, first + n).map((pg, i) => pageEl(pg, first + i)));
+  // толщина книги по краям: слева прочитанное, справа — что осталось (1 лист ≈ 0,9 px, до 14 px)
+  const thick = (k) => (k > 0 ? Math.min(14, 1.5 + k * 0.9) + 'px' : '0px');
+  el.style.setProperty('--ls', thick(first - 1)); el.style.setProperty('--rs', thick(v.length - first - n));
   $('.album-pos').textContent = `${spread + 1} / ${total}`;
   $('[data-a=prev]').disabled = spread === 0;
   $('[data-a=next]').disabled = spread >= total - 1;
@@ -138,8 +143,8 @@ function pageEl(pg, vi) {
     page.style.color = lightText(A.color) ? '#fff' : '#3b2a35';
     const frame = h('div', { className: 'cover-photo' });
     if (A.cover) frame.append(h('img', { src: photoURL(A.cover), alt: '' }));
-    else frame.append(h('span', { textContent: editing ? 'фото на обложку — во вкладке «тема»' : '♥' }));
-    page.append(frame, h('div', { className: 'cover-title', textContent: A.title }));
+    else frame.append(h('span', { textContent: 'фото на обложку — во вкладке «тема»' }));
+    page.append(...(A.cover || editing ? [frame] : []), h('div', { className: 'cover-title', textContent: A.title })); // без фото в чтении — только название
     return page;
   }
   page.dataset.page = pg.id;
@@ -147,6 +152,13 @@ function pageEl(pg, vi) {
   const L = layoutById(pg.layout);
   L?.slots.forEach((s) => page.append(slotEl(pg, s)));
   if (L?.cap) page.append(capEl(pg, L.cap));
+  // тихие рисунки на свободных полях (карандашом, под фото и вещами)
+  const t = TH();
+  for (const d of decoSpots(L, pg.items, pg.id, t.stickers)) {
+    const k = h('i', { className: 'ab-deco' }); k.innerHTML = doodle(d.name, { style: 'pencil', accent: t.ink[0] });
+    Object.assign(k.style, { left: d.x + '%', top: d.y + '%', width: d.w + '%', rotate: d.rot + 'deg' });
+    page.insertBefore(k, page.firstChild);
+  }
   pg.items.forEach((it) => page.append(itemEl(it, pg, page)));
   if (!L && !pg.items.length && editing) page.append(h('div', { className: 'page-hint', textContent: 'выбери раскладку во вкладке «раскладки»' }));
   page.append(h('div', { className: 'page-num', textContent: vi }));
@@ -528,6 +540,8 @@ async function go(dir) {
 }
 
 // ---------- кнопки окна ----------
+// значки кнопок окна (Phosphor) и стекло
+for (const [sel, name] of [['[data-a=close]', 'back'], ['[data-a=prev]', 'prev'], ['[data-a=next]', 'next'], ['[data-u=undo]', 'undo'], ['[data-u=redo]', 'redo']]) $(sel).innerHTML = `<i class="lg-ic">${icon(name)}</i>`;
 $('[data-a=close]').onclick = () => closeAlbum();
 $('[data-a=edit]').onclick = () => { editing = !editing; select(null); render(); };
 $('[data-u=undo]').onclick = () => step(undo, redo);
@@ -583,7 +597,7 @@ export async function openAlbum(album, opts = {}) {
   for (const pg of store.all('albumpage')) if (pg.album === A.id && !P.has(pg.id)) { P.set(pg.id, pg); A.pageIds.push(pg.id); }
   el.hidden = false; pop();
   requestAnimationFrame(() => el.classList.add('on'));
-  render();
+  render(); watchGlass(el);
 }
 function closeAlbum() {
   flush(); told = ''; store.live.track({});

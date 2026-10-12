@@ -14,7 +14,13 @@ import mute from '@phosphor-icons/core/regular/speaker-slash.svg?raw';
 import plus from '@phosphor-icons/core/regular/plus.svg?raw';
 import gallery from '@phosphor-icons/core/regular/images.svg?raw';
 import chat from '@phosphor-icons/core/regular/chat-circle-text.svg?raw';
+import back from '@phosphor-icons/core/regular/arrow-left.svg?raw';
+import undo from '@phosphor-icons/core/regular/arrow-u-up-left.svg?raw';
+import redo from '@phosphor-icons/core/regular/arrow-u-up-right.svg?raw';
+import prev from '@phosphor-icons/core/regular/caret-left.svg?raw';
+import next from '@phosphor-icons/core/regular/caret-right.svg?raw';
+import check from '@phosphor-icons/core/regular/check.svg?raw';
 
-const ICONS = { images, pencil, armchair, laptop, bell, heart, fire, x, hand, shop, sound, mute, plus, gallery, chat };
+const ICONS = { images, pencil, armchair, laptop, bell, heart, fire, x, hand, shop, sound, mute, plus, gallery, chat, back, undo, redo, prev, next, check };
 // у regular нет fill — краска текстом (currentColor), размер — шрифтом (1em)
 export const icon = (name) => ICONS[name].replace('<svg ', '<svg class="ic" width="1em" height="1em" fill="currentColor" aria-hidden="true" ');

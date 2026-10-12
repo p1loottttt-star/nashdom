@@ -1,7 +1,7 @@
 // Альбомы: раскладки внутри страницы, раскладки на 1–5 фото, перенос старого альбома, смена раскладки и обмен фото без потерь
 import assert from 'node:assert/strict';
 import { LAYOUTS, SEQ, THEMES } from '../albumthemes.js';
-import { applyLayout, shuffle, putPhoto, migrate, photosOf, blankPage } from '../albumlogic.js';
+import { applyLayout, shuffle, putPhoto, migrate, photosOf, blankPage, decoSpots, layoutById } from '../albumlogic.js';
 
 const ids = new Set();
 for (const L of LAYOUTS) {
@@ -86,3 +86,21 @@ const exifJpeg = () => {
 assert.equal(exifTime(exifJpeg()), new Date(2026, 6, 12, 18, 30, 5).getTime(), 'дата из EXIF');
 assert.equal(exifTime(new Uint8Array([0x89, 0x50, 0x4e, 0x47]).buffer), null, 'не JPEG — нет даты');
 console.log('albums autofill ok');
+
+// рисунки на полях: не на рамках и подписи, стабильны по id, не больше двух, украшенную страницу не трогают
+{
+  const names = ['heart', 'star', 'leaf'];
+  for (const L of LAYOUTS) for (const id of ['p1', 'p2', 'xyz', 'другая']) {
+    const d = decoSpots(L, [], id, names);
+    assert.ok(d.length <= 2, L.id + ': не больше двух');
+    for (const s of d) {
+      const r = { x: s.x, y: s.y, w: s.w, h: s.w * 0.75 };
+      for (const b of [...L.slots, ...(L.cap ? [{ ...L.cap, h: 9 }] : [])]) assert.ok(!(r.x < b.x + b.w && b.x < r.x + r.w && r.y < b.y + b.h && b.y < r.y + r.h), `${L.id}/${id}: рисунок на рамке`);
+      assert.ok(names.includes(s.name));
+    }
+    assert.deepEqual(decoSpots(L, [], id, names), d, 'стабильно');
+  }
+  assert.deepEqual(decoSpots(layoutById('one'), [{ x: 1, y: 1, w: 5 }, { x: 50, y: 50, w: 5 }], 'p1', names), [], 'украшенную не трогаем');
+  assert.deepEqual(decoSpots(layoutById('one'), [], 'p1', []), []);
+  console.log('albums deco ok');
+}
