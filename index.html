@@ -17,16 +17,15 @@
   body.hover #scene { cursor: pointer; }
   body.aim #scene { cursor: grab; }
   body.drag #scene { cursor: grabbing; }
-  body.aim .hud { opacity: 0; pointer-events: none; }
   button { font: inherit; color: inherit; cursor: pointer; }
 
   /* ---- подсказки в комнате ---- */
-  .hud { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); display: flex; gap: 10px; transition: opacity .4s; }
-  .hud button, .pill { white-space: nowrap; border: 0; border-radius: 999px; padding: 11px 18px; background: var(--glass); backdrop-filter: blur(10px); box-shadow: 0 6px 24px rgba(0,0,0,.25); font-weight: 700; }
-  .tip { position: fixed; left: 50%; bottom: 78px; transform: translateX(-50%); font-family: Caveat, cursive; font-size: 26px; color: #ffe7d6; text-shadow: 0 2px 12px rgba(0,0,0,.5); pointer-events: none; transition: opacity .4s; white-space: nowrap; }
-  body.busy .hud, body.busy .tip { opacity: 0; pointer-events: none; }
+  .pill { white-space: nowrap; border: 0; border-radius: 999px; padding: 11px 18px; background: var(--glass); backdrop-filter: blur(10px); box-shadow: 0 6px 24px rgba(0,0,0,.25); font-weight: 700; }
+  .tip:empty { display: none; }
+  .tip { position: fixed; left: 50%; bottom: 124px; z-index: 5; transform: translateX(-50%); font-family: Caveat, cursive; font-size: 26px; color: #ffe7d6; text-shadow: 0 2px 12px rgba(0,0,0,.5); pointer-events: none; transition: opacity .4s; white-space: nowrap; }
+  body.busy .tip { opacity: 0; pointer-events: none; }
   /* режим «расставить»: внизу коробка с вещами, подсказки комнаты прячем */
-  body.editing .hud, body.editing .tip { opacity: 0; pointer-events: none; }
+  body.editing .tip { opacity: 0; pointer-events: none; }
   body.placing, body.placing * { cursor: grabbing !important; }
   .tray { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 40; width: min(980px, calc(100vw - 24px)); padding: 10px 12px 12px;
     background: var(--paper); border: 2px solid var(--ink); border-radius: 18px 6px 16px 8px / 8px 16px 6px 18px; box-shadow: 5px 6px 0 rgba(59,42,53,.18); }
@@ -58,7 +57,7 @@
   @keyframes up { to { transform: translateY(-90px) scale(1.4); opacity: 0; } }
 
   /* ---- окно «написать записку» ---- */
-  .modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(20, 12, 18, .45); }
+  .modal { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: rgba(20, 12, 18, .45); }
   .modal[hidden] { display: none; }
   .modal form { width: min(420px, calc(100vw - 24px)); max-height: calc(100vh - 24px); overflow: auto; background: var(--paper); border-radius: 18px; padding: 16px 18px; box-shadow: 0 20px 60px rgba(0,0,0,.4); }
   .modal h3 { margin: 0 0 8px; font-family: Caveat, cursive; font-size: 30px; }
@@ -221,7 +220,7 @@
   .zback { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) rotate(-1.5deg); z-index: 6; padding: 8px 22px; font: 700 26px/1 Caveat, cursive; color: var(--ink); background: var(--paper); border: 2px solid var(--ink); border-radius: 18px 14px 20px 12px; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
   .zback:hover { transform: translateX(-50%) rotate(1deg) scale(1.05); }
   .zback[hidden] { display: none; }
-  body.zoomed .hud, body.zoomed .tip { opacity: 0; pointer-events: none; }
+  body.zoomed .tip { opacity: 0; pointer-events: none; }
   body.zoomhover #scene { cursor: zoom-in; }
 
   /* ---- альбом ---- */
@@ -436,7 +435,9 @@
 
   /* ---- широкие окна ноутбука ---- */
   .win.wide .body { flex: 1; position: relative; }
-  .toast { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%) rotate(-1deg); z-index: 100002; padding: 9px 18px 10px; border-radius: 3px; background: #fffaf0; color: var(--ink); font-weight: 800; border: 2px solid var(--ink); box-shadow: 4px 5px 0 rgba(52,26,8,.34); animation: pop .25s ease-out; transition: opacity .5s, transform .5s; pointer-events: none; }
+  .toast { position: fixed; left: 50%; bottom: 112px; transform: translateX(-50%); z-index: 100002; padding: 10px 20px; border-radius: 999px; color: #fff; font: 600 14.5px/1.3 Onest, system-ui, sans-serif; white-space: nowrap; /* стекло, как hud.js */
+    background: linear-gradient(180deg, rgba(48,22,56,.62), rgba(32,14,40,.55)); backdrop-filter: blur(16px) saturate(1.7); -webkit-backdrop-filter: blur(16px) saturate(1.7);
+    box-shadow: 0 14px 34px -14px rgba(16,4,24,.7), inset 0 1px 1px rgba(255,255,255,.45), inset 0 -1px 1px rgba(255,255,255,.12); text-shadow: 0 1px 2px rgba(20,6,30,.4); animation: pop .25s ease-out; transition: opacity .5s, transform .5s; pointer-events: none; }
   /* ---- магазин и профиль ---- */
   .shophead { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 14px 16px 6px; }
   .sbal { display: grid; margin-right: auto; }
@@ -1204,13 +1205,81 @@
   .app-tube .tbar::after { content: ''; position: absolute; left: 60px; top: 6px; bottom: 6px; border-left: 2px dashed rgba(138,90,26,.5); } /* перфорация */
   .app-tube .tchat { background: repeating-linear-gradient(transparent 0 25px, rgba(90,140,200,.18) 25px 26px), #fffdf6; border-left: 0; box-shadow: -2px 0 0 rgba(59,42,53,.08); }
   .app-tube .tchat header { border-bottom: 2px dashed rgba(59,42,53,.2); background: var(--grain), #fbf5e6; }
+  /* ---- стекло над комнатой (hud.js, спека 2026-10-12-glass-ui-room): преломление ставит glass.js (--lgf), body.flatglass — без него ---- */
+  #lgui { --f: 'Onest', system-ui, sans-serif; --pink: #ff6f9c; --warm: #ffb36b; position: fixed; inset: 0; z-index: 4; pointer-events: none; font: 500 15px/1.35 var(--f); color: #fff; -webkit-font-smoothing: antialiased; transition: opacity .35s; }
+  #lgui > *, .lg-tr > * { pointer-events: auto; }
+  body.busy #lgui, body.editing #lgui, body.zoomed #lgui, body.aim #lgui { opacity: 0; } body.busy #lgui *, body.editing #lgui *, body.zoomed #lgui *, body.aim #lgui * { pointer-events: none !important; }
+  :where(#lgui) button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; text-align: left; } /* :where — классы ниже весомее */
+  #lgui [hidden] { display: none !important; }
+  .lg-ic { display: inline-grid; place-items: center; font-style: normal; line-height: 0; }
+  .lg { position: relative; isolation: isolate; border-radius: 999px; background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(40,18,48,.16));
+    backdrop-filter: blur(16px) saturate(1.7); -webkit-backdrop-filter: blur(16px) saturate(1.7);
+    box-shadow: 0 14px 34px -14px rgba(16,4,24,.7), inset 0 1px 1px rgba(255,255,255,.5), inset 0 -1px 1px rgba(255,255,255,.12); text-shadow: 0 1px 2px rgba(20,6,30,.35); }
+  .lg[data-lens] { backdrop-filter: var(--lgf) blur(3px) saturate(1.7); }
+  body.flatglass .lg[data-lens] { backdrop-filter: blur(16px) saturate(1.7); }
+  .lg::after { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1.2px; pointer-events: none; z-index: 1;
+    background: linear-gradient(140deg, rgba(255,255,255,.95), rgba(255,255,255,.18) 28%, rgba(255,255,255,0) 52%, rgba(255,255,255,.08) 70%, rgba(255,255,255,.6));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+  .lg::before { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: -1; background: radial-gradient(120% 70% at 30% 0%, rgba(255,255,255,.22), transparent 55%); }
+  .lg-muted { color: rgba(255,255,255,.78); }
+  /* над светлой дневной комнатой белое не читается: у панелей с текстом подтон гуще (как адаптивный тон Liquid Glass) */
+  .lg-sheet, .lg-list, .lg-card { background: linear-gradient(180deg, rgba(48,22,56,.5), rgba(32,14,40,.42)); text-shadow: 0 1px 2px rgba(20,6,30,.5); }
+  .lg-us, .lg-day, .lg-hearts, .lg-round, .lg-bar { text-shadow: 0 1px 3px rgba(20,6,30,.55); }
+  .press { transition: transform .25s cubic-bezier(.3,1.6,.5,1), background .2s; } .press:hover { transform: scale(1.04); } .press:active { transform: scale(.94); }
+
+  .lg-us { position: absolute; left: 22px; top: 20px; display: flex; align-items: center; gap: 12px; padding: 7px 18px 7px 7px; max-width: calc(50vw - 200px); }
+  .lg-faces { display: flex; flex: none; } .lg-faces .pava { box-shadow: 0 0 0 2px rgba(255,255,255,.85); position: relative; } .lg-faces .pava + .pava { margin-left: -12px; }
+  .lg-faces.on .pava + .pava::after { content: ''; position: absolute; right: -2px; bottom: -1px; width: 12px; height: 12px; border-radius: 50%; background: #4ade80; border: 2px solid #fff; }
+  .lg-txt { min-width: 0; } .lg-us b { display: block; font-size: 15px; font-weight: 600; } .lg-us small { display: block; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lg-day { position: absolute; left: 50%; top: 20px; translate: -50% 0; display: flex; align-items: center; gap: 10px; padding: 10px 18px 10px 12px; white-space: nowrap; }
+  .lg-day .lg-ic { font-size: 22px; color: var(--warm); filter: drop-shadow(0 0 8px rgba(255,170,90,.7)); } .lg-day b { font-weight: 600; } .lg-more { font-size: 13px; }
+  .lg-day.small { padding: 10px 16px 10px 12px; gap: 6px; } .lg-day.small b { font-variant-numeric: tabular-nums; }
+  .lg-tr { position: absolute; right: 22px; top: 20px; display: flex; gap: 10px; }
+  .lg-hearts { display: flex; align-items: center; gap: 8px; padding: 0 18px; height: 56px; font-weight: 600; font-variant-numeric: tabular-nums; font-size: 17px; } .lg-hearts .lg-ic { color: var(--pink); font-size: 20px; }
+  .lg-round { width: 56px; height: 56px; display: grid; place-items: center; font-size: 24px; text-align: center; }
+  .lg-badge { position: absolute; right: 4px; top: 4px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: var(--pink); font-size: 12px; font-weight: 700; display: grid; place-items: center; text-shadow: none; z-index: 2; }
+  .lg-cards { position: absolute; right: 22px; top: 88px; width: 330px; }
+  .lg-card { width: 100%; display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border-radius: 26px; animation: lgin .45s cubic-bezier(.3,1.4,.5,1); transition: opacity .4s, translate .4s; }
+  .lg-card.out { opacity: 0; translate: 30px 0; } .lg-card > span { flex: 1; min-width: 0; } .lg-card b { font-weight: 600; } .lg-card small { display: block; font-size: 13.5px; margin-top: 2px; } .lg-card time { font-size: 12px; white-space: nowrap; }
+  @keyframes lgin { from { opacity: 0; translate: 0 -14px; scale: .96; } }
+  .lg-list { position: absolute; right: 22px; top: 88px; width: 340px; max-height: calc(100vh - 220px); overflow: auto; padding: 10px; border-radius: 28px; animation: lgin .3s ease-out; }
+  .lg-empty { margin: 14px; text-align: center; }
+  .lg-rows { display: grid; gap: 4px; } .lg-rows.two { grid-template-columns: 1fr 1fr; margin-top: 12px; }
+  .lg-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 20px; } .lg-row:hover { background: rgba(255,255,255,.14); }
+  .lg-row b { display: block; font-weight: 600; } .lg-row small { display: block; font-size: 13px; }
+  .lg-rowic { flex: none; width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; background: rgba(255,255,255,.16); line-height: 0; }
+
+  .lg-bar { position: absolute; left: 50%; bottom: 22px; translate: -50% 0; display: flex; align-items: center; gap: 4px; padding: 8px; }
+  .lg-tab { display: grid; justify-items: center; gap: 3px; width: 86px; padding: 8px 0 7px; border-radius: 999px; font-size: 12.5px; text-align: center; } .lg-tab .lg-ic { font-size: 25px; }
+  .lg-tab:hover, .lg-tab.on { background: rgba(255,255,255,.14); } .lg-tab.on { box-shadow: inset 0 0 0 1px rgba(255,255,255,.3); }
+  .lg-compose { display: flex; align-items: center; gap: 9px; height: 62px; padding: 0 26px 0 20px; margin: 0 6px; font-weight: 600; font-size: 16px;
+    background: linear-gradient(180deg, rgba(255,120,160,.62), rgba(255,92,140,.45)); } .lg-compose .lg-ic { font-size: 24px; }
+
+  .lg-sheet { position: absolute; left: 50%; bottom: 112px; translate: -50% 0; width: min(760px, calc(100% - 32px)); max-height: calc(100vh - 220px); overflow: auto; padding: 18px 20px 20px; border-radius: 34px; animation: lgup .35s cubic-bezier(.3,1.3,.5,1); }
+  @keyframes lgup { from { opacity: 0; translate: -50% 24px; } }
+  .lg-shead { display: flex; align-items: center; margin-bottom: 14px; } .lg-shead h2 { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -.02em; } .lg-x { margin-left: auto; width: 42px; height: 42px; font-size: 18px; }
+  .lg-books { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 12px; }
+  .lg-book { display: grid; gap: 4px; padding: 8px; border-radius: 20px; } .lg-book:hover { background: rgba(255,255,255,.12); }
+  .lg-cover { display: grid; place-items: center; aspect-ratio: 3 / 4; border-radius: 6px 12px 12px 6px; background: var(--c, #e7849b) center / cover; box-shadow: inset 6px 0 0 rgba(0,0,0,.12), 0 8px 18px -8px rgba(0,0,0,.5); font-size: 28px; line-height: 0; }
+  .lg-book b { font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .lg-book small { font-size: 12px; }
+  .lg-new .lg-cover { background: none; box-shadow: none; border: 1.5px dashed rgba(255,255,255,.5); }
+
+  @media (max-width: 760px) {
+    .lg-us { left: 10px; top: 10px; padding: 6px; max-width: none; } .lg-txt, .lg-more { display: none; }
+    .lg-day { left: 104px; translate: none; top: 13px; padding: 9px 12px 9px 9px; gap: 6px; } .lg-day b { font-size: 13px; } /* по центру не влезает между «мы» и ♥ */
+    .lg-tr { right: 10px; top: 10px; gap: 6px; } .lg-hearts { height: 50px; padding: 0 12px; font-size: 15px; } .lg-round { width: 50px; height: 50px; }
+    .lg-cards, .lg-list { left: 10px; right: 10px; width: auto; top: 72px; }
+    .lg-bar { left: 10px; right: 10px; translate: none; bottom: 14px; justify-content: space-between; padding: 6px; } .lg-tab { width: auto; flex: 1; font-size: 11px; } .lg-tab .lg-ic { font-size: 23px; }
+    .lg-compose { height: 56px; width: 56px; padding: 0; justify-content: center; margin: 0 2px; } .lg-compose span { display: none; }
+    .lg-sheet { width: calc(100% - 16px); bottom: 84px; padding: 16px 12px; border-radius: 30px; } .lg-books { grid-template-columns: repeat(3, 1fr); } .lg-rows.two { grid-template-columns: 1fr; }
+    @keyframes lgup { from { opacity: 0; translate: 0 24px; } }
+  }
 </style>
 </head>
 <body>
 <canvas id="scene"></canvas>
 
-<div class="tip" id="tip">нажми на ноутбук, записки или котика</div>
-<div class="hud"><button id="wx" title="погода в твоём городе">📍 твой город</button><button id="write">✎ написать записку</button><button id="arrange" title="двигать вещи в комнате">🪄 расставить</button><button id="mute" aria-label="Звук"></button></div>
+<div class="tip" id="tip"></div>
 
 <div class="modal" id="modal" hidden>
   <form id="noteForm">

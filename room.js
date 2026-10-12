@@ -9,6 +9,7 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { DATA } from './data.js';
 import { openDesktop, load, save, daysLabel, whoSelect, myName, toast } from './desktop.js';
+import { initHud } from './hud.js';
 import { createDecor } from './decor.js';
 import { createZones } from './zones.js';
 import { badge as quizBadge } from './quiz.js';
@@ -24,14 +25,14 @@ import { onRadio } from './lofi.js';
 import { startEmoji } from './emoji.js';
 import { inject as analytics } from '@vercel/analytics';
 import * as store from './store.js';
-import { createTuner, TIERS, prRange } from './gfx.js';
+import { createTuner, TIERS, prRange, TOP_TIER } from './gfx.js';
 import { P, toon, toonify, outlineOf, Batch, G as Geo, halos, blobs, createPost, canvasTex as ccTex, blob, heartPath, TOON, OUTLINE } from './toon.js';
 import { buildDesk, ITEMS as FURN } from './furniture.js';
 import { createPlacer } from './placer.js';
 import { getRoom, hasRoom, onRoom, saveRoom, myThings } from './myroom.js';
 import { paintWall, paintFloor, WALLS } from './roomstyle.js';
 import { askRoomSetup } from './roomsetup.js';
-import { fetchWeather, fakeWeather, effects, cityHour, roomHour, label as wxLabel } from './weather.js';
+import { fetchWeather, fakeWeather, effects, cityHour, roomHour } from './weather.js';
 
 // рукописный шрифт нужен до того, как рисуем записки, корешки и экран
 await Promise.all([document.fonts.load('700 48px Caveat', 'привет'), document.fonts.load('500 48px Caveat', 'привет')]).catch(() => {});
@@ -833,16 +834,6 @@ function weatherFrame(dt, s) {
 }
 
 // погода по городу из профиля: раз в 15 минут, с кешем в браузере
-const wxPill = document.getElementById('wx');
-function drawWxPill() {
-  if (!wxPill) return;
-  const city = store.me()?.city;
-  if (WTH?.fake) { const [e, t] = wxLabel(WTH); wxPill.textContent = `${e} ${t}`; return; }
-  if (!city?.name) { wxPill.textContent = '📍 твой город'; wxPill.title = 'укажи город в профиле — и за окном будет твоя погода'; return; }
-  const [e, t] = wxLabel(WTH);
-  wxPill.textContent = WTH ? `${e} ${WTH.temp > 0 ? '+' : ''}${WTH.temp}° · ${city.name}` : `📍 ${city.name}`;
-  wxPill.title = WTH ? `${city.name}: ${t}` : 'погода не загрузилась';
-}
 let wxKey = '';
 async function loadWeather() {
   if (fakeWeather()) return applyWeather();
@@ -861,14 +852,13 @@ async function loadWeather() {
   FX = effects(WTH);
   applyWeather();
 }
-function applyWeather() { applyTime(); sfx.setRain(FX.rain); drawWxPill(); }
+function applyWeather() { applyTime(); sfx.setRain(FX.rain); }
 loadWeather();
 setInterval(loadWeather, 15 * 60e3);
 store.onPeople(() => {
   const c = store.me()?.city;
-  if ((c?.lat != null ? `${c.lat},${c.lon}` : '') !== wxKey) loadWeather(); else drawWxPill();
+  if ((c?.lat != null ? `${c.lat},${c.lon}` : '') !== wxKey) loadWeather();
 });
-if (wxPill) wxPill.onclick = () => { if (state === 'room') goScreen('profile'); };
 
 // ---------- записки: 3D-бумага, которая комкается и разворачивается ----------
 const W = 0.21, H = 0.28, SEG = 56, R = 0.042;
@@ -1045,7 +1035,8 @@ const ease = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
 const tween = (ms, fn) => new Promise((res) => tweens.add({ t0: performance.now(), ms, fn, res }));
 
 let state = 'room', openPaper = null, paused = false;
-const setBusy = (on) => body.classList.toggle('busy', on);
+let hud = null; // стекло (hud.js): своё действие закончилось — пересчитать колокольчик и вопрос дня (свои записи событий в эту вкладку не шлют)
+const setBusy = (on) => { body.classList.toggle('busy', on); if (!on) hud?.refresh(); };
 
 function frontOfCamera(height, width) {
   const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * 2;
@@ -1121,7 +1112,7 @@ async function closeNote() {
   state = idle(); setBusy(false); tip();
 }
 
-async function goScreen(app) {
+async function goScreen(app, opts) {
   state = 'busy'; setBusy(true);
   sfx.click();
   const c = screen.getWorldPosition(V());
@@ -1140,7 +1131,7 @@ async function goScreen(app) {
     const v = view(); // открыли со стола — туда и вернёмся
     await tween(1300, (k) => { const e = ease(k); cam.pos.lerpVectors(p1, v.pos, e); cam.look.lerpVectors(l1, v.look, e); });
     state = idle(); setBusy(false);
-  });
+  }, opts);
   setTimeout(() => { if (state === 'busy' && !closed) paused = true; }, 600); // рабочий стол перекрыл сцену — не рисуем зря
 }
 
@@ -1490,7 +1481,7 @@ async function openWallPhoto(i) {
 
 // ---------- ввод ----------
 const tipEl = document.getElementById('tip');
-const TIP = tipEl.textContent;
+const TIP = ''; // в покое пусто: подсказки только по ходу действия (записка, бросок)
 function tip(text = TIP) { tipEl.textContent = text; }
 
 function floatAt(obj, text) {
@@ -1600,11 +1591,7 @@ addEventListener('keydown', (e) => { if (e.key === 'Escape' && state === 'note')
 const modal = document.getElementById('modal'), form = document.getElementById('noteForm');
 document.getElementById('fromSel').replaceWith(Object.assign(whoSelect(), { name: 'from' }));
 const pad = createPad(form);
-const muteBtn = document.getElementById('mute');
-const muteIcon = () => { muteBtn.textContent = sfx.isMuted() ? '🔇' : '🔊'; };
-muteIcon();
-muteBtn.onclick = () => { sfx.toggleMute(); muteIcon(); };
-document.getElementById('write').onclick = () => { if (state === 'room') { modal.hidden = false; pad.open(); } };
+const writeNote = () => { if (state === 'room' || state === 'zoom') { modal.hidden = false; pad.open(); } };
 modal.addEventListener('click', (e) => { if (e.target === modal) modal.hidden = true; });
 form.onsubmit = (e) => {
   e.preventDefault();
@@ -1639,9 +1626,12 @@ function tuneGfx(med, now) {
   if (!tuner.feed(med, now)) return;
   const tierWas = tier;
   tier = tuner.tier; pr = tuner.pr; sized = '';
-  if (tier !== tierWas) { applyTier(); applyTime(); }
+  if (tier !== tierWas) { applyTier(); applyTime(); flatGlass(); }
   save('gfx3', { tier, pr });
 }
+// стекло интерфейса: на верхней ступени автоподстройки — без преломления (только размытие); ?flatglass — всегда
+const FLAT = new URLSearchParams(location.search).has('flatglass');
+function flatGlass() { body.classList.toggle('flatglass', FLAT || tier === TOP_TIER); }
 // ---------- своя комната: стены, пол, стол и расстановка вещей (у каждой половинки своя) ----------
 let deskObj = null, deskKey = '', wallNow = '', floorNow = '', viewYaw = 0;
 function applyRoom(r = getRoom()) {
@@ -1665,7 +1655,6 @@ function applyRoom(r = getRoom()) {
     catsys.setDesk({ half: deskObj.half, legs: deskObj.legs, floorBlocks: deskObj.floorBlocks || [] });
   }
   placer.sync(myThings(), r.place);
-  drawArrange();
 }
 placer = createPlacer({
   scene, camera, canvas: renderer.domElement, ITEMS: FURN, CAT: ITEM,
@@ -1675,7 +1664,7 @@ placer = createPlacer({
   onSave: (place) => saveRoom({ place }),
   onView: (dir) => { viewYaw = clamp(viewYaw + dir * 0.55, -1.1, 1.1); },
   onExit: () => {
-    viewYaw = 0; body.classList.remove('editing'); drawArrange();
+    viewYaw = 0; body.classList.remove('editing');
     const l0 = cam.look.clone();
     tween(700, (k) => cam.look.lerpVectors(l0, HOME.look, ease(k))).then(() => { state = 'room'; });
   },
@@ -1685,9 +1674,17 @@ placer = createPlacer({
 if (!/^(localhost|127\.)/.test(location.hostname)) analytics();
 if (new URLSearchParams(location.search).has('debug')) console.info('Наш дом, версия', __VERSION__);
 onRadio((name) => toast(name ? `📻 lofi · «${name}»` : '📻 радио выключено'));
-const arrangeBtn = document.getElementById('arrange');
-function drawArrange() { if (arrangeBtn) { const n = placer.boxCount(); arrangeBtn.textContent = n ? `🪄 расставить · 📦 ${n}` : '🪄 расставить'; } }
-if (arrangeBtn) arrangeBtn.onclick = () => { if (state !== 'room') return; state = 'edit'; body.classList.add('editing'); placer.edit(); sfx.pop(); };
+const arrange = () => { if (state !== 'room') return; state = 'edit'; body.classList.add('editing'); placer.edit(); sfx.pop(); };
+const free = () => state === 'room' || state === 'zoom';
+hud = initHud({
+  write: writeNote, arrange, boxCount: () => placer.boxCount(),
+  laptop: (app, opts) => { if (free()) goScreen(app, opts); },
+  album: (a) => { if (free()) openShelfAlbum(a); },
+  toDesk: () => { if (state === 'room') zoomTo(zonesys.byId('desk')); },
+  isIdle: free,
+  mute: { on: () => !sfx.isMuted(), toggle: () => sfx.toggleMute() },
+});
+flatGlass();
 applyRoom();
 onRoom(applyRoom);
 store.onLedger(() => applyRoom());
@@ -1793,5 +1790,5 @@ renderer.setAnimationLoop(loop);
 requestAnimationFrame(() => requestAnimationFrame(() => { performance.mark('lr:shown'); veil.classList.add('off'); setTimeout(() => veil.remove(), 600); }));
 
 // ?debug — ручки для проверки (камера, коты, время)
-if (new URLSearchParams(location.search).has('debug')) window.__room = { cam, camera, laptop, clickables, HOME, catsys, decor, papers, zonesys, aim: () => aim, step: (ms = 500, dt = 16) => { for (let t = performance.now(), e = t + ms; t < e; t += dt) loop(t); }, // скрытая панель: rAF стоит — шагаем вручную
+if (new URLSearchParams(location.search).has('debug')) window.__room = { hud: () => hud, store, cam, camera, laptop, clickables, HOME, catsys, decor, papers, zonesys, aim: () => aim, step: (ms = 500, dt = 16) => { for (let t = performance.now(), e = t + ms; t < e; t += dt) loop(t); }, // скрытая панель: rAF стоит — шагаем вручную
   zoomTo: (id) => zoomTo(zonesys.byId(id)), unzoom, get state() { return state; }, applyTime, tick: (s = 5) => weatherFrame(0.016, s), scene, THREE, renderer, sun, post, get tier() { return tier; }, get pr() { return pr; }, get FX() { return FX; }, bolt: () => { flash = 1; sfx.thunder(0.8); }, set flash(v) { flash = v; } };

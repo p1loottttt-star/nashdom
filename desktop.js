@@ -45,7 +45,7 @@ const REASON = { daily: 'за визит', note: 'за записку', photo: '
 export function toast(text, ms = 2600) {
   const t = h('div', { className: 'toast', textContent: text });
   const n = document.querySelectorAll('.toast:not(.out)').length; // несколько сразу — стопкой, а не друг на друге
-  if (n) t.style.bottom = 84 + n * 54 + 'px';
+  if (n) t.style.bottom = 112 + n * 50 + 'px';
   document.body.append(t);
   setTimeout(() => t.classList.add('out'), ms);
   setTimeout(() => t.remove(), ms + 600);

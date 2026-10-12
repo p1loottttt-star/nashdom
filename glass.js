@@ -35,6 +35,7 @@ export function glass(el, { scale = 46, bevel = 22 } = {}) {
     svg.append(f);
   }
   el.style.setProperty('--lgf', `url(#${id})`);
+  el.dataset.lens = '1';
 }
 const ro = new ResizeObserver((es) => es.forEach((e) => glass(e.target)));
 export const watchGlass = (root) => (root.matches?.('.lg') ? [root] : []).concat([...root.querySelectorAll('.lg')]).forEach((e) => ro.observe(e));
