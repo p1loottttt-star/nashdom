@@ -22,8 +22,8 @@ const isMine = (m, me = meId()) => !m.done && (byKind(m.kind)?.myTurn ? byKind(m
 const art = (g) => sticker(g.kind === 'battle' ? 'games' : g.kind, TONE[g.kind]);
 const matches = () => store.all('game').filter((m) => byKind(m.kind) && m.players?.includes(meId())).sort((a, b) => b.at - a.at);
 
-export function renderGames(el) {
-  let open = null; // id открытой партии
+export function renderGames(el, opts = {}) {
+  let open = opts.match || null; // id открытой партии
   // перерисовка — только по открытой партии: иначе ход в другой партии сотрёт недорисованное
   const off = store.on('game', (id) => { if (!el.isConnected) return off(); if (!open || id === open) draw(); });
 
@@ -85,17 +85,11 @@ export function renderGames(el) {
   draw();
 }
 
-// счётчик «твой ход» на иконке «Игры» и подсказка при входе (как у «Тестов»)
-let greeted = false;
+// счётчик «твой ход» на иконке «Игры»; карточки в комнате — hud.js
+export const myTurns = () => matches().filter((m) => isMine(m)).map((m) => ({ id: m.id, at: m.at, title: byKind(m.kind).title }));
 export function badge() {
   const n = meId() ? matches().filter((m) => isMine(m)).length : 0;
   document.querySelectorAll('[data-app=games]').forEach((b) => (n ? b.setAttribute('data-n', n) : b.removeAttribute('data-n')));
-  if (n && !greeted) { greeted = true; toast(`В «Играх» твой ход 🎲 — ${pName()} ждёт`, 6000); }
 }
-const born = Date.now();
-store.on('game', (id) => {
-  badge();
-  const m = store.get('game', id);
-  if (m && m.at > born && isMine({ id, ...m }) && !document.querySelector('.gm')) toast(`«${byKind(m.kind)?.title}»: твой ход 🎲`, 5000);
-});
+store.on('game', badge);
 store.onPeople(badge);

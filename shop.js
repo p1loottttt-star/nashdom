@@ -19,8 +19,8 @@ const SECTIONS = {
   decor: [['wall', 'На стену'], ['table', 'На стол и полки'], ['floor', 'На пол']],
 };
 
-export function renderShop(el) {
-  let tab = 'room', gifting = null, busy = false;
+export function renderShop(el, opts = {}) {
+  let tab = opts.tab || 'room', gifting = null, busy = false;
 
   const draw = () => {
     const bal = store.balance();

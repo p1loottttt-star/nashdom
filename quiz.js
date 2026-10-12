@@ -301,25 +301,21 @@ export function renderQuiz(el) {
   draw();
 }
 
-// счётчик на иконке «Тесты»: приглашения + вопрос дня, на который партнёр уже ответил
-const born = Date.now();
-let greeted = false;
+// счётчик на иконке «Тесты»: приглашения + вопрос дня, на который партнёр уже ответил; карточки в комнате — hud.js
 const dayWaiting = () => { const p = store.partner(), d = dayStr(); return !!(p && dayRec(d, p.id) && !dayRec(d, meId())); };
+export const invites = () => asksToMe().map((a) => ({ id: a.id, title: CATALOG.find((x) => x.id === a.test)?.title || 'тест' }));
+export const qdayWaiting = () => (dayWaiting() ? dayStr() : null);
+export function qdayInfo() { // для чипа «вопрос дня» в комнате
+  const me = meId(), p = store.partner(), d = dayStr();
+  const both = (x) => !!(dayRec(x, me) && dayRec(x, p?.id));
+  return { streak: p ? qdayStreak(both, d) : 0, mine: !!dayRec(d, me), theirs: !!dayRec(d, p?.id) };
+}
 // зовёт и desktop.js при открытии ноутбука: при загрузке хранилище может ещё не успеть
 export function badge() {
   const n = meId() ? asksToMe().length + (dayWaiting() ? 1 : 0) : 0;
   document.querySelectorAll('[data-app=quiz]').forEach((b) => (n ? b.setAttribute('data-n', n) : b.removeAttribute('data-n')));
-  if (n && !greeted && !document.querySelector('.qz')) { greeted = true; toast(dayWaiting() && !asksToMe().length ? `${pName()} уже ответил(а) на вопрос дня. Твоя очередь, он в «Тестах»` : `${pName()} ждёт тебя в «Тестах» в ноутбуке`, 6000); }
 }
-store.on('quizask', (id) => {
-  badge();
-  const a = store.get('quizask', id), q = a && CATALOG.find((x) => x.id === a.test);
-  if (q && a.to === meId() && a.at > born) toast(`${pName()} зовёт пройти тест «${q.title}» — в ноутбуке, «Тесты»`, 6000);
-});
-store.on('qday', (id) => {
-  badge();
-  const r = store.get('qday', id);
-  if (r && r.at > born && !id.endsWith(':' + meId()) && !document.querySelector('.qz-day')) toast(`${pName()} ответил(а) на вопрос дня — открой «Тесты»`, 5000);
-});
+store.on('quizask', badge);
+store.on('qday', badge);
 store.on('quiz', badge);
 store.onPeople(badge);

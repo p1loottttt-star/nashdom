@@ -2,7 +2,7 @@ import { DATA } from './data.js';
 import * as store from './store.js';
 import { renderQuiz, badge as quizBadge } from './quiz.js';
 import { renderGames, badge as gamesBadge } from './games.js';
-import { openWin, isOpen, bounce } from './winman.js';
+import { openWin, isOpen, bounce, closeWin } from './winman.js';
 import { sticker, TONE } from './doodles.js';
 
 // настройки этого устройства (кто я, звук, качество); общие данные — в store.js
@@ -56,9 +56,9 @@ store.onFail(() => toast('не сохранилось — проверь инт�
 // тяжёлые окна (CoupleTube, магазин, профиль, галерея, планы) грузятся при первом открытии
 const APPS = {
   tube: { title: 'CoupleTube', wide: true, xl: true, render: (el) => import('./tube.js').then((m) => m.renderTube(el)) },
-  shop: { title: 'Магазин', wide: true, render: (el) => import('./shop.js').then((m) => m.renderShop(el)) },
+  shop: { title: 'Магазин', wide: true, render: (el, o) => import('./shop.js').then((m) => m.renderShop(el, o)) },
   quiz: { title: 'Тесты', wide: true, render: renderQuiz },
-  games: { title: 'Игры', wide: true, render: renderGames },
+  games: { title: 'Игры', wide: true, render: (el, o) => renderGames(el, o) },
   profile: { title: 'Профиль', wide: true, render: (el) => import('./profile.js').then((m) => m.renderProfile(el)) },
   gallery: { title: 'Галерея', wide: true, render: (el) => import('./gallery.js').then((m) => m.renderGallery(el)) },
   plans: { title: 'Наши планы', wide: true, render: (el) => import('./plans.js').then((m) => m.renderPlans(el)) },
@@ -149,9 +149,10 @@ function wallPicker(btn) {
 }
 document.getElementById('wallBtn').onclick = (e) => wallPicker(e.currentTarget);
 
-function openApp(name) {
+async function openApp(name, opts) {
+  if (opts && isOpen(name)) await closeWin(name); // открыть на нужном месте (партия, вкладка) — заново
   const A = APPS[name], first = !isOpen(name);
-  openWin(name, { title: A.title, color: TONE[name], icon: sticker(name), cls: `app-${name}` + (A.wide ? ' wide' : '') + (A.xl ? ' xl' : ''), size: A.xl ? [1180, 720] : A.wide ? [940, 640] : A.size || [440, 520], render: A.render });
+  openWin(name, { title: A.title, color: TONE[name], icon: sticker(name), cls: `app-${name}` + (A.wide ? ' wide' : '') + (A.xl ? ' xl' : ''), size: A.xl ? [1180, 720] : A.wide ? [940, 640] : A.size || [440, 520], render: (el) => A.render(el, opts || {}) });
   if (first) bounce(name);
 }
 
@@ -211,7 +212,7 @@ function clock() {
   document.getElementById('mClock').textContent = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 }
 
-export function openDesktop(app, done) {
+export function openDesktop(app, done, opts) {
   onClose = done;
   quizBadge(); gamesBadge();
   if (!drawn) { drawn = true; dress(); }
@@ -227,7 +228,7 @@ export function openDesktop(app, done) {
   }
   const neko = document.getElementById('oneko');
   if (neko) neko.style.display = '';
-  if (app) openApp(app);
+  if (app) openApp(app, opts);
 }
 
 function closeDesktop() {
