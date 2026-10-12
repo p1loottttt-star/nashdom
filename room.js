@@ -522,10 +522,6 @@ clickables.push(heart);
     }
   });
 }
-// корзинка для красоты
-B.add(Geo.lathe([[0, 0], [0.14, 0], [0.17, 0.26], [0.155, 0.26], [0.128, 0.015], [0, 0.015]], 28), '#d9a86b', { p: [1.5, 0, -0.6], ow: 1 });
-B.add(new THREE.TorusGeometry(0.165, 0.014, 8, 32).rotateX(Math.PI / 2), '#c48f55', { p: [1.5, 0.26, -0.6], ow: 0.7 });
-for (let k = 0; k < 3; k++) B.add(new THREE.TorusGeometry(0.15 + k * 0.007, 0.006, 6, 32).rotateX(Math.PI / 2), '#c48f55', { p: [1.5, 0.07 + k * 0.07, -0.6], ow: 0 });
 
 // ---------- на столе ----------
 // лампа
@@ -637,7 +633,7 @@ clickables.push(laptop);
 scene.add(blobs([
   [-0.72, TOP + 0.001, -1.68, 0.13, 0.11, 0.6], [-0.08, TOP + 0.001, -1.58, 0.36, 0.25, 0.45], [MUG.x, TOP + 0.001, MUG.z, 0.075, 0.07, 0.6],
   [0.75, TOP + 0.001, -1.75, 0.1, 0.09, 0.6], [TRAY.x, TOP + 0.001, TRAY.z, 0.17, 0.2, 0.45],
-  [1.75, 0.002, -1.55, 0.32, 0.32, 0.65], [-1.95, 0.002, -0.75, 0.55, 0.55, 0.55], [1.5, 0.002, -0.6, 0.22, 0.22, 0.6],
+  [1.75, 0.002, -1.55, 0.32, 0.32, 0.65], [-1.95, 0.002, -0.75, 0.55, 0.55, 0.55],
 ]));
 const glowMesh = halos(glowSpots, uT, uLights); scene.add(glowMesh);
 B.finish();
@@ -1355,7 +1351,7 @@ async function toTrash(p, hit, info, float = 'мимо') {
 }
 
 // ---------- бросок в мусорку: камера к корзине, стрелка направления качается, шкала силы бегает; пробел/клик/тап фиксирует ----------
-const BINVIEW = { pos: V(0.45, 1.75, 1.0), look: V(1.0, 0.05, -1.05) }; // левее декоративной корзинки в углу — на линии броска только мусорка
+const BINVIEW = { pos: V(0.45, 1.75, 1.0), look: V(1.0, 0.05, -1.05) };
 const RIM = BIN.h + R * 0.85, BIN_TOL = BIN.r - R * 0.85 * 0.6; // как в binStep: центр комка над краем, «чисто в корзину»
 const arrowShape = (m) => { // стрелка вдоль +y (после поворота — вдоль −z); m — запас под обводку
   const s = new THREE.Shape(), w = 0.026 + m, hw = 0.085 + m * 1.6, y0 = 0.3 - m, y1 = 0.92, y2 = 1.18 + m * 1.8;
@@ -1367,7 +1363,7 @@ const binArrow = new THREE.Group(); binArrow.visible = false; scene.add(binArrow
   const mesh = new THREE.Mesh(arrowShape(m), new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.92, depthWrite: false }));
   mesh.position.y = y; mesh.renderOrder = 2 + i; mesh.userData.noAO = mesh.userData.noOutline = true; binArrow.add(mesh);
 });
-// цель на полу вокруг мусорки: пульсирует, пока целишься (декоративная корзинка в углу крупнее — путают)
+// цель на полу вокруг мусорки: пульсирует, пока целишься
 const binMark = new THREE.Mesh(new THREE.RingGeometry(BIN.r + 0.03, BIN.r + 0.06, 40).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#ff8fab', transparent: true, opacity: 0.9, depthWrite: false }));
 binMark.position.set(BIN.x, 0.006, BIN.z); binMark.visible = false; binMark.userData.noAO = true; scene.add(binMark);
 // призрак прошлого броска — чтобы следующий был осознанным

@@ -116,7 +116,6 @@ export function createNav({ TOP, SILL, deskObstacles = () => [], floorObstacles 
       rect(-1.57, -1.23, -1.85, -1.55),   // когтеточка
       circle(-1.95, -0.75, 0.5),          // кресло-мешок
       circle(1.75, -1.55, 0.22),          // большое растение
-      circle(1.5, -0.6, 0.18),            // корзинка
     ] }),
     sill: new Grid({ x0: -1.78, x1: -1.14, z0: -1.915, z1: -1.915, y: SILL, cell: 0.02, blocked: [] }),
     bag: new Grid({ x0: -1.84, x1: -1.84, z0: -0.68, z1: -0.68, y: 0.53, cell: 0.02, blocked: [] }),
